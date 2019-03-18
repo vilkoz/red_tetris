@@ -7,7 +7,7 @@ import { Provider } from 'react-redux'
 import {storeStateMiddleWare} from './middleware/storeStateMiddleWare'
 import reducer from './reducers'
 import App from './containers/app'
-import {alert} from './actions/alert'
+import {alert, ping} from './actions/alert'
 
 const initialState = {}
 
@@ -23,4 +23,4 @@ ReactDom.render((
   </Provider>
 ), document.getElementById('tetris'))
 
-store.dispatch(alert('Soon, will be here a fantastic Tetris ...'))
+store.dispatch(alert('KOSSOSoon, will be here a fantastic Tetris ...'))
