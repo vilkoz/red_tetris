@@ -13,9 +13,6 @@ const App = ({ message, sendPing }) => {
 	  )
 }
 
-App.sendPing = () => {}
-
-
 const mapStateToProps = (state, ownProps) => {
 	console.log('state:', state)
 	console.log('ownProps:', ownProps)

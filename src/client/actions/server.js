@@ -1,4 +1,4 @@
-export const ACTION_PING = 'ACTION_PING'
+export const ACTION_PING = 'server/ping'
 
 export const ping = () => {
   return {
