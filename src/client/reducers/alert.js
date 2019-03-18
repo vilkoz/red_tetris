@@ -7,6 +7,8 @@ const reducer = (state = {} , action) => {
       return { message: action.message }
 	case ACTION_PING:
 	  return { message: action.message }
+	case 'client/pong':
+	  return { message: action.message }
     default: 
       return state
   }

@@ -1,7 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { ReactReduxContext } from 'react-redux'
-import ping from '../actions/server'
 
 const App = ({ message, sendPing }) => {
 	  return (
