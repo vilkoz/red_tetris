@@ -12,7 +12,7 @@ import { alert, ping } from './actions/alert'
 
 import createSocketIoMiddleWare from 'redux-socket.io'
 import io from 'socket.io-client'
-const socket = io('172.17.0.2:3004')
+const socket = io(':3004')
 const socketIoMiddleware = createSocketIoMiddleWare(socket, 'server/')
 
 const initialState = {}
