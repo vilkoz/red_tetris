@@ -1,6 +1,8 @@
 import fs from 'fs'
 import debug from 'debug'
 
+const http = require('http');
+const socketIo = require('socket.io');
 const path = require('path');
 const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
 
@@ -27,12 +29,66 @@ const initApp = (app, params, cb) => {
   })
 }
 
+class GameManager {
+  constructor() {
+    this.games = {};
+  }
+
+  createGame(roomName, playerName) {
+    let game = this.games[roomName]
+    if (typeof game !== 'undefined') {
+      throw Error(`Game with name ${roomName} already exists!`)
+    }
+    game = {
+      players: [playerName],
+      fields: {},
+    }
+    game['roomName'] = roomName
+    game.fields[playerName] = this.createField()
+    this.games[roomName] = game
+    return game
+  }
+
+  connectGame(roomName, playerName) {
+    const game = this.games[name]
+    if (typeof game === 'undefined') {
+      return this.createGame(roomName, playerName)
+    }
+    game.players.push(name)
+    game.fields[name] = this.createField()
+    return game
+  }
+
+  createField() {
+    const fieldHeight = 20
+    const fieldWidth = 10
+    const arr = new Array(fieldHeight)
+    for (let i = 0; i < fieldHeight; i = i + 1) {
+      arr[i] = Array(fieldWidth)
+    }
+    return arr
+  }
+}
+
+const gameManager = new GameManager()
+
 const initEngine = io => {
-  io.on('connection', function(socket){
-    loginfo("Socket connected: " + socket.id)
+  io.on('connection', (socket) => {
+    loginfo(`Socket connected: ${socket.id}`)
     socket.on('action', (action) => {
       if (action.type === 'server/ping') {
         socket.emit('action', { type: 'client/pong', message: 'kos tochno pidar' })
+      }
+      else if (action.type === 'server/create_game') {
+        try {
+          loginfo(action)
+          const game = gameManager.createGame(action.roomName, action.playerName)
+          socket.emit('action', { type: 'client/create_game', message: 'game crated', field: game.fields[action.playerName], game: game })
+        }
+        catch (e) {
+          console.log(e)
+          socket.emit('action', { type: 'client/create_game', message: e.message })
+        }
       }
     })
   })
@@ -40,9 +96,9 @@ const initEngine = io => {
 
 export function create(params) {
   const promise = new Promise((resolve, reject) => {
-    const app = require('http').createServer()
+    const app = http.createServer()
     initApp(app, params, () => {
-      const io = require('socket.io')(app)
+      const io = socketIo(app)
       const stop = (cb) => {
         io.close()
         app.close(() => {
