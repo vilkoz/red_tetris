@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const App = ({ message, playerName, roomName, field, sendPing, updateRoomName, updatePlayerName, createGame }) => {
+const App = ({ message, playerName, roomName, field, figure, sendPing, updateRoomName, updatePlayerName, createGame, getFigure }) => {
   return (
     <div>
       <h1>Kos pidoras</h1>
@@ -29,11 +29,25 @@ const App = ({ message, playerName, roomName, field, sendPing, updateRoomName, u
       <button onClick={() => createGame(roomName, playerName)}>Create/Connect Game</button>
       { field ? (
       <div>
-        {field.map((line) => {
+        {((field, figure) => {
+          if (!figure)
+            return field
+          return field.map((line, y) => {
+            return line.map((el, x) => {
+              if (x >= figure.x && x - figure.x < figure.figure[0].length &&
+                  y >= figure.y && y - figure.y < figure.figure.length) {
+                return figure.figure[y - figure.y][x - figure.x]
+              }
+              return el
+            })
+          })
+        })(field, figure).map((line) => {
           const a = line.map((el) => (<div className={css(styles.fieldElem)}>{el}</div>))
           a.push(<br/>)
           return a
-        })}
+        })
+        }
+        <button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>
       </div>
       ) : <div></div>
       }
@@ -49,6 +63,7 @@ const mapStateToProps = (state, ownProps) => {
     roomName: state.roomName,
     playerName: state.playerName,
     field: state.field,
+    figure: state.figure,
   }
 }
 const mapDispatchToProps = (dispatch, ownProps) => {
@@ -70,6 +85,14 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       console.log('roomName:', roomName, 'playerName:', playerName)
       dispatch({
         type: 'server/create_game',
+        'roomName': roomName,
+        'playerName': playerName,
+      })
+    },
+    getFigure: (roomName, playerName) => {
+      console.log('roomName:', roomName, 'playerName:', playerName)
+      dispatch({
+        type: 'server/get_figure',
         'roomName': roomName,
         'playerName': playerName,
       })

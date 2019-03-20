@@ -41,6 +41,7 @@ class GameManager {
     let game = this.games[roomName]
     game = {
       fields: {},
+      figures: {},
     }
     game['roomName'] = roomName
     game.fields[playerName] = this.createField()
@@ -74,6 +75,49 @@ class GameManager {
     }
     return arr
   }
+
+  getFigure(roomName, playerName) {
+    if (!(roomName in this.games)) {
+      throw Error(`Game with name ${roomName} doesn't exist!`)
+    }
+    if (!(playerName in this.games[roomName].fields)) {
+      throw Error(`Player with name ${playerName} is not connected to the game ${roomName}`)
+    }
+    const figures = [
+      [
+        [1, 1, 1, 1],
+      ],
+      [
+        [1, 1],
+        [1, 0],
+        [1, 0],
+      ],
+      [
+        [1, 1],
+        [0, 1],
+        [0, 1],
+      ],
+      [
+        [1, 1],
+        [1, 1],
+      ],
+      [
+        [0, 1, 1],
+        [1, 1, 0],
+      ],
+      [
+        [1, 1, 0],
+        [0, 1, 1],
+      ],
+      [
+        [1, 1, 1],
+        [0, 1, 0],
+      ],
+    ]
+    const playerFigure = figures[Math.floor(Math.random() * figures.length)]
+    this.games[roomName].figures[playerName] = playerFigure
+    return playerFigure
+  }
 }
 
 const gameManager = new GameManager()
@@ -96,6 +140,20 @@ const initEngine = io => {
         catch (e) {
           console.log(e)
           socket.emit('action', { type: 'client/create_game', message: e.message })
+        }
+      }
+      else if (action.type === 'server/get_figure') {
+        try {
+          loginfo(action)
+          const figure = gameManager.getFigure(action.roomName, action.playerName)
+          socket.emit('action', { type: 'client/get_figure',
+            message: 'Success',
+            figure,
+          })
+        }
+        catch (e) {
+          console.log(e)
+          socket.emit('action', { type: 'client/get_figure', message: e.message })
         }
       }
     })
