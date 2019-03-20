@@ -7,9 +7,10 @@ docker-build:
 	docker build -t $(BASE_CONTAINER_NAME) .
 
 docker-run:
-	docker run -d -it --name=$(RUN_CONTAINER_NAME) -v $(shell pwd):/root/red_tetris $(BASE_CONTAINER_NAME):latest bash ./start.sh
+	docker run -p 8080:8080 -p 3004:3004 -d -it --name=$(RUN_CONTAINER_NAME) -v $(shell pwd):/root/red_tetris $(BASE_CONTAINER_NAME):latest bash ./start.sh
 
 clean:
+	docker stop $(RUN_CONTAINER_NAME)
 	docker rm $(RUN_CONTAINER_NAME)
 
 connect:
