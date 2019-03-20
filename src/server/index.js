@@ -67,6 +67,11 @@ class GameManager {
     for (let i = 0; i < fieldHeight; i = i + 1) {
       arr[i] = Array(fieldWidth)
     }
+    for (let i = 0; i < fieldHeight; i = i + 1) {
+      for (let j = 0; j < fieldWidth; j = j + 1) {
+        arr[i][j] = 0
+      }
+    }
     return arr
   }
 }

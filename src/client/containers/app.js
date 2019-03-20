@@ -1,24 +1,42 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { StyleSheet, css } from 'aphrodite'
 
-const App = ({ message, sendPing, playerName, roomName, updateRoomName, updatePlayerName, createGame }) => {
+const styles = StyleSheet.create({
+  fieldElem: {
+    display: 'inline-block',
+    fontFamily: 'monospaced',
+  },
+})
+
+const App = ({ message, playerName, roomName, field, sendPing, updateRoomName, updatePlayerName, createGame }) => {
   return (
     <div>
-    <h1>Kos pidoras</h1>
-    <button onClick={sendPing}>PUP</button>
-    <span>{message}</span>
-    <br/>
-    <span>{playerName}</span>
-    <span>&nbsp;</span>
-    <span>{roomName}</span>
-    <br/>
-    <label htmlFor="#roomName">Game name: </label>
-    <input id="roomName" type='text' onChange={updateRoomName}/>
-    <br/>
-    <label htmlFor="#playerName">Player name: </label>
-    <input id="playerName"type='text' onChange={updatePlayerName}/>
-    <br/>
-    <button onClick={() => createGame(roomName, playerName)}>Create/Connect Game</button>
+      <h1>Kos pidoras</h1>
+      <button onClick={sendPing}>PUP</button>
+      <span>{message}</span>
+      <br/>
+      <span>{playerName}</span>
+      <span>&nbsp;</span>
+      <span>{roomName}</span>
+      <br/>
+      <label htmlFor="#roomName">Game name: </label>
+      <input id="roomName" type='text' onChange={updateRoomName}/>
+      <br/>
+      <label htmlFor="#playerName">Player name: </label>
+      <input id="playerName"type='text' onChange={updatePlayerName}/>
+      <br/>
+      <button onClick={() => createGame(roomName, playerName)}>Create/Connect Game</button>
+      { field ? (
+      <div>
+        {field.map((line) => {
+          const a = line.map((el) => (<div className={css(styles.fieldElem)}>{el}</div>))
+          a.push(<br/>)
+          return a
+        })}
+      </div>
+      ) : <div></div>
+      }
     </div>
   )
 }
@@ -30,6 +48,7 @@ const mapStateToProps = (state, ownProps) => {
     message: state.message,
     roomName: state.roomName,
     playerName: state.playerName,
+    field: state.field,
   }
 }
 const mapDispatchToProps = (dispatch, ownProps) => {
