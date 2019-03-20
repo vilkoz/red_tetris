@@ -35,12 +35,11 @@ class GameManager {
   }
 
   createGame(roomName, playerName) {
-    let game = this.games[roomName]
-    if (typeof game !== 'undefined') {
+    if (roomName in this.games) {
       throw Error(`Game with name ${roomName} already exists!`)
     }
+    let game = this.games[roomName]
     game = {
-      players: [playerName],
       fields: {},
     }
     game['roomName'] = roomName
@@ -50,12 +49,14 @@ class GameManager {
   }
 
   connectGame(roomName, playerName) {
-    const game = this.games[name]
-    if (typeof game === 'undefined') {
+    if (!(roomName in this.games)) {
       return this.createGame(roomName, playerName)
     }
-    game.players.push(name)
-    game.fields[name] = this.createField()
+    const game = this.games[roomName]
+    if (playerName in game.fields) {
+      throw Error(`Player with name ${playerName} already connected to the room ${roomName}!`)
+    }
+    game.fields[playerName] = this.createField()
     return game
   }
 
@@ -82,8 +83,10 @@ const initEngine = io => {
       else if (action.type === 'server/create_game') {
         try {
           loginfo(action)
-          const game = gameManager.createGame(action.roomName, action.playerName)
-          socket.emit('action', { type: 'client/create_game', message: 'game crated', field: game.fields[action.playerName], game: game })
+          const game = gameManager.connectGame(action.roomName, action.playerName)
+          socket.emit('action', { type: 'client/create_game',
+            message: `game crated, to connect redirect to: http://host:port/#${action.roomName}${action.playerName}`,
+            field: game.fields[action.playerName], game: game })
         }
         catch (e) {
           console.log(e)

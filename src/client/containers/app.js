@@ -1,18 +1,24 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-const App = ({ message, sendPing, playerName, roomName, updateGameName, updatePlayerName, createGame }) => {
+const App = ({ message, sendPing, playerName, roomName, updateRoomName, updatePlayerName, createGame }) => {
   return (
     <div>
     <h1>Kos pidoras</h1>
     <button onClick={sendPing}>PUP</button>
     <span>{message}</span>
     <br/>
-    <input type='text' onChange={updateGameName}/>
+    <span>{playerName}</span>
+    <span>&nbsp;</span>
+    <span>{roomName}</span>
     <br/>
-    <input type='text' onChange={updatePlayerName}/>
+    <label htmlFor="#roomName">Game name: </label>
+    <input id="roomName" type='text' onChange={updateRoomName}/>
     <br/>
-    <button onClick={() => createGame(roomName, playerName)}>Create Game</button>
+    <label htmlFor="#playerName">Player name: </label>
+    <input id="playerName"type='text' onChange={updatePlayerName}/>
+    <br/>
+    <button onClick={() => createGame(roomName, playerName)}>Create/Connect Game</button>
     </div>
   )
 }
@@ -31,7 +37,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   console.log('ownProps:', ownProps)
   return {
     sendPing: () => dispatch({ type: 'server/ping', message: 'test' }),
-    updateGameName: (e) => {
+    updateRoomName: (e) => {
       const roomName = e.target.value
       console.log(roomName)
       dispatch({ type: 'SAVE_GAME_NAME', roomName })
