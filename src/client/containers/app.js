@@ -9,7 +9,10 @@ const styles = StyleSheet.create({
   },
 })
 
-const App = ({ message, playerName, roomName, field, figure, sendPing, updateRoomName, updatePlayerName, createGame, getFigure }) => {
+const App = ({
+  message, playerName, roomName, field, figure, moveFigure, setFigure,
+  sendPing, updateRoomName, updatePlayerName, createGame, getFigure
+}) => {
   return (
     <div>
       <h1>Kos pidoras</h1>
@@ -48,9 +51,17 @@ const App = ({ message, playerName, roomName, field, figure, sendPing, updateRoo
         })
         }
         <button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>
+        <br/>
+        <button onClick={() => moveFigure('LEFT')}>&lt;</button>
+        <button onClick={() => moveFigure('RIGHT')}>&gt;</button>
+        <button onClick={() => moveFigure('DOWN')}>V</button>
+        <button onClick={() => moveFigure('ROTATE')}>rot</button>
+        <br/>
+        <button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>
       </div>
       ) : <div></div>
       }
+      <div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>
     </div>
   )
 }
@@ -69,6 +80,20 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   console.log('dispatch:', dispatch)
   console.log('ownProps:', ownProps)
+
+  const moveFigure = (dir) => {
+    const directions = {
+      'LEFT': 1,
+      'RIGHT': 1,
+      'DOWN': 1,
+      'ROTATE': 1,
+    }
+    if (!(dir in directions)) {
+      throw Error(`Direction ${dir} is not allowed in moveFigure!`)
+    }
+    dispatch({ type: `GAME_MOVE_FIGURE_${dir}` });
+  }
+
   return {
     sendPing: () => dispatch({ type: 'server/ping', message: 'test' }),
     updateRoomName: (e) => {
@@ -97,6 +122,22 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         'playerName': playerName,
       })
     },
+    moveFigure: moveFigure,
+    setFigure: (roomName, playerName, figure) => {
+      console.log('setFigure')
+      dispatch({
+        type: 'server/set_figure',
+        'roomName': roomName,
+        'playerName': playerName,
+        'figure': figure,
+      })
+      console.log('getFigure')
+      dispatch({
+        type: 'server/get_figure',
+        'roomName': roomName,
+        'playerName': playerName,
+      })
+    }
   }
 }
 
