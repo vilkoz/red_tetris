@@ -5,6 +5,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
 const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
+const _ = require('lodash')
 
 const initApp = (app, params, cb) => {
   const { host, port } = params
@@ -118,6 +119,60 @@ class GameManager {
     this.games[roomName].figures[playerName] = playerFigure
     return playerFigure
   }
+
+  rotateFigure(figure) {
+    const h = figure.length
+    const w = figure[0].length
+    const res = new Array(w)
+
+    for (let i = 0; i < w; i = i + 1) {
+      res[i] = new Array(h)
+      for (let j = 0; j < h; j = j + 1) {
+        res[i][h - j - 1] = figure[j][i]
+      }
+    }
+    return res
+  }
+
+  setFigure(roomName, playerName, figure) {
+    if (!(roomName in this.games)) {
+      throw Error(`Game with name ${roomName} doesn't exist!`)
+    }
+    if (!(playerName in this.games[roomName].fields)) {
+      throw Error(`Player with name ${playerName} is not connected to the game ${roomName}`)
+    }
+    let rotatedFigure = this.games[roomName].figures[playerName]
+
+    for (let i = 0; i < figure.rotations; i = i + 1) {
+      rotatedFigure = this.rotateFigure(rotatedFigure)
+    }
+    loginfo('rotatedFigure', rotatedFigure)
+
+    const h = rotatedFigure.length;
+    const w = rotatedFigure[0].length;
+    let field = this.games[roomName].fields[playerName]
+    if (figure.x < 0 || figure.x + w - 1 >= field[0].length ||
+        figure.y < 0 || figure.y + h - 1 >= field.length) {
+      throw Error(`Wrong figure location: ${figure.x} ${figure.y}`);
+    }
+    field = field.map((line, y) =>
+      line.map((el, x) => {
+        if (y >= figure.y && y < figure.y + rotatedFigure.length &&
+            x >= figure.x && x < figure.x + rotatedFigure[0].length) {
+          const figurePiece = rotatedFigure[y - figure.y][x - figure.x]
+          if (figurePiece === 1 && el === 1) {
+            throw Error(`Figure intersects with existing piece on field coords: ${x} ${y}`);
+          }
+          return figurePiece
+        }
+        return el
+      })
+    )
+    delete this.games[roomName].figures[playerName]
+    this.games[roomName].fields[playerName] = field
+    loginfo('field', field)
+    return field
+  }
 }
 
 const gameManager = new GameManager()
@@ -139,7 +194,7 @@ const initEngine = io => {
         }
         catch (e) {
           console.log(e)
-          socket.emit('action', { type: 'client/create_game', message: e.message })
+          socket.emit('action', { type: 'client/error', message: e.message })
         }
       }
       else if (action.type === 'server/get_figure') {
@@ -153,7 +208,21 @@ const initEngine = io => {
         }
         catch (e) {
           console.log(e)
-          socket.emit('action', { type: 'client/get_figure', message: e.message })
+          socket.emit('action', { type: 'client/error', message: e.message })
+        }
+      }
+      else if (action.type === 'server/set_figure') {
+        try {
+          loginfo(action)
+          const field = gameManager.setFigure(action.roomName, action.playerName, action.figure)
+          socket.emit('action', { type: 'client/set_figure',
+            message: 'Success',
+            field,
+          })
+        }
+        catch (e) {
+          console.log(e)
+          socket.emit('action', { type: 'client/error', message: e.message })
         }
       }
     })
