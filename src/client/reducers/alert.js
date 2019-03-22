@@ -31,6 +31,11 @@ const reducer = (state = {}, action) => {
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
     return { ...state, message: action.message, field: action.field }
+  case 'client/new_player':
+    console.log('NEW PLAYER!!!')
+    const players = { ...state.players }
+    players[action.playerName] = action.spectre
+    return { ...state, players: { ...players } }
   case 'SAVE_GAME_NAME':
     return { ...state, roomName: action.roomName }
   case 'SAVE_PLAYER_NAME':
