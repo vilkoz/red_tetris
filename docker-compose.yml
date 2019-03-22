@@ -1,0 +1,23 @@
+version: '3'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server.Dockerfile
+    ports:
+      - "3004:3004"
+    volumes:
+      - .:/app
+  client:
+    build:
+      context: .
+      dockerfile: ./client.Dockerfile
+    environment:
+      - APP_SERVER_URL=server:3004
+      - APP_CLIENT_PORT=8080
+    depends_on:
+      - server
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app

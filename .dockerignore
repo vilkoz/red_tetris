@@ -1,0 +1,12 @@
+.git
+.gitignore
+
+build
+
+Dockerfile
+Makefile
+docker-compose.yml
+
+node_modules
+.nyc_output
+coverage

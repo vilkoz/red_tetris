@@ -4,3 +4,8 @@
 log
 tmp
 node_modules
+.nyc_output
+coverage
+build
+
+package-lock.json

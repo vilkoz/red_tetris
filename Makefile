@@ -3,6 +3,9 @@ RUN_CONTAINER_NAME=make_run_docker_nodejs
 
 all: docker-build docker-run
 
+compose:
+  docker-compose up --build
+
 docker-build:
 	docker build -t $(BASE_CONTAINER_NAME) .
 
@@ -19,5 +22,4 @@ clean:
 connect:
 	docker exec -it $(RUN_CONTAINER_NAME) fish
 
-.PHONY: docker-build docker-run clean
-
+.PHONY: docker-build docker-run clean compose connect start
