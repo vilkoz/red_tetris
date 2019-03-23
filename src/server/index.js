@@ -8,6 +8,8 @@ const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
 const _ = require('lodash')
 const GameManager = require('./GameManager.js')
 
+const actions = require('./actions.js')
+
 const initApp = (app, params, cb) => {
   const { host, port } = params
   const handler = (req, res) => {
@@ -33,13 +35,13 @@ const initApp = (app, params, cb) => {
 
 const gameManager = new GameManager()
 
-const actionWrapper = (action, socket, cb) => {
+const actionWrapper = (args, cb) => {
   try {
-    return cb(action, socket)
+    return cb(args)
   }
   catch (e) {
     console.log(e)
-    socket.emit('action', { type: 'client/error', message: e.message })
+    args.socket.emit('action', { type: 'client/error', message: e.message })
   }
 }
 
@@ -49,58 +51,16 @@ const initEngine = io => {
     socket.on('action', (action) => {
       loginfo(action)
       if (action.type === 'server/ping') {
-        socket.emit('action', { type: 'client/pong', message: 'kos tochno pidar' })
+        socket.emit('action', { type: 'client/pong', message: 'pong' })
       }
-      else if (action.type === 'server/create_game') {
-        actionWrapper(action, socket, (action, socket) => {
-          const { roomName, playerName } = action
-          if (gameManager.isGameExists(roomName)) {
-            const game = gameManager.connectGame(roomName, playerName, socket)
-            socket.emit('action', { type: 'client/create_game',
-              message: `You are connected to the game now, to connect redirect to: \
-               http://host:port/#${action.roomName}${action.playerName}`,
-              field: game.fields[action.playerName] })
-            for (const player in game.sockets) {
-              const id = game.sockets[player]
-              loginfo('id:',id)
-              loginfo(io.of('/').connected)
-              const s = io.of('/').connected[id]
-              s.emit('action', { type: 'client/new_player',
-                message: `Player ${playerName} connected`,
-                name: playerName,
-                spectre: gameManager.getSpectre(roomName, playerName),
-              })
-            }
-          }
-          else {
-            const game = gameManager.createGame(roomName, playerName, socket)
-            socket.emit('action', { type: 'client/create_game',
-              message: `game crated, to connect redirect to: \
-               http://host:port/#${action.roomName}${action.playerName}`,
-              field: game.fields[action.playerName] })
-          }
-
-        })
+      else if (action.type === actions.ACTION_SERVER_CREATE_GAME) {
+        actionWrapper({ action, socket, gameManager, io }, actions.createGameAction)
       }
-      else if (action.type === 'server/get_figure') {
-        actionWrapper(action, socket, (action, socket) => {
-          const figure = gameManager.getFigure(action.roomName, action.playerName)
-          socket.emit('action', { type: 'client/get_figure',
-            message: 'Success',
-            figure,
-          })
-        })
+      else if (action.type === actions.ACTION_SERVER_GET_FIGURE) {
+        actionWrapper({ action, socket, gameManager }, actions.getFigureAction)
       }
-      else if (action.type === 'server/set_figure') {
-        actionWrapper(action, socket, (action, socket) => {
-          const field = gameManager.setFigure(action.roomName, action.playerName, action.figure)
-          socket.emit('action', { type: 'client/set_figure',
-            message: 'Success',
-            field,
-          })
-          console.log(e)
-          socket.emit('action', { type: 'client/error', message: e.message })
-        })
+      else if (action.type === actions.ACTION_SERVER_SET_FIGURE) {
+        actionWrapper(action, socket, actions.setFigureAction)
       }
     })
   })
