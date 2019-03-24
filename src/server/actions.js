@@ -13,8 +13,8 @@ class ActionManager {
     this.io = io
     this.actionMap = {
       [SERVER_CREATE_GAME]: this.createGame,
-      [SERVER_GET_FIGURE]: this.getFigureAction,
-      [SERVER_SET_FIGURE]: this.setFigureAction,
+      [SERVER_GET_FIGURE]: this.getFigure,
+      [SERVER_SET_FIGURE]: this.setFigure,
     }
   }
 
@@ -43,25 +43,27 @@ class ActionManager {
         field: game.fields[action.playerName] })
       for (const player in game.sockets) {
         const id = game.sockets[player]
-        loginfo(this.io.of('/').connected)
-        const s = this.io.of('/').connected[id]
-        s.emit('action', { type: 'client/new_player',
-          message: `Player ${playerName} connected`,
-          name: playerName,
-          spectre: this.gameManager.getSpectre(roomName, playerName),
-        })
+        if (id !== socket.id) {
+          loginfo(this.io.of('/').connected)
+          const s = this.io.of('/').connected[id]
+          s.emit('action', { type: 'client/new_player',
+            message: `Player ${playerName} connected`,
+            name: playerName,
+            spectre: this.gameManager.getSpectre(roomName, playerName),
+          })
+        }
       }
     }
     else {
       const game = this.gameManager.createGame(roomName, playerName, socket)
       socket.emit('action', { type: 'client/create_game',
         message: `game crated, to connect redirect to: \
-                 http://host:port/#${action.roomName}${action.playerName}`,
-        field: game.fields[action.playerName] })
+                 http://host:port/#${roomName}${playerName}`,
+        field: game.fields[playerName] })
     }
   }
 
-  getFigureAction = ({ action, socket }) => {
+  getFigure = ({ action, socket }) => {
     const figure = this.gameManager.getFigure(action.roomName, action.playerName)
     socket.emit('action', { type: 'client/get_figure',
       message: 'Success',
@@ -69,7 +71,7 @@ class ActionManager {
     })
   }
 
-  setFigureAction = ({ action, socket }) => {
+  setFigure = ({ action, socket }) => {
     const field = this.gameManager.setFigure(action.roomName, action.playerName, action.figure)
     socket.emit('action', { type: 'client/set_figure',
       message: 'Success',
