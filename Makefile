@@ -4,7 +4,7 @@ RUN_CONTAINER_NAME=make_run_docker_nodejs
 all: docker-build docker-run
 
 compose:
-  docker-compose up --build
+	docker-compose up --build
 
 docker-build:
 	docker build -t $(BASE_CONTAINER_NAME) .
