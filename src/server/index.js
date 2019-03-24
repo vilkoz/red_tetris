@@ -34,18 +34,10 @@ const initApp = (app, params, cb) => {
 }
 
 const gameManager = new GameManager()
-
-const actionWrapper = (args, cb) => {
-  try {
-    return cb(args)
-  }
-  catch (e) {
-    console.log(e)
-    args.socket.emit('action', { type: 'client/error', message: e.message })
-  }
-}
+const actionManager = new actions.ActionManager(gameManager)
 
 const initEngine = io => {
+  actionManager.io = io
   io.on('connection', (socket) => {
     loginfo(`Socket connected: ${socket.id}`)
     socket.on('action', (action) => {
@@ -53,14 +45,8 @@ const initEngine = io => {
       if (action.type === 'server/ping') {
         socket.emit('action', { type: 'client/pong', message: 'pong' })
       }
-      else if (action.type === actions.ACTION_SERVER_CREATE_GAME) {
-        actionWrapper({ action, socket, gameManager, io }, actions.createGameAction)
-      }
-      else if (action.type === actions.ACTION_SERVER_GET_FIGURE) {
-        actionWrapper({ action, socket, gameManager }, actions.getFigureAction)
-      }
-      else if (action.type === actions.ACTION_SERVER_SET_FIGURE) {
-        actionWrapper(action, socket, actions.setFigureAction)
+      else {
+        actionManager.dispatch(action, socket)
       }
     })
   })
