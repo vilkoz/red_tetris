@@ -4,6 +4,7 @@ import createLogger from 'redux-logger'
 import thunk from 'redux-thunk'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
+import { HashRouter } from 'react-router-dom'
 
 import { storeStateMiddleWare } from './middleware/storeStateMiddleWare'
 import reducer from './reducers'
@@ -25,12 +26,13 @@ const store = applyMiddleware(socketIoMiddleware)(createStore)(
 
 
 ReactDom.render((
+  <HashRouter hashType="noslash">
   <Provider store={store}>
     <App/>
   </Provider>
+  </HashRouter>
 ), document.getElementById('tetris'))
 
 store.subscribe(() => {
 	console.log('new client state', store.getState());
 })
-store.dispatch(alert('KOSSOSoon, will be here a fantastic Tetris ...'))

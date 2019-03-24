@@ -10,7 +10,7 @@ const reducer = (state = {}, action) => {
   case 'client/pong':
     return { ...state, message: action.message }
   case 'client/create_game':
-    return { ...state, message: action.message, field: action.field }
+    return { ...state, message: action.message, field: action.field, gameUrl: `${state.roomName}${state.playerName}` }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'SAVE_GAME_NAME':
