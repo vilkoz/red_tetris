@@ -1,9 +1,12 @@
 import debug from 'debug'
 const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
+import _ from 'lodash'
 
 class GameManager {
   constructor() {
     this.games = {};
+    this.fieldWidth = 10
+    this.fieldHeight = 20
   }
 
   isGameExists(roomName) {
@@ -50,8 +53,6 @@ class GameManager {
     const arr = new Array(fieldHeight)
     for (let i = 0; i < fieldHeight; i = i + 1) {
       arr[i] = Array(fieldWidth)
-    }
-    for (let i = 0; i < fieldHeight; i = i + 1) {
       for (let j = 0; j < fieldWidth; j = j + 1) {
         arr[i][j] = 0
       }
@@ -123,6 +124,9 @@ class GameManager {
     if (!(playerName in this.games[roomName].fields)) {
       throw Error(`Player with name ${playerName} is not connected to the game ${roomName}`)
     }
+    if (!(playerName in this.games[roomName].figures)) {
+      throw Error(`Player with name ${playerName} doesn't have any figures to place!`)
+    }
     let rotatedFigure = this.games[roomName].figures[playerName]
 
     for (let i = 0; i < figure.rotations; i = i + 1) {
@@ -136,6 +140,9 @@ class GameManager {
     if (figure.x < 0 || figure.x + w - 1 >= field[0].length ||
         figure.y < 0 || figure.y + h - 1 >= field.length) {
       throw Error(`Wrong figure location: ${figure.x} ${figure.y}`);
+    }
+    if (!this.checkFigureIsNotFlying({ x: figure.x, y: figure.y, figure: rotatedFigure }, field)) {
+      throw Error(`Can't set figure in the air: ${figure.x} ${figure.y}`)
     }
     field = field.map((line, y) =>
       line.map((el, x) => {
@@ -154,6 +161,28 @@ class GameManager {
     this.games[roomName].fields[playerName] = field
     loginfo('field', field)
     return field
+  }
+
+  checkFigureIsNotFlying(figure, field) {
+    const collumns = _.zip.apply(_, figure.figure)
+    const coordsToCheck = collumns.map((collumn, collumnNum) => {
+      const maxY = collumn
+        .map((el, y) => (el === 1 ? y : -1))
+        .reduce((max, el) => (max < el) ? el : max)
+      return { x: collumnNum + figure.x, y: maxY + figure.y + 1 }
+    })
+    const isCollumnFlying = coordsToCheck.map((el) => {
+      const { x, y } = el
+      if (x >= field[0].length || y >= field.length) {
+        return false
+      }
+      if (field[y][x] === 1) {
+        return false
+      }
+      return true
+    })
+    const isFigureFlying = !_.some(isCollumnFlying, (el) => el === false)
+    return !isFigureFlying
   }
 
   getSpectre(roomName, playerName) {
