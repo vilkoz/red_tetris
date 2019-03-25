@@ -36,10 +36,12 @@ class GameManager {
       sockets: {},
       fields: {},
       figures: {},
+      scores: {},
     }
     game.roomName = roomName
     game.fields[playerName] = this.createField()
     game.sockets[playerName] = socket.id
+    game.scores[playerName] = 0
     this.games[roomName] = game
     return game
   }
@@ -201,6 +203,27 @@ class GameManager {
     })
     const isFigureFlying = !_.some(isCollumnFlying, (el) => el === false)
     return !isFigureFlying
+  }
+
+  checkRowBrake(field) {
+    const rowBraked = field.map((row) => row.every(v => v === 1))
+    const newField = field.map(row => row.map(e => e))
+
+    rowBraked.forEach((isBraked, y) => {
+      if (isBraked) {
+        for (let i = y; i > 0; i = i - 1) {
+          newField[i] = newField[i].map((unused, j) => newField[i - 1][j])
+        }
+      }
+    })
+
+    const emptyZone = (_.filter(rowBraked, (el) => el === true)).length
+    for (let i = 0; i < emptyZone; i = i + 1) {
+      newField[i] = newField[i].map(() => 0)
+    }
+
+    const arrayDiff = _.filter(rowBraked, (el) => el === true)
+    return { field: newField, score: arrayDiff.length }
   }
 
   getSpectre(roomName, playerName) {

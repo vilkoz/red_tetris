@@ -58,6 +58,7 @@ describe('GameManager.js', () => {
       fields: { 'playerName1': emptyField },
       figures: {},
       roomName: 'roomName1',
+      scores: { 'playerName1': 0 },
     }
     const game = gameManager.createGame('roomName1', 'playerName1', socket)
     chai.expect(game).to.deep.equal(expectedGame)
@@ -312,9 +313,31 @@ describe('GameManager.js', () => {
     chai.expect(users.playerName2).to.deep.equal(emptyField)
     done()
   })
+
   it('getUsers should throw on non-existing room', (done) => {
     chai.expect(() => gameManager.getUsers('non existing room')).to.throw(Error)
     done()
   })
 
+  it('checkRowBrake test', (done) => {
+    const inputField = [
+      [0, 1, 1, 0, 0],
+      [1, 0, 0, 1, 0],
+      [1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1],
+    ]
+    const expected = [
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 1, 1, 0, 0],
+      [1, 0, 0, 1, 0],
+      [0, 1, 1, 1, 0],
+    ]
+    const numRowsBraked = 2
+    const { field, score } = gameManager.checkRowBrake(inputField)
+    chai.expect(field).to.deep.equal(expected)
+    chai.expect(score).to.equal(numRowsBraked)
+    done()
+  })
 })
