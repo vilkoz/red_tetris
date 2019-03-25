@@ -132,26 +132,50 @@ describe('server/actions.js', () => {
 
   it('Dispatch SERVER_SET_FIGURE', (done) => {
     const fakeField = 'this is fake field'
-    actionManager = new actions.ActionManager({
-      getFigure: () => fakeField,
-      setFigure: () => fakeField,
-    }, io)
-
+    const fakeScore = 0
     const fakeSocket1Data = []
     const fakeSocket1 = {
       emit: (unused, args) => { fakeSocket1Data.push(args) },
       id: 1,
     }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+
+    actionManager = new actions.ActionManager({
+      getFigure: () => fakeField,
+      setFigure: () => ({ field: fakeField, score: fakeScore }),
+      isGameExists: () => true,
+      getConnectedSockets: () => ({ 'playerName1': fakeSocket1.id, 'playerName2': fakeSocket2.id }),
+      getSpectre: () => 'fakespectre',
+    }, fakeIo)
+
 
     actionManager.dispatch({
       type: SERVER_SET_FIGURE, roomName: 'roomName1', playerName: 'playerName1', figure: 'this is fake figure',
     }, fakeSocket1)
 
     const emmited = fakeSocket1Data[0]
+    const emmitedOthers = fakeSocket2Data[0]
 
     chai.expect(emmited.type).to.equal(CLIENT_SET_FIGURE)
     chai.expect(emmited).to.have.property('message')
     chai.expect(emmited.field).to.equal(fakeField)
+    chai.expect(emmited.score).to.equal(fakeScore)
+    chai.expect(emmitedOthers.type).to.equal(CLIENT_UPDATE_COMPETITOR_SPECTRE)
+    chai.expect(emmitedOthers).to.have.property('message')
+    chai.expect(emmitedOthers.name).to.equal('playerName2')
+    chai.expect(emmitedOthers.score).to.equal(fakeScore)
     done()
   })
 

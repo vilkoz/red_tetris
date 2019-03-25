@@ -169,14 +169,19 @@ class GameManager {
         return el
       })
     )
+    const brakeRes = this.checkRowBrake(field)
+    const scoredField = brakeRes.field
+    const score = brakeRes.score
 
     /* eslint-disable prefer-reflect */
     delete this.games[roomName].figures[playerName]
 
     /* eslint-enable prefer-reflect */
-    this.games[roomName].fields[playerName] = field
-    loginfo('field', field)
-    return field
+    this.games[roomName].fields[playerName] = scoredField
+    this.games[roomName].scores[playerName] = score
+    loginfo('field', scoredField)
+    loginfo('score', score)
+    return { field: scoredField, score }
   }
 
   checkFigureIsNotFlying(figure, field) {

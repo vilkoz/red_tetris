@@ -74,16 +74,18 @@ class ActionManager {
 
   setFigure = ({ action, socket }) => {
     const { roomName, playerName, figure } = action
-    const field = this.gameManager.setFigure(roomName, playerName, figure)
+    const { field, score } = this.gameManager.setFigure(roomName, playerName, figure)
     socket.emit('action', { type: CLIENT_SET_FIGURE,
       message: 'Success',
       field,
+      score,
     })
     this.roomForEachSocket(roomName, socket.id, (s, player) => (
         s.emit('action', { type: CLIENT_UPDATE_COMPETITOR_SPECTRE,
           message: `Player ${playerName} placed figure`,
           name: player,
           spectre: this.gameManager.getSpectre(roomName, player),
+          score,
         })
     ))
   }
