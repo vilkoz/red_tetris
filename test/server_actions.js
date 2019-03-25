@@ -162,4 +162,58 @@ describe('server/actions.js', () => {
     chai.expect(emmited).to.have.property('message')
     done()
   })
+
+  it('roomForEachSocket test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    const fakeField = 'this is fake field'
+    const fakeGame = {
+      fields: { 'playerName1': fakeField, 'playerName2': fakeField },
+      sockets: { 'playerName1': fakeSocket1.id, 'playerName2': fakeSocket2.id },
+    }
+    actionManager = new actions.ActionManager({
+      isGameExists: () => true,
+      games: { 'roomName1': fakeGame },
+      getConnectedSockets: () => ({ 'playerName1': fakeSocket1.id, 'playerName2': fakeSocket2.id }),
+    }, fakeIo)
+
+    actionManager.roomForEachSocket('roomName1', fakeSocket1.id, (s, player) => {
+      s.emit('doesn\'t matter', { socket: s, playerName: player })
+    })
+
+    chai.expect(fakeSocket1Data).to.deep.equal([])
+    chai.expect(fakeSocket2Data[0].socket).to.equal(fakeSocket2)
+    chai.expect(fakeSocket2Data[0].playerName).to.equal('playerName2')
+
+    done()
+  })
+
+  it('roomForEachSocket with non existing room should throw', (done) => {
+    actionManager = new actions.ActionManager({
+      isGameExists: () => false,
+    }, io)
+
+
+    chai.expect(
+      () => actionManager.roomForEachSocket('roomName1', 1, () => console.log('gopa'))
+    ).to.throw(Error)
+
+    done()
+  })
 })

@@ -40,19 +40,14 @@ class ActionManager {
       socket.emit('action', { type: 'client/create_game',
         message: `You are connected to the game now, to connect redirect to: \
                  http://host:port/#${action.roomName}${action.playerName}`,
-        field: game.fields[action.playerName] })
-      for (const player in game.sockets) {
-        const id = game.sockets[player]
-        if (id !== socket.id) {
-          loginfo(this.io.of('/').connected)
-          const s = this.io.of('/').connected[id]
-          s.emit('action', { type: 'client/new_player',
-            message: `Player ${playerName} connected`,
-            name: playerName,
-            spectre: this.gameManager.getSpectre(roomName, playerName),
-          })
-        }
-      }
+        field: game.fields[playerName] })
+      this.roomForEachSocket(roomName, socket.id, (s) => (
+            s.emit('action', { type: 'client/new_player',
+              message: `Player ${playerName} connected`,
+              name: playerName,
+              spectre: this.gameManager.getSpectre(roomName, playerName),
+            })
+      ))
     }
     else {
       const game = this.gameManager.createGame(roomName, playerName, socket)
@@ -72,11 +67,33 @@ class ActionManager {
   }
 
   setFigure = ({ action, socket }) => {
-    const field = this.gameManager.setFigure(action.roomName, action.playerName, action.figure)
+    const { roomName, playerName, figure } = action
+    const field = this.gameManager.setFigure(roomName, playerName, figure)
     socket.emit('action', { type: 'client/set_figure',
       message: 'Success',
       field,
     })
+    this.roomForEachSocket(roomName, socket.id, (s, player) => (
+        s.emit('action', { type: 'client/update_competitor_spectre',
+          message: `Player ${playerName} placed figure`,
+          name: player,
+          spectre: this.gameManager.getSpectre(roomName, player),
+        })
+    ))
+  }
+
+  roomForEachSocket = (roomName, currentSocketId, cb) => {
+    if (!this.gameManager.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    const connected = this.gameManager.getConnectedSockets(roomName)
+    for (const playerName in connected) {
+      const id = connected[playerName]
+      if (id !== currentSocketId) {
+        const s = this.io.of('/').connected[id]
+        return cb(s, playerName)
+      }
+    }
   }
 }
 
