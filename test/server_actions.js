@@ -2,6 +2,17 @@ import { describe, it, afterEach, beforeEach } from 'mocha'
 import * as chai from 'chai'
 
 import * as actions from '../src/server/actions.js'
+import {
+  SERVER_CREATE_GAME,
+  SERVER_GET_FIGURE,
+  SERVER_SET_FIGURE,
+  CLIENT_CREATE_GAME,
+  CLIENT_ERROR,
+  CLIENT_NEW_PLAYER,
+  CLIENT_GET_FIGURE,
+  CLIENT_SET_FIGURE,
+  CLIENT_UPDATE_COMPETITOR_SPECTRE,
+} from '../src/common/action_index'
 
 chai.should()
 
@@ -38,12 +49,12 @@ describe('server/actions.js', () => {
     }, io)
 
     actionManager.dispatch({
-      type: actions.SERVER_CREATE_GAME,
+      type: SERVER_CREATE_GAME,
       playerName: 'playerName1',
       roomName: 'roomName1',
     }, fakeSocket1)
     const emmited = fakeSocket1Data
-    chai.expect(emmited.type).to.equal('client/create_game')
+    chai.expect(emmited.type).to.equal(CLIENT_CREATE_GAME)
     chai.expect(emmited.field).to.equal(fakeField)
     chai.expect(emmited).to.have.property('message')
     done()
@@ -82,14 +93,14 @@ describe('server/actions.js', () => {
     }, fakeIo)
 
     actionManager.dispatch({
-      type: actions.SERVER_CREATE_GAME,
+      type: SERVER_CREATE_GAME,
       playerName: 'playerName2',
       roomName: 'roomName1',
     }, fakeSocket2)
     const emmited = fakeSocket1Data
     const emmitedSelf = fakeSocket2Data
 
-    chai.expect(emmitedSelf[0].type).to.equal('client/create_game')
+    chai.expect(emmitedSelf[0].type).to.equal(CLIENT_CREATE_GAME)
     chai.expect(emmitedSelf[0].field).to.equal(fakeField)
     chai.expect(emmitedSelf[0]).to.have.property('message')
     done()
@@ -108,12 +119,12 @@ describe('server/actions.js', () => {
     }
 
     actionManager.dispatch({
-      type: actions.SERVER_GET_FIGURE, roomName: 'roomName1', playerName: 'playerName1'
+      type: SERVER_GET_FIGURE, roomName: 'roomName1', playerName: 'playerName1'
     }, fakeSocket1)
 
     const emmited = fakeSocket1Data[0]
 
-    chai.expect(emmited.type).to.equal('client/get_figure')
+    chai.expect(emmited.type).to.equal(CLIENT_GET_FIGURE)
     chai.expect(emmited).to.have.property('message')
     chai.expect(emmited.figure).to.equal(fakeFigure)
     done()
@@ -133,12 +144,12 @@ describe('server/actions.js', () => {
     }
 
     actionManager.dispatch({
-      type: actions.SERVER_SET_FIGURE, roomName: 'roomName1', playerName: 'playerName1', figure: 'this is fake figure',
+      type: SERVER_SET_FIGURE, roomName: 'roomName1', playerName: 'playerName1', figure: 'this is fake figure',
     }, fakeSocket1)
 
     const emmited = fakeSocket1Data[0]
 
-    chai.expect(emmited.type).to.equal('client/set_figure')
+    chai.expect(emmited.type).to.equal(CLIENT_SET_FIGURE)
     chai.expect(emmited).to.have.property('message')
     chai.expect(emmited.field).to.equal(fakeField)
     done()
@@ -158,7 +169,7 @@ describe('server/actions.js', () => {
 
     const emmited = fakeSocket1Data[0]
 
-    chai.expect(emmited.type).to.equal('client/error')
+    chai.expect(emmited.type).to.equal(CLIENT_ERROR)
     chai.expect(emmited).to.have.property('message')
     done()
   })

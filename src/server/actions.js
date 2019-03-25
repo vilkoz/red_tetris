@@ -1,11 +1,17 @@
 import debug from 'debug'
 const loginfo = debug('tetris:info')
 
-const SERVER_CREATE_GAME = 'server/create_game'
-
-const SERVER_GET_FIGURE = 'server/get_figure'
-
-const SERVER_SET_FIGURE = 'server/set_figure'
+import {
+  SERVER_CREATE_GAME,
+  SERVER_GET_FIGURE,
+  SERVER_SET_FIGURE,
+  CLIENT_CREATE_GAME,
+  CLIENT_ERROR,
+  CLIENT_NEW_PLAYER,
+  CLIENT_GET_FIGURE,
+  CLIENT_SET_FIGURE,
+  CLIENT_UPDATE_COMPETITOR_SPECTRE,
+} from '../common/action_index'
 
 class ActionManager {
   constructor(gameManager, io) {
@@ -21,7 +27,7 @@ class ActionManager {
   dispatch = (action, socket) => {
     if (!(action.type in this.actionMap)) {
       loginfo('actionMap', this.actionMap)
-      socket.emit('action', { type: 'client/error', message: `action ${action.type} is not supported!` })
+      socket.emit('action', { type: CLIENT_ERROR, message: `action ${action.type} is not supported!` })
       return
     }
     const actionFunc = this.actionMap[action.type]
@@ -29,7 +35,7 @@ class ActionManager {
       actionFunc({ action, socket })
     }
     catch (e) {
-      socket.emit('action', { type: 'client/error', message: e.message })
+      socket.emit('action', { type: CLIENT_ERROR, message: e.message })
     }
   }
 
@@ -37,12 +43,12 @@ class ActionManager {
     const { roomName, playerName } = action
     if (this.gameManager.isGameExists(roomName)) {
       const game = this.gameManager.connectGame(roomName, playerName, socket)
-      socket.emit('action', { type: 'client/create_game',
+      socket.emit('action', { type: CLIENT_CREATE_GAME,
         message: `You are connected to the game now, to connect redirect to: \
                  http://host:port/#${action.roomName}${action.playerName}`,
         field: game.fields[playerName] })
       this.roomForEachSocket(roomName, socket.id, (s) => (
-            s.emit('action', { type: 'client/new_player',
+            s.emit('action', { type: CLIENT_NEW_PLAYER,
               message: `Player ${playerName} connected`,
               name: playerName,
               spectre: this.gameManager.getSpectre(roomName, playerName),
@@ -51,7 +57,7 @@ class ActionManager {
     }
     else {
       const game = this.gameManager.createGame(roomName, playerName, socket)
-      socket.emit('action', { type: 'client/create_game',
+      socket.emit('action', { type: CLIENT_CREATE_GAME,
         message: `game crated, to connect redirect to: \
                  http://host:port/#${roomName}${playerName}`,
         field: game.fields[playerName] })
@@ -60,7 +66,7 @@ class ActionManager {
 
   getFigure = ({ action, socket }) => {
     const figure = this.gameManager.getFigure(action.roomName, action.playerName)
-    socket.emit('action', { type: 'client/get_figure',
+    socket.emit('action', { type: CLIENT_GET_FIGURE,
       message: 'Success',
       figure,
     })
@@ -69,12 +75,12 @@ class ActionManager {
   setFigure = ({ action, socket }) => {
     const { roomName, playerName, figure } = action
     const field = this.gameManager.setFigure(roomName, playerName, figure)
-    socket.emit('action', { type: 'client/set_figure',
+    socket.emit('action', { type: CLIENT_SET_FIGURE,
       message: 'Success',
       field,
     })
     this.roomForEachSocket(roomName, socket.id, (s, player) => (
-        s.emit('action', { type: 'client/update_competitor_spectre',
+        s.emit('action', { type: CLIENT_UPDATE_COMPETITOR_SPECTRE,
           message: `Player ${playerName} placed figure`,
           name: player,
           spectre: this.gameManager.getSpectre(roomName, player),
@@ -98,8 +104,5 @@ class ActionManager {
 }
 
 module.exports = {
-  SERVER_CREATE_GAME,
-  SERVER_GET_FIGURE,
-  SERVER_SET_FIGURE,
   ActionManager,
 };
