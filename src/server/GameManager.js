@@ -1,5 +1,5 @@
 import debug from 'debug'
-const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
+const loginfo = debug('tetris:info')
 import _ from 'lodash'
 
 class GameManager {
@@ -14,11 +14,21 @@ class GameManager {
   }
 
   getUsers(roomName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} does not exist!`)
+    }
     return this.games[roomName].fields
   }
 
+  getConnectedSockets(roomName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} does not exist!`)
+    }
+    return this.games[roomName].sockets
+  }
+
   createGame(roomName, playerName, socket) {
-    if (roomName in this.games) {
+    if (this.isGameExists(roomName)) {
       throw Error(`Game with name ${roomName} already exists!`)
     }
     let game = this.games[roomName]
@@ -27,7 +37,7 @@ class GameManager {
       fields: {},
       figures: {},
     }
-    game['roomName'] = roomName
+    game.roomName = roomName
     game.fields[playerName] = this.createField()
     game.sockets[playerName] = socket.id
     this.games[roomName] = game
@@ -35,9 +45,9 @@ class GameManager {
   }
 
   connectGame(roomName, playerName, socket) {
-    // if (!(roomName in this.games)) {
-    //   return this.createGame(roomName, playerName)
-    // }
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} does not exist!`)
+    }
     const game = this.games[roomName]
     if (playerName in game.fields) {
       throw Error(`Player with name ${playerName} already connected to the room ${roomName}!`)
@@ -157,20 +167,28 @@ class GameManager {
         return el
       })
     )
+
+    /* eslint-disable prefer-reflect */
     delete this.games[roomName].figures[playerName]
+
+    /* eslint-enable prefer-reflect */
     this.games[roomName].fields[playerName] = field
     loginfo('field', field)
     return field
   }
 
   checkFigureIsNotFlying(figure, field) {
-    const collumns = _.zip.apply(_, figure.figure)
+    const collumns = _.zip(...figure.figure)
+
+    /* eslint-disable no-confusing-arrow */
     const coordsToCheck = collumns.map((collumn, collumnNum) => {
       const maxY = collumn
         .map((el, y) => (el === 1 ? y : -1))
         .reduce((max, el) => (max < el) ? el : max)
       return { x: collumnNum + figure.x, y: maxY + figure.y + 1 }
     })
+
+    /* eslint-enable no-confusing-arrow */
     const isCollumnFlying = coordsToCheck.map((el) => {
       const { x, y } = el
       if (x >= field[0].length || y >= field.length) {

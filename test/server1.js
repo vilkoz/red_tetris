@@ -292,4 +292,29 @@ describe('GameManager.js', () => {
     )
     done()
   })
+
+  it('getConnectedSockets', (done) => {
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.connectGame('roomName1', 'playerName2', socket1)
+    const sockets = gameManager.getConnectedSockets('roomName1')
+    chai.expect(sockets.playerName1).to.equal(socket.id)
+    chai.expect(sockets.playerName2).to.equal(socket1.id)
+    done()
+  })
+
+  it('getUsers should return users fields', (done) => {
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.connectGame('roomName1', 'playerName2', socket1)
+    const users = gameManager.getUsers('roomName1')
+    chai.expect(users).to.have.property('playerName1')
+    chai.expect(users.playerName1).to.deep.equal(emptyField)
+    chai.expect(users).to.have.property('playerName2')
+    chai.expect(users.playerName2).to.deep.equal(emptyField)
+    done()
+  })
+  it('getUsers should throw on non-existing room', (done) => {
+    chai.expect(() => gameManager.getUsers('non existing room')).to.throw(Error)
+    done()
+  })
+
 })
