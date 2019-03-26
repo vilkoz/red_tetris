@@ -11,13 +11,15 @@ const styles = StyleSheet.create({
 
 
 
-const Game = ({ playerName, roomName, field, figure, getFigure, gameUrl, history }) => {
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, history }) => {
   if (!gameUrl) {
     history.push('/')
   }
   return (
     <div>
       <h1>Game</h1>
+      <span>{message}</span>
+      <br/>
       <span>{playerName+roomName}</span>
       <br/>
       <div>
@@ -54,6 +56,7 @@ const mapStateToProps = (state, ownProps) => {
     field: state.field,
     gameUrl: state.gameUrl,
     figure: state.figure,
+    message: state.message,
   }
 }
 const mapDispatchToProps = (dispatch, ownProps) => {

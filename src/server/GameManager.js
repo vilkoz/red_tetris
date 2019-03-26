@@ -79,6 +79,9 @@ class GameManager {
     if (!(playerName in this.games[roomName].fields)) {
       throw Error(`Player with name ${playerName} is not connected to the game ${roomName}`)
     }
+    if (playerName in this.games[roomName].figures) {
+      throw Error(`Player with name ${playerName} already has a figure`)
+    }
     const figures = [
       [
         [1, 1, 1, 1],

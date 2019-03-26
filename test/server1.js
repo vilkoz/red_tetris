@@ -107,6 +107,13 @@ describe('GameManager.js', () => {
     done()
   })
 
+  it('getFigure should throw on double call without call to setFigure in between', (done) => {
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.getFigure('roomName1', 'playerName1')
+    chai.expect(() => gameManager.getFigure('roomName1', 'playerName1')).to.throw(Error)
+    done()
+  })
+
   it('getFigure should save figure to game', (done) => {
     gameManager.createGame('roomName1', 'playerName1', socket)
     const figure = gameManager.getFigure('roomName1', 'playerName1')
