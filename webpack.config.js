@@ -9,15 +9,16 @@ module.exports = {
   },
 
   module: {
-    loaders: [{
+    rules: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'babel',
-      query: {
-        presets: ['es2015', 'react', 'stage-0'],
-      },
+      loader: 'babel-loader',
+      // query: {
+      //   presets: ['env', 'react', 'stage-3'],
+      // },
     }],
   },
+  mode: 'development',
   devServer: {
     compress: true,
     port: 8080,

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import {connect} from "react-redux";
 
@@ -9,12 +9,11 @@ const styles = StyleSheet.create({
   },
 })
 
-
-
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, history }) => {
   if (!gameUrl) {
     history.push('/')
   }
+  useEffect(() => { console.log('mount'); return () => console.log('unmount') })
   return (
     <div>
       <h1>Game</h1>
