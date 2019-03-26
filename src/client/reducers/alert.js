@@ -40,22 +40,22 @@ const reducer = (state = {}, action) => {
     return { ...state, roomName: action.roomName }
   case 'SAVE_PLAYER_NAME':
     return { ...state, playerName: action.playerName }
-  case 'GAME_MOVE_FIGURE_LEFT':
-    let figure = state.figure
-    figure = { ...figure, x: Math.max(figure.x - 1, 0) }
-    return { ...state, figure: figure }
-  case 'GAME_MOVE_FIGURE_RIGHT':
-    figure = state.figure
-    figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length) }
-    return { ...state, figure: figure }
-  case 'GAME_MOVE_FIGURE_DOWN':
-    figure = state.figure
-    figure = { ...figure, y: Math.max(figure.y + 1, 0) }
-    return { ...state, figure: figure }
-  case 'GAME_MOVE_FIGURE_ROTATE':
-    figure = state.figure
-    figure = { ...figure, rotations: figure.rotations + 1, figure: rotateFigure(figure.figure)}
-    return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_LEFT':
+      let figure = state.figure
+      figure = { ...figure, x: Math.max(figure.x - 1, 0) }
+      return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_RIGHT':
+      figure = state.figure
+      figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length) }
+      return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_DOWN':
+      figure = state.figure
+      figure = { ...figure, y: Math.max(figure.y + 1, 0) }
+      return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_ROTATE':
+      figure = state.figure
+      figure = { ...figure, rotations: figure.rotations + 1, figure: rotateFigure(figure.figure)}
+      return { ...state, figure: figure }
   default:
     return state
   }

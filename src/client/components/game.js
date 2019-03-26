@@ -10,6 +10,12 @@ const styles = StyleSheet.create({
 })
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, history }) => {
+  useEffect(() => {
+    console.log('moun')
+    return () => {
+      console.log('unmo')
+    };
+  });
   if (!gameUrl) {
     history.push('/')
   }
@@ -41,7 +47,15 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
         })
         }
         <button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>
+        <br/>
+        <button onClick={() => moveFigure('LEFT')}>&larr;</button>
+        <button onClick={() => moveFigure('RIGHT')}>&rarr;</button>
+        <button onClick={() => moveFigure('DOWN')}>&darr;</button>
+        <button onClick={() => moveFigure('ROTATE')}>rotate</button>
+        <br/>
+        <button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>
       </div>
+        <div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>
     </div>
   )
 }
@@ -70,6 +84,94 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         'playerName': playerName,
       })
     },
+    moveFigure: (dir) => {
+      console.log(dir)
+      const directions = {
+        'LEFT': 1,
+        'RIGHT': 1,
+        'DOWN': 1,
+        'ROTATE': 1,
+      }
+      if (!(dir in directions)) {
+        throw Error(`Direction ${dir} is not allowed in moveFigure!`)
+      }
+      dispatch({ type: `GAME_MOVE_FIGURE_${dir}`})
+    },
+    // check: () => {
+      // useEffect(() => {
+      //   // key handler hook
+      //   const input = event => {
+      //     console.log(event.keyCode);
+      //   };
+      //   window.addEventListener('keydown', input);
+      //   return () => {
+      //     window.removeEventListener('keydown', input);
+      //   };
+      // });
+      // const input = event => {
+      //   console.log(event.keyCode);
+      //   switch (event.key) {
+      //     case 'ArrowUp':
+      //       console.log('up')
+      //       break
+      //     case 'ArrowLeft':
+      //       console.log('left')
+      //       break
+      //     case 'ArrowRight':
+      //       console.log('right')
+      //       break
+      //     case 'ArrowDown':
+      //       console.log('down')
+      //       break
+      //   }
+      // };
+      // window.removeEventListener('keydown', input);
+      // window.addEventListener('keydown', input);
+      // window.addEventListener("keydown", event => {
+      //
+      //   console.log(event.key)
+      //   window.removeEventListener("keydown", event)
+      //
+      //   if (event.key == 'ArrowUp'){
+      //     console.log('up');
+      //     window.removeEventListener("keydown", event)
+      //
+      //     dispatch({ type: `GAME_MOVE_FIGURE_ROTATE`})
+      //   }
+      //   else if (event.key == 'ArrowRight'){
+      //     console.log('right');
+      //     window.removeEventListener("keydown", event)
+      //     moveFigure('RIGHT')
+      //   }
+      //   else if (event.key == 'ArrowLeft'){
+      //     console.log('left');
+      //     window.removeEventListener("keydown", event)
+      //
+      //     dispatch({ type: `GAME_MOVE_FIGURE_LEFT`})
+      //   }
+      //   else if (event.key == 'ArrowDown'){
+      //     console.log('down');
+      //     window.removeEventListener("keydown", event)
+      //
+      //     dispatch({ type: `GAME_MOVE_FIGURE_DOWN`})
+      //   }
+      //   window.removeEventListener("keydown", event)
+        // switch (event.key) {
+        //   case 'ArrowUp':
+        //     console.log('up')
+        //     break
+        //   case 'ArrowLeft':
+        //     console.log('left')
+        //     break
+        //   case 'ArrowRight':
+        //     console.log('right')
+        //     break
+        //   case 'ArrowDown':
+        //     console.log('down')
+        //     break
+        // }
+      // });
+    // }
   }
 }
 
