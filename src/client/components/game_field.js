@@ -6,6 +6,11 @@ const styles = StyleSheet.create({
     display: 'inline-block',
     fontFamily: 'monospaced',
   },
+  figureElem: {
+    backgroundColor: 'red',
+    display: 'inline-block',
+    fontFamily: 'monospaced',
+  },
 })
 
 const GameField = ({ field, figure }) => {
@@ -30,7 +35,7 @@ const GameField = ({ field, figure }) => {
       {fieldWithFigure.map((line, rowNum) => (
         <div key={`row ${rowNum}`}>
           {line.map((el, colNum) => (
-            <div className={css(styles.fieldElem)} key={colNum.toString() + rowNum.toString()}>{el}</div>)
+            <div className={css(el !== 0 ? styles.figureElem : styles.fieldElem)} key={colNum.toString() + rowNum.toString()}>{el}</div>)
           )}
         </div>
       ))}

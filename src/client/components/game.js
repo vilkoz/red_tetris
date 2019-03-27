@@ -2,16 +2,20 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import GameField from './game_field'
 
+// const figureFall = (dispatch) => () => {
+//   dispatch()
+// }
+
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl,
-  history, moveFigure, setFigure, moveFigurebutton, fallFigure }) => {
+  history, moveFigure, setFigure, fallFigure }) => {
   moveFigure(figure)
-  fallFigure(figure, moveFigurebutton)
+  // fallFigure(figure)
   if (!gameUrl) {
     history.push('/')
   }
   return (
     <div>
-      <h1>Game1</h1>
+      <h1>Game</h1>
       <span>{message}</span>
       <br/>
       <span>{playerName && roomName && playerName + roomName}</span>
@@ -46,22 +50,9 @@ const mapDispatchToProps = (dispatch) => (
         playerName,
       })
     },
-    moveFigurebutton: (dir) => {
-      console.log(dir)
-      const directions = {
-        'LEFT': 1,
-        'RIGHT': 1,
-        'DOWN': 1,
-        'ROTATE': 1,
-      }
-      if (!(dir in directions)) {
-        throw Error(`Direction ${dir} is not allowed in moveFigure!`)
-      }
-      dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
-    },
     moveFigure: (figure) => {
-      if (figure) {
-        useEffect(() => {
+      useEffect(() => {
+        if (figure) {
           const input = event => {
             console.log(event.keyCode);
             const directions = {
@@ -74,27 +65,30 @@ const mapDispatchToProps = (dispatch) => (
               return
             }
             const dir = directions[event.keyCode]
-            dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
+            dispatch({type: `GAME_MOVE_FIGURE_${dir}`})
           };
+          console.log('add event')
           window.addEventListener('keydown', input);
           return () => {
+            console.log('remove event list')
             window.removeEventListener('keydown', input);
           };
-        });
-      }
+        }
+      });
     },
-    fallFigure: (figure, moveFigurebutton) => {
-      if (figure) {
-        useEffect(() => {
+    fallFigure: (figure) => {
+      useEffect(() => {
+        if (figure) {
           const oneSecondInterval = 1000
           const interval = window.setInterval(() => {
-            moveFigurebutton('DOWN');
+            dispatch({type: `GAME_MOVE_FIGURE_DOWN`})
           }, oneSecondInterval);
           return () => {
+            console.log('clear interval')
             window.clearInterval(interval);
           };
-        }, []);
-      }
+        }
+      });
     },
     setFigure: (roomName, playerName, figure) => {
       console.log('setFigure')
