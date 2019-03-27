@@ -5,7 +5,7 @@ COPY ./package*.json ./
 RUN npm install
 ENV PATH /app/node_modules/.bin:$PATH
 
-COPY . /app/src/client
+COPY . /app
 EXPOSE 8080 8080
 
 RUN npm run build
