@@ -1,6 +1,6 @@
 import React from 'react'
-import {connect} from "react-redux";
-import { Router, Route, Link} from 'react-router-dom';
+import { connect } from 'react-redux';
+import { Router, Route, Link } from 'react-router-dom';
 
 const Lobby = ({ message, playerName, roomName, field, updateRoomName, updatePlayerName, createGame, history, gameUrl }) => {
   if (gameUrl)
@@ -14,11 +14,11 @@ const Lobby = ({ message, playerName, roomName, field, updateRoomName, updatePla
       <span>&nbsp;</span>
       <span>{roomName}</span>
       <br/>
-      <label htmlFor="#roomName">Game name: </label>
-      <input id="roomName" type='text' onChange={updateRoomName}/>
+      <label htmlFor='#roomName'>Game name: </label>
+      <input id='roomName' type='text' onChange={updateRoomName}/>
       <br/>
-      <label htmlFor="#playerName">Player name: </label>
-      <input id="playerName"type='text' onChange={updatePlayerName}/>
+      <label htmlFor='#playerName'>Player name: </label>
+      <input id='playerName'type='text' onChange={updatePlayerName}/>
       <br/>
       <button onClick={() => createGame(roomName, playerName)}>Create Game</button>
     </div>
