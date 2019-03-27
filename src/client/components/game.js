@@ -2,16 +2,17 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import GameField from './game_field'
 
-const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl,
-  history, moveFigure, setFigure, moveFigurebutton, fallFigure }) => {
-  moveFigure(figure)
-  fallFigure(figure, moveFigurebutton)
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, fallFigureInterval,
+  history, moveFigure, setFigure, fallFigure }) => {
+  moveFigure(figure, moveFigureListener)
+  fallFigure(figure, fallFigureInterval)
   if (!gameUrl) {
     history.push('/')
   }
+  console.log('render game')
   return (
     <div>
-      <h1>Game1</h1>
+      <h1>Game</h1>
       <span>{message}</span>
       <br/>
       <span>{playerName && roomName && playerName + roomName}</span>
@@ -34,6 +35,8 @@ const mapStateToProps = (state) => (
     gameUrl: state.gameUrl,
     figure: state.figure,
     message: state.message,
+    moveFigureListener: state.moveFigureListener,
+    fallFigureInterval: state.fallFigureInterval,
   }
 )
 const mapDispatchToProps = (dispatch) => (
@@ -46,21 +49,8 @@ const mapDispatchToProps = (dispatch) => (
         playerName,
       })
     },
-    moveFigurebutton: (dir) => {
-      console.log(dir)
-      const directions = {
-        'LEFT': 1,
-        'RIGHT': 1,
-        'DOWN': 1,
-        'ROTATE': 1,
-      }
-      if (!(dir in directions)) {
-        throw Error(`Direction ${dir} is not allowed in moveFigure!`)
-      }
-      dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
-    },
-    moveFigure: (figure) => {
-      if (figure) {
+    moveFigure: (figure, moveFigureListener) => {
+      if (figure && !moveFigureListener) {
         useEffect(() => {
           const input = event => {
             console.log(event.keyCode);
@@ -77,23 +67,28 @@ const mapDispatchToProps = (dispatch) => (
             dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
           };
           window.addEventListener('keydown', input);
-          return () => {
-            window.removeEventListener('keydown', input);
-          };
+          dispatch({ type: 'GAME_SET_MOVE_LISTENER', moveFigureListener: input })
+          return () => {};
         });
       }
+      else if (!figure) {
+        window.removeEventListener('keydown', moveFigureListener);
+        dispatch({ type: 'GAME_CLEAR_MOVE_LISTENER' })
+      }
     },
-    fallFigure: (figure, moveFigurebutton) => {
-      if (figure) {
-        useEffect(() => {
-          const oneSecondInterval = 1000
-          const interval = window.setInterval(() => {
-            moveFigurebutton('DOWN');
-          }, oneSecondInterval);
-          return () => {
-            window.clearInterval(interval);
-          };
-        }, []);
+    fallFigure: (figure, fallFigureInterval) => {
+      console.log('interval:', figure, fallFigureInterval)
+      if (figure && !fallFigureInterval) {
+        const oneSecondInterval = 1000
+        const intervalCb = window.setInterval(() => {
+          dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
+        }, oneSecondInterval);
+        dispatch({ type: 'GAME_SET_FALL_INTERVAL', fallFigureInterval: intervalCb })
+        return () => {};
+      }
+      else if (!figure && fallFigureInterval) {
+        window.clearInterval(fallFigureInterval);
+        dispatch({ type: 'GAME_CLEAR_FALL_INTERVAL' })
       }
     },
     setFigure: (roomName, playerName, figure) => {

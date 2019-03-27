@@ -22,17 +22,17 @@ const store = applyMiddleware(socketIoMiddleware)(createStore)(
   reducer,
   initialState,
   applyMiddleware(thunk, createLogger())
+  // applyMiddleware(thunk)
 )
 
-
 ReactDom.render((
-  <HashRouter hashType="noslash">
-  <Provider store={store}>
-    <App/>
-  </Provider>
+  <HashRouter hashType='noslash'>
+    <Provider store={store}>
+      <App/>
+    </Provider>
   </HashRouter>
 ), document.getElementById('tetris'))
 
 store.subscribe(() => {
-	console.log('new client state', store.getState());
+  console.log('new client state', store.getState());
 })
