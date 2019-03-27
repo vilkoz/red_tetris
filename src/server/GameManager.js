@@ -167,7 +167,7 @@ class GameManager {
           if (figurePiece === 1 && el === 1) {
             throw Error(`Figure intersects with existing piece on field coords: ${x} ${y}`);
           }
-          return figurePiece
+          return (figurePiece !== 0) ? figurePiece : el
         }
         return el
       })
