@@ -22,8 +22,8 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   )
 }
 
-const mapStateToProps = (state, ownProps) => {
-  return {
+const mapStateToProps = (state) => (
+  {
     roomName: state.roomName,
     playerName: state.playerName,
     field: state.field,
@@ -31,9 +31,9 @@ const mapStateToProps = (state, ownProps) => {
     figure: state.figure,
     message: state.message,
   }
-}
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
+)
+const mapDispatchToProps = (dispatch) => (
+  {
     getFigure: (roomName, playerName) => {
       console.log('roomName:', roomName, 'playerName:', playerName)
       dispatch({
@@ -43,6 +43,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       })
     },
   }
-}
+)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Game)
