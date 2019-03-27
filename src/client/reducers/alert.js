@@ -30,7 +30,7 @@ const reducer = (state = {}, action) => {
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
-    return { ...state, message: action.message, field: action.field }
+    return { ...state, message: action.message, field: action.field, figure: undefined }
   case 'client/new_player':
     console.log('NEW PLAYER!!!')
     const players = { ...state.players }
