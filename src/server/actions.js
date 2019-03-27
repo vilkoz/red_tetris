@@ -39,8 +39,19 @@ class ActionManager {
     }
   }
 
+  verifyRequiredActionArgs = (action, requiredArgsList) => {
+    for (const argNum in requiredArgsList) {
+      const arg = requiredArgsList[argNum]
+      if (!(arg in action)) {
+        const argStr = requiredArgsList.join(', ')
+        throw Error(`You must provide following arguments: ${argStr}; but ${arg} wasn't found`)
+      }
+    }
+    return action
+  }
+
   createGame = ({ action, socket }) => {
-    const { roomName, playerName } = action
+    const { roomName, playerName } = this.verifyRequiredActionArgs(action, ['roomName', 'playerName'])
     if (this.gameManager.isGameExists(roomName)) {
       const game = this.gameManager.connectGame(roomName, playerName, socket)
       socket.emit('action', { type: CLIENT_CREATE_GAME,
@@ -48,11 +59,11 @@ class ActionManager {
                  http://host:port/#${action.roomName}${action.playerName}`,
         field: game.fields[playerName] })
       this.roomForEachSocket(roomName, socket.id, (s) => (
-            s.emit('action', { type: CLIENT_NEW_PLAYER,
-              message: `Player ${playerName} connected`,
-              name: playerName,
-              spectre: this.gameManager.getSpectre(roomName, playerName),
-            })
+        s.emit('action', { type: CLIENT_NEW_PLAYER,
+          message: `Player ${playerName} connected`,
+          name: playerName,
+          spectre: this.gameManager.getSpectre(roomName, playerName),
+        })
       ))
     }
     else {
@@ -65,7 +76,8 @@ class ActionManager {
   }
 
   getFigure = ({ action, socket }) => {
-    const figure = this.gameManager.getFigure(action.roomName, action.playerName)
+    const { roomName, playerName } = this.verifyRequiredActionArgs(action, ['roomName', 'playerName'])
+    const figure = this.gameManager.getFigure(roomName, playerName)
     socket.emit('action', { type: CLIENT_GET_FIGURE,
       message: 'Success',
       figure,
@@ -73,7 +85,10 @@ class ActionManager {
   }
 
   setFigure = ({ action, socket }) => {
-    const { roomName, playerName, figure } = action
+    const { roomName, playerName, figure } = this.verifyRequiredActionArgs(
+      action,
+      ['roomName', 'playerName', 'figure']
+    )
     const { field, score } = this.gameManager.setFigure(roomName, playerName, figure)
     socket.emit('action', { type: CLIENT_SET_FIGURE,
       message: 'Success',
@@ -81,12 +96,12 @@ class ActionManager {
       score,
     })
     this.roomForEachSocket(roomName, socket.id, (s, player) => (
-        s.emit('action', { type: CLIENT_UPDATE_COMPETITOR_SPECTRE,
-          message: `Player ${playerName} placed figure`,
-          name: player,
-          spectre: this.gameManager.getSpectre(roomName, player),
-          score,
-        })
+      s.emit('action', { type: CLIENT_UPDATE_COMPETITOR_SPECTRE,
+        message: `Player ${playerName} placed figure`,
+        name: player,
+        spectre: this.gameManager.getSpectre(roomName, player),
+        score,
+      })
     ))
   }
 

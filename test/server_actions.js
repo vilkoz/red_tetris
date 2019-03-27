@@ -244,10 +244,47 @@ describe('server/actions.js', () => {
       isGameExists: () => false,
     }, io)
 
-
     chai.expect(
       () => actionManager.roomForEachSocket('roomName1', 1, () => console.log('gopa'))
     ).to.throw(Error)
+
+    done()
+  })
+
+  it('ActionManager methods args check', (done) => {
+    actionManager = new actions.ActionManager({
+    }, io)
+
+    chai.expect(
+      () => actionManager.createGame({ action: {}, socket: {} })
+    ).to.throw(Error)
+    chai.expect(
+      () => actionManager.getFigure({ action: {}, socket: {} })
+    ).to.throw(Error)
+    chai.expect(
+      () => actionManager.setFigure({ action: {}, socket: {} })
+    ).to.throw(Error)
+
+    done()
+  })
+
+  it('verifyRequiredActionArgs', (done) => {
+    actionManager = new actions.ActionManager({
+    }, io)
+    const fakeAction = { test1: 'test', test2: 'test' }
+
+    chai.expect(
+      actionManager.verifyRequiredActionArgs(fakeAction, ['test1', 'test2'])
+    ).to.equal(fakeAction)
+    chai.expect(
+      () => actionManager.verifyRequiredActionArgs(fakeAction, ['test1', 'test3'])
+    ).to.throw(Error)
+    chai.expect(
+      () => actionManager.verifyRequiredActionArgs(fakeAction, ['test3', 'test2'])
+    ).to.throw(Error)
+    chai.expect(
+      actionManager.verifyRequiredActionArgs(fakeAction, [])
+    ).to.equal(fakeAction)
 
     done()
   })
