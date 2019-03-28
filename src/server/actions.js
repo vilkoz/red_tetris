@@ -95,11 +95,11 @@ class ActionManager {
       field,
       score,
     })
-    this.roomForEachSocket(roomName, socket.id, (s, player) => (
+    this.roomForEachSocket(roomName, socket.id, (s) => (
       s.emit('action', { type: CLIENT_UPDATE_COMPETITOR_SPECTRE,
         message: `Player ${playerName} placed figure`,
-        name: player,
-        spectre: this.gameManager.getSpectre(roomName, player),
+        name: playerName,
+        spectre: this.gameManager.getSpectre(roomName, playerName),
         score,
       })
     ))
