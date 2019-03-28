@@ -1,5 +1,6 @@
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
+import { CLIENT_UPDATE_COMPETITOR_SPECTRE } from '../../common/action_index'
 
 const rotateFigure = (figure) => {
   const h = figure.length
@@ -76,6 +77,8 @@ const reducer = (state = {}, action) => {
     return { ...state, fallFigureInterval: action.fallFigureInterval }
   case 'GAME_CLEAR_FALL_INTERVAL':
     return { ...state, fallFigureInterval: undefined }
+  case CLIENT_UPDATE_COMPETITOR_SPECTRE:
+    return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
   default:
     return state
   }

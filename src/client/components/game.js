@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import GameField from './game_field'
+import CompetitorSpectre from './competitor_spectre'
 
-const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, fallFigureInterval,
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener,
+  fallFigureInterval, spectres,
   history, moveFigure, setFigure, fallFigure }) => {
   moveFigure(figure, moveFigureListener)
   fallFigure(figure, fallFigureInterval)
@@ -10,6 +12,10 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
     history.push('/')
   }
   console.log('render game')
+  const spectreArr = []
+  for (const name in spectres) {
+    spectreArr.push({ field: spectres[name], name })
+  }
   return (
     <div>
       <h1>Game</h1>
@@ -23,6 +29,13 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
         <button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>
       </div>
       <div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>
+      <div>
+        {
+          spectres && spectreArr.map((el, competitorKey) => (
+            <CompetitorSpectre field={el.field} key={competitorKey} name={el.name}/>
+          ))
+        }
+      </div>
     </div>
   )
 }
@@ -37,6 +50,7 @@ const mapStateToProps = (state) => (
     message: state.message,
     moveFigureListener: state.moveFigureListener,
     fallFigureInterval: state.fallFigureInterval,
+    spectres: state.spectres,
   }
 )
 const mapDispatchToProps = (dispatch) => (
