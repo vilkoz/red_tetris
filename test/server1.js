@@ -1,5 +1,6 @@
 import { describe, it, afterEach, beforeEach } from 'mocha'
 import * as chai from 'chai'
+import _ from 'lodash'
 
 // import { startServer, configureStore } from './helpers/server'
 
@@ -345,6 +346,59 @@ describe('GameManager.js', () => {
     const { field, score } = gameManager.checkRowBrake(inputField)
     chai.expect(field).to.deep.equal(expected)
     chai.expect(score).to.equal(numRowsBraked)
+    done()
+  })
+
+  it('figureCropFreeLines test', (done) => {
+    const figureYCrop = [
+      [0, 0, 0],
+      [1, 1, 1],
+      [0, 1, 0],
+    ]
+    const croppedY = [
+      [1, 1, 1],
+      [0, 1, 0],
+    ]
+    const shiftCroppedY = { x: 0, y: 1 }
+
+    let res = gameManager.figureCropFreeLines(figureYCrop)
+    chai.expect(res.figure).to.deep.equal(croppedY)
+    chai.expect(res.shift).to.deep.equal(shiftCroppedY)
+
+    const figureXCrop = [
+      [0, 1, 0],
+      [0, 1, 1],
+      [0, 1, 0],
+    ]
+    const croppedX = [
+      [1, 0],
+      [1, 1],
+      [1, 0],
+    ]
+    const shiftCroppedX = { x: 1, y: 0 }
+
+    res = gameManager.figureCropFreeLines(figureXCrop)
+    chai.expect(res.figure).to.deep.equal(croppedX)
+    chai.expect(res.shift).to.deep.equal(shiftCroppedX)
+    done()
+  })
+
+  it('figureCropFreeLines no shift test', (done) => {
+    const figureYCrop = [
+      [1, 1, 0, 0],
+      [1, 1, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ]
+    const croppedY = [
+      [1, 1],
+      [1, 1],
+    ]
+    const shiftCroppedY = { x: 0, y: 0 }
+
+    let res = gameManager.figureCropFreeLines(figureYCrop)
+    chai.expect(res.figure).to.deep.equal(croppedY)
+    chai.expect(res.shift).to.deep.equal(shiftCroppedY)
     done()
   })
 })

@@ -84,33 +84,39 @@ class GameManager {
     }
     const figures = [
       [
+        [0, 0, 0, 0],
         [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
       ],
       [
-        [1, 1],
-        [1, 0],
-        [1, 0],
-      ],
-      [
-        [1, 1],
-        [0, 1],
-        [0, 1],
-      ],
-      [
-        [1, 1],
-        [1, 1],
-      ],
-      [
-        [0, 1, 1],
-        [1, 1, 0],
-      ],
-      [
-        [1, 1, 0],
-        [0, 1, 1],
-      ],
-      [
+        [1, 0, 0],
         [1, 1, 1],
+        [0, 0, 0],
+      ],
+      [
+        [0, 0, 1],
+        [1, 1, 1],
+        [0, 0, 0],
+      ],
+      [
+        [1, 1],
+        [1, 1],
+      ],
+      [
+        [0, 1, 1],
+        [1, 1, 0],
+        [0, 0, 0],
+      ],
+      [
+        [1, 1, 0],
+        [0, 1, 1],
+        [0, 0, 0],
+      ],
+      [
         [0, 1, 0],
+        [1, 1, 1],
+        [0, 0, 0],
       ],
     ]
     const playerFigure = figures[Math.floor(Math.random() * figures.length)]
@@ -132,6 +138,25 @@ class GameManager {
     return res
   }
 
+  figureCropFreeLines(figure) {
+    const shift = {
+      x: 0,
+      y: 0,
+    }
+
+    shift.y = _.findIndex(figure, (row) => _.some(row, el => el !== 0))
+    let res = _.filter(figure, (row) => _.some(row, el => el !== 0))
+
+    res = _.zip(...res)
+
+    shift.x = _.findIndex(res, (column) => _.some(column, el => el !== 0))
+    res = _.filter(res, (column) => _.some(column, el => el !== 0))
+
+    res = _.zip(...res)
+
+    return { shift, figure: res }
+  }
+
   setFigure(roomName, playerName, figure) {
     if (!(roomName in this.games)) {
       throw Error(`Game with name ${roomName} doesn't exist!`)
@@ -148,6 +173,11 @@ class GameManager {
       rotatedFigure = this.rotateFigure(rotatedFigure)
     }
     loginfo('rotatedFigure', rotatedFigure)
+
+    const croppedFigure = this.figureCropFreeLines(rotatedFigure)
+    rotatedFigure = croppedFigure.figure
+    figure.x = figure.x + croppedFigure.shift.x
+    figure.y = figure.y + croppedFigure.shift.y
 
     const h = rotatedFigure.length;
     const w = rotatedFigure[0].length;
