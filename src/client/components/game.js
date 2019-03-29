@@ -5,11 +5,10 @@ import GameField from './game_field'
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl,
   history, moveFigure, setFigure, moveFigurebutton, fallFigure }) => {
   moveFigure(figure)
-  fallFigure(figure, moveFigurebutton)
+  fallFigure(figure)
   if (!gameUrl) {
     history.push('/')
   }
-  console.log('render game')
   return (
     <div>
       <h1>Game</h1>
@@ -35,8 +34,6 @@ const mapStateToProps = (state) => (
     gameUrl: state.gameUrl,
     figure: state.figure,
     message: state.message,
-    moveFigureListener: state.moveFigureListener,
-    fallFigureInterval: state.fallFigureInterval,
   }
 )
 const mapDispatchToProps = (dispatch) => (
@@ -49,9 +46,9 @@ const mapDispatchToProps = (dispatch) => (
         playerName,
       })
     },
-    moveFigure: (figure, moveFigureListener) => {
-      if (figure && !moveFigureListener) {
-        useEffect(() => {
+    moveFigure: (figure) => {
+      useEffect(() => {
+        if (figure) {
           const input = event => {
             console.log(event.keyCode);
             const directions = {
@@ -67,29 +64,26 @@ const mapDispatchToProps = (dispatch) => (
             dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
           };
           window.addEventListener('keydown', input);
-          dispatch({ type: 'GAME_SET_MOVE_LISTENER', moveFigureListener: input })
-          return () => {};
-        });
-      }
-      else if (!figure) {
-        window.removeEventListener('keydown', moveFigureListener);
-        dispatch({ type: 'GAME_CLEAR_MOVE_LISTENER' })
-      }
+          return () => {
+            console.log('remove event list')
+            window.removeEventListener('keydown', input);
+          };
+        }
+      });
     },
-    fallFigure: (figure, fallFigureInterval) => {
-      console.log('interval:', figure, fallFigureInterval)
-      if (figure && !fallFigureInterval) {
-        const oneSecondInterval = 1000
-        const intervalCb = window.setInterval(() => {
-          dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
-        }, oneSecondInterval);
-        dispatch({ type: 'GAME_SET_FALL_INTERVAL', fallFigureInterval: intervalCb })
-        return () => {};
-      }
-      else if (!figure && fallFigureInterval) {
-        window.clearInterval(fallFigureInterval);
-        dispatch({ type: 'GAME_CLEAR_FALL_INTERVAL' })
-      }
+    fallFigure: (figure) => {
+      useEffect(() => {
+        if (figure) {
+          const oneSecondInterval = 1000
+          const interval = window.setInterval(() => {
+            dispatch({type: `GAME_MOVE_FIGURE_DOWN`})
+          }, oneSecondInterval);
+          return () => {
+            console.log('clear interval')
+            window.clearInterval(interval);
+          };
+        }
+      });
     },
     setFigure: (roomName, playerName, figure) => {
       console.log('setFigure')

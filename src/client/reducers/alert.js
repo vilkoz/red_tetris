@@ -1,5 +1,8 @@
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
+import {
+  CLIENT_UPDATE_COMPETITOR_SPECTRE,
+} from '../../common/action_index'
 
 const rotateFigure = (figure) => {
   const h = figure.length
