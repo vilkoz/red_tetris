@@ -53,7 +53,7 @@ const reducer = (state = {}, action) => {
       return state
     }
     figure = state.figure
-    figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length) }
+    figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length - figure.figure[0].length) }
     return { ...state, figure }
   case 'GAME_MOVE_FIGURE_DOWN':
     if (!state.figure) {
@@ -61,6 +61,7 @@ const reducer = (state = {}, action) => {
     }
     figure = state.figure
     figure = { ...figure, y: Math.max(figure.y + 1, 0) }
+    figure = { ...figure, y: Math.min(figure.y, state.field.length - figure.figure.length) }
     return { ...state, figure }
   case 'GAME_MOVE_FIGURE_ROTATE':
     if (!state.figure) {
