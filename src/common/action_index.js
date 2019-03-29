@@ -8,4 +8,4 @@ export const CLIENT_NEW_PLAYER = 'client/new_player'
 export const CLIENT_GET_FIGURE = 'client/get_figure'
 export const CLIENT_SET_FIGURE = 'client/set_figure'
 export const CLIENT_UPDATE_COMPETITOR_SPECTRE = 'client/update_competitor_spectre'
-
+export const CLIENT_COMPETITOR_DISCONNECTED = 'client/competitor_disconnected'

@@ -81,6 +81,9 @@ describe('GameManager.js', () => {
     chai.expect(game.fields['playerName2']).to.deep.equal(emptyField)
     chai.expect(game.sockets).to.have.property('playerName2')
     chai.expect(game.sockets['playerName2']).to.equal(socket1.id)
+    chai.expect(
+      () => gameManager.connectGame('non existing room', 'playerName2', socket1)
+    ).to.throw(Error)
     done()
   })
 
@@ -308,6 +311,9 @@ describe('GameManager.js', () => {
     const sockets = gameManager.getConnectedSockets('roomName1')
     chai.expect(sockets.playerName1).to.equal(socket.id)
     chai.expect(sockets.playerName2).to.equal(socket1.id)
+    chai.expect(
+      () => gameManager.getConnectedSockets('non existing name')
+    ).to.throw(Error)
     done()
   })
 
@@ -399,6 +405,30 @@ describe('GameManager.js', () => {
     let res = gameManager.figureCropFreeLines(figureYCrop)
     chai.expect(res.figure).to.deep.equal(croppedY)
     chai.expect(res.shift).to.deep.equal(shiftCroppedY)
+    done()
+  })
+
+  it('roomRemovePlayer', (done) => {
+    gameManager.createGame('room', 'player', socket)
+
+    const resGames = {
+      'room': {
+        sockets: {},
+        fields: {},
+        figures: {},
+        scores: {},
+        roomName: 'room',
+      },
+    }
+
+    gameManager.roomRemovePlayer('room', 'player')
+
+    chai.expect(gameManager.games).to.deep.equal(resGames)
+
+    chai.expect(
+      () => gameManager.roomRemovePlayer('room1', 'player')
+    ).to.throw(Error)
+
     done()
   })
 })

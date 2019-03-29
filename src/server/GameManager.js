@@ -288,6 +288,17 @@ class GameManager {
     }
     return field
   }
+
+  roomRemovePlayer(roomName, playerName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+
+    delete this.games[roomName].sockets[playerName]
+    delete this.games[roomName].fields[playerName]
+    delete this.games[roomName].figures[playerName]
+    delete this.games[roomName].scores[playerName]
+  }
 }
 
 module.exports = GameManager;

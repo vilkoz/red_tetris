@@ -11,6 +11,7 @@ import {
   CLIENT_GET_FIGURE,
   CLIENT_SET_FIGURE,
   CLIENT_UPDATE_COMPETITOR_SPECTRE,
+  CLIENT_COMPETITOR_DISCONNECTED,
 } from '../common/action_index'
 
 class ActionManager {
@@ -95,14 +96,39 @@ class ActionManager {
       field,
       score,
     })
-    this.roomForEachSocket(roomName, socket.id, (s) => (
+    this.roomCheckDisconnected(roomName)
+    this.roomForEachSocket(roomName, socket.id, (s) => {
       s.emit('action', { type: CLIENT_UPDATE_COMPETITOR_SPECTRE,
         message: `Player ${playerName} placed figure`,
         name: playerName,
         spectre: this.gameManager.getSpectre(roomName, playerName),
         score,
       })
-    ))
+    })
+  }
+
+  roomCheckDisconnected = (roomName) => {
+    if (!this.gameManager.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    const disconnectedPlayers = []
+
+    this.roomForEachSocket(roomName, -1, (s, player) => {
+      if (!s) {
+        disconnectedPlayers.push(player)
+        console.log('removing player', player)
+        this.gameManager.roomRemovePlayer(roomName, player)
+      }
+    })
+    for (const i in disconnectedPlayers) {
+      const player = disconnectedPlayers[i]
+      this.roomForEachSocket(roomName, -1, (s) => {
+        s.emit('action', { type: CLIENT_COMPETITOR_DISCONNECTED,
+          message: `Player ${player} placed figure`,
+          name: player,
+        })
+      })
+    }
   }
 
   roomForEachSocket = (roomName, currentSocketId, cb) => {
