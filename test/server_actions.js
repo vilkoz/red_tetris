@@ -174,7 +174,7 @@ describe('server/actions.js', () => {
     chai.expect(emmited.score).to.equal(fakeScore)
     chai.expect(emmitedOthers.type).to.equal(CLIENT_UPDATE_COMPETITOR_SPECTRE)
     chai.expect(emmitedOthers).to.have.property('message')
-    chai.expect(emmitedOthers.name).to.equal('playerName2')
+    chai.expect(emmitedOthers.name).to.equal('playerName1')
     chai.expect(emmitedOthers.score).to.equal(fakeScore)
     done()
   })
