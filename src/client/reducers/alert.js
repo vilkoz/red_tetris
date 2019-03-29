@@ -1,6 +1,5 @@
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
-import { CLIENT_UPDATE_COMPETITOR_SPECTRE } from '../../common/action_index'
 
 const rotateFigure = (figure) => {
   const h = figure.length
@@ -41,44 +40,23 @@ const reducer = (state = {}, action) => {
     return { ...state, roomName: action.roomName }
   case 'SAVE_PLAYER_NAME':
     return { ...state, playerName: action.playerName }
-  case 'GAME_MOVE_FIGURE_LEFT':
-    if (!state.figure) {
-      return state
-    }
-    let figure = state.figure
-    figure = { ...figure, x: Math.max(figure.x - 1, 0) }
-    return { ...state, figure }
-  case 'GAME_MOVE_FIGURE_RIGHT':
-    if (!state.figure) {
-      return state
-    }
-    figure = state.figure
-    figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length - figure.figure[0].length) }
-    return { ...state, figure }
-  case 'GAME_MOVE_FIGURE_DOWN':
-    if (!state.figure) {
-      return state
-    }
-    figure = state.figure
-    figure = { ...figure, y: Math.max(figure.y + 1, 0) }
-    figure = { ...figure, y: Math.min(figure.y, state.field.length - figure.figure.length) }
-    return { ...state, figure }
-  case 'GAME_MOVE_FIGURE_ROTATE':
-    if (!state.figure) {
-      return state
-    }
-    figure = state.figure
-    figure = { ...figure, rotations: figure.rotations + 1, figure: rotateFigure(figure.figure) }
-    return { ...state, figure }
-  case 'GAME_SET_MOVE_LISTENER':
-    return { ...state, moveFigureListener: action.moveFigureListener }
-  case 'GAME_CLEAR_MOVE_LISTENER':
-    return { ...state, moveFigureListener: undefined }
-  case 'GAME_SET_FALL_INTERVAL':
-    return { ...state, fallFigureInterval: action.fallFigureInterval }
-  case 'GAME_CLEAR_FALL_INTERVAL':
-    return { ...state, fallFigureInterval: undefined }
-  case CLIENT_UPDATE_COMPETITOR_SPECTRE:
+    case 'GAME_MOVE_FIGURE_LEFT':
+      let figure = state.figure
+      figure = { ...figure, x: Math.max(figure.x - 1, 0) }
+      return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_RIGHT':
+      figure = state.figure
+      figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length) }
+      return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_DOWN':
+      figure = state.figure
+      figure = { ...figure, y: Math.max(figure.y + 1, 0) }
+      return { ...state, figure: figure }
+    case 'GAME_MOVE_FIGURE_ROTATE':
+      figure = state.figure
+      figure = { ...figure, rotations: figure.rotations + 1, figure: rotateFigure(figure.figure)}
+      return { ...state, figure: figure }
+case CLIENT_UPDATE_COMPETITOR_SPECTRE:
     return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
   default:
     return state
