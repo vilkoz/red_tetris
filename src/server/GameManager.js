@@ -272,7 +272,7 @@ class GameManager {
       throw Error(`Player with name ${playerName} is not connected to the game ${roomName}`)
     }
 
-    const field = this.games[roomName].fields[playerName]
+    const field = this.games[roomName].fields[playerName].map((row) => row.map(el => el))
 
     for (let x = 0; x < field[0].length; x = x + 1) {
       let draw = false
