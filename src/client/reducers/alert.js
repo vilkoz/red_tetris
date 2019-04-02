@@ -2,6 +2,25 @@ import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
 import { CLIENT_UPDATE_COMPETITOR_SPECTRE } from '../../common/action_index'
 
+const checkCollision = (figure, field) => {
+  const h = figure.figure.length
+  const w = figure.figure[0].length
+
+  console.log(figure)
+  for (let i = 0; i < h; i = i + 1) {
+    for (let j = 0; j < w; j = j + 1) {
+      if (figure.figure[i][j] == '1') {
+        console.log(i + figure.y, j + figure.x)
+        if (field[i + figure.y][j + figure.x] == '1') {
+          console.log('collision')
+          return 'FALSE'
+        }
+      }
+    }
+  }
+  return 'TRUE'
+}
+
 const rotateFigure = (figure) => {
   const h = figure.length
   const w = figure[0].length
@@ -47,14 +66,20 @@ const reducer = (state = {}, action) => {
     }
     let figure = state.figure
     figure = { ...figure, x: Math.max(figure.x - 1, 0) }
-    return { ...state, figure }
+    if (checkCollision(figure, state.field) == 'TRUE')
+      return { ...state, figure }
+    else
+      return state
   case 'GAME_MOVE_FIGURE_RIGHT':
     if (!state.figure) {
       return state
     }
     figure = state.figure
     figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length - figure.figure[0].length) }
-    return { ...state, figure }
+    if (checkCollision(figure, state.field) == 'TRUE')
+      return { ...state, figure }
+    else
+      return state
   case 'GAME_MOVE_FIGURE_DOWN':
     if (!state.figure) {
       return state
@@ -62,14 +87,20 @@ const reducer = (state = {}, action) => {
     figure = state.figure
     figure = { ...figure, y: Math.max(figure.y + 1, 0) }
     figure = { ...figure, y: Math.min(figure.y, state.field.length - figure.figure.length) }
-    return { ...state, figure }
+    if (checkCollision(figure, state.field) == 'TRUE')
+      return { ...state, figure }
+    else
+      return state
   case 'GAME_MOVE_FIGURE_ROTATE':
     if (!state.figure) {
       return state
     }
     figure = state.figure
     figure = { ...figure, rotations: figure.rotations + 1, figure: rotateFigure(figure.figure) }
-    return { ...state, figure }
+    if (checkCollision(figure, state.field) == 'TRUE')
+      return { ...state, figure }
+    else
+      return state
   case 'GAME_SET_MOVE_LISTENER':
     return { ...state, moveFigureListener: action.moveFigureListener }
   case 'GAME_CLEAR_MOVE_LISTENER':

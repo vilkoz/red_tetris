@@ -7,7 +7,11 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   fallFigureInterval, spectres,
   history, moveFigure, setFigure, fallFigure }) => {
   moveFigure(figure, moveFigureListener)
-  fallFigure(figure, fallFigureInterval)
+  // fallFigure(figure, fallFigureInterval)
+  // if (figure)
+  //   console.log(figure)
+  // if (field)
+  //   console.log(field)
   if (!gameUrl) {
     history.push('/')
   }
@@ -67,7 +71,7 @@ const mapDispatchToProps = (dispatch) => (
       if (figure && !moveFigureListener) {
         useEffect(() => {
           const input = event => {
-            console.log(event.keyCode);
+            // console.log(event.keyCode);
             const directions = {
               38: 'ROTATE',
               37: 'LEFT',
