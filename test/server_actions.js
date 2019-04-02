@@ -1,4 +1,3 @@
-import { describe, it, afterEach, beforeEach } from 'mocha'
 import * as chai from 'chai'
 
 import * as actions from '../src/server/actions.js'
@@ -26,7 +25,7 @@ describe('server/actions.js', () => {
     cb()
   })
 
-  it('Dispatch createGame with new game', (done) => {
+  test('Dispatch createGame with new game', (done) => {
     let fakeSocket1Data
     const fakeSocket1 = {
       emit: (unused, arg) => {
@@ -60,7 +59,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('Dispatch createGame with existing game', (done) => {
+  test('Dispatch createGame with existing game', (done) => {
     const fakeSocket1Data = []
     const fakeSocket1 = {
       emit: (unused, args) => { fakeSocket1Data.push(args) },
@@ -106,7 +105,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('Dispatch SERVER_GET_FIGURE', (done) => {
+  test('Dispatch SERVER_GET_FIGURE', (done) => {
     const fakeFigure = 'this is fake figure'
     actionManager = new actions.ActionManager({
       getFigure: () => fakeFigure,
@@ -130,7 +129,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('Dispatch SERVER_SET_FIGURE', (done) => {
+  test('Dispatch SERVER_SET_FIGURE', (done) => {
     const fakeField = 'this is fake field'
     const fakeScore = 0
     const fakeSocket1Data = []
@@ -179,7 +178,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('Dispatch unsupported action', (done) => {
+  test('Dispatch unsupported action', (done) => {
     const fakeField = 'this is fake field'
     actionManager = new actions.ActionManager({}, io)
 
@@ -198,7 +197,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('roomForEachSocket test', (done) => {
+  test('roomForEachSocket test', (done) => {
     const fakeSocket1Data = []
     const fakeSocket1 = {
       emit: (unused, args) => { fakeSocket1Data.push(args) },
@@ -239,7 +238,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('roomForEachSocket with non existing room should throw', (done) => {
+  test('roomForEachSocket with non existing room should throw', (done) => {
     actionManager = new actions.ActionManager({
       isGameExists: () => false,
     }, io)
@@ -251,7 +250,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('ActionManager methods args check', (done) => {
+  test('ActionManager methods args check', (done) => {
     actionManager = new actions.ActionManager({
     }, io)
 
@@ -268,7 +267,7 @@ describe('server/actions.js', () => {
     done()
   })
 
-  it('verifyRequiredActionArgs', (done) => {
+  test('verifyRequiredActionArgs', (done) => {
     actionManager = new actions.ActionManager({
     }, io)
     const fakeAction = { test1: 'test', test2: 'test' }

@@ -10,21 +10,17 @@
     "client-dev": "webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080",
     "srv-dev": "DEBUG=tetris:* babel-watch -w src src/server/main.js",
     "srv-dist": "DEBUG=tetris:* babel src --out-dir dist",
-    "test": "mocha --require @babel/register --reporter spec",
-    "coverage": "NODE_ENV=test nyc --include src --all -r text -r lcov -r text --require @babel/register mocha "
+    "test": "jest --config package.json",
+    "coverage": "jest --config package.json --coverage"
   },
   "dependencies": {
     "aphrodite": "^2.3.1",
     "babel-eslint": "^10.0.1",
-    "jest": "^24.6.0",
-    "jest-codemods": "^0.19.1",
-    "jest-dom": "^3.1.3",
     "lodash": "^4.17.11",
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
     "react-redux": "^6.0.1",
     "react-router-dom": "^5.0.0",
-    "react-testing-library": "^6.0.4",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
     "redux-socket.io": "^1.4.0",
@@ -56,23 +52,18 @@
     "babel-loader": "^8.0.5",
     "babel-watch": "^7.0.0",
     "chai": "^4.2.0",
-    "chai-react-assertions": "^0.2.1",
     "eslint": "^5.15.3",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-react": "^7.12.4",
+    "jest": "^24.6.0",
+    "jest-dom": "^3.1.3",
     "mocha": "^6.0.2",
-    "nyc": "^13.3.0",
-    "react-addons-test-utils": "^15.6.2",
+    "react-testing-library": "^6.0.4",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-middleware": "^3.6.1",
     "webpack-dev-server": "^3.2.1",
     "webpack-hot-middleware": "^2.24.3"
-  },
-  "nyc": {
-    "exclude": [
-      "build"
-    ]
   },
   "babel": {
     "plugins": [
