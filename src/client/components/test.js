@@ -2,12 +2,12 @@ import React from 'react'
 
 export const Tetris = () => {
   return (
-    <Board/>
+    <Board msg={'zlupa'}/>
   )
 }
 
-export const Board = () => {
+export const Board = ({ msg }) => {
   return (
-    <div/>
+    <div>test text { msg }</div>
   )
 }
