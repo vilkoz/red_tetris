@@ -90,5 +90,9 @@
       "@babel/preset-env",
       "@babel/react"
     ]
+  },
+  "jest": {
+    "testMatch": ["**/test/*.js"],
+    "verbose": true
   }
 }

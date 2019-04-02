@@ -8,5 +8,5 @@ afterEach(cleanup)
 
 test('Board should render test text', () => {
   const { getByText } = render(<Board msg={'1111'} />)
-  expect(getByText(/^test text/)).toHavTextContent('test text 1111')
+  expect(getByText(/^test text/)).toHaveTextContent('test text 1111')
 })
