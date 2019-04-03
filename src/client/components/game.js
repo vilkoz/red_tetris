@@ -67,7 +67,6 @@ const mapDispatchToProps = (dispatch) => (
       if (figure && !moveFigureListener) {
         useEffect(() => {
           const input = event => {
-            console.log(event.keyCode);
             const directions = {
               38: 'ROTATE',
               37: 'LEFT',
