@@ -1,24 +1,46 @@
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
 import { CLIENT_UPDATE_COMPETITOR_SPECTRE } from '../../common/action_index'
+import _ from 'lodash'
+
+const cutEmpty = (figure) => {
+  const shift = {
+    x: 0,
+    y: 0,
+  }
+
+  shift.y = _.findIndex(figure, (row) => _.some(row, el => el !== 0))
+  let res = _.filter(figure, (row) => _.some(row, el => el !== 0))
+
+  res = _.zip(...res)
+
+  shift.x = _.findIndex(res, (column) => _.some(column, el => el !== 0))
+  res = _.filter(res, (column) => _.some(column, el => el !== 0))
+
+  res = _.zip(...res)
+  return { shift, res }
+}
 
 const checkCollision = (figure, field) => {
-  const h = figure.figure.length
-  const w = figure.figure[0].length
+  const cut = cutEmpty(figure.figure)
+  const h = cut.res.length
+  const w = cut.res[0].length
 
-  console.log(figure)
   for (let i = 0; i < h; i = i + 1) {
     for (let j = 0; j < w; j = j + 1) {
-      if (figure.figure[i][j] == '1') {
-        console.log(i + figure.y, j + figure.x)
-        if (field[i + figure.y][j + figure.x] == '1') {
-          console.log('collision')
-          return 'FALSE'
+      if (cut.res[i][j] !== 0) {
+        const row = field[i + figure.y + cut.shift.y]
+        if (!row) {
+          return false
+        }
+        if (row[j + figure.x + cut.shift.x] !== 0) {
+          console.log('0')
+          return false
         }
       }
     }
   }
-  return 'TRUE'
+  return true
 }
 
 const rotateFigure = (figure) => {
@@ -65,42 +87,41 @@ const reducer = (state = {}, action) => {
       return state
     }
     let figure = state.figure
-    figure = { ...figure, x: Math.max(figure.x - 1, 0) }
-    if (checkCollision(figure, state.field) == 'TRUE')
+    figure = { ...figure, x: figure.x - 1 }
+    if (checkCollision(figure, state.field)) {
       return { ...state, figure }
-    else
-      return state
+    }
+    return state
   case 'GAME_MOVE_FIGURE_RIGHT':
     if (!state.figure) {
       return state
     }
     figure = state.figure
-    figure = { ...figure, x: Math.min(figure.x + 1, state.field[0].length - figure.figure[0].length) }
-    if (checkCollision(figure, state.field) == 'TRUE')
+    figure = { ...figure, x: figure.x + 1 }
+    if (checkCollision(figure, state.field)) {
       return { ...state, figure }
-    else
-      return state
+    }
+    return state
   case 'GAME_MOVE_FIGURE_DOWN':
     if (!state.figure) {
       return state
     }
     figure = state.figure
-    figure = { ...figure, y: Math.max(figure.y + 1, 0) }
-    figure = { ...figure, y: Math.min(figure.y, state.field.length - figure.figure.length) }
-    if (checkCollision(figure, state.field) == 'TRUE')
+    figure = { ...figure, y: figure.y + 1 }
+    if (checkCollision(figure, state.field)) {
       return { ...state, figure }
-    else
-      return state
+    }
+    return state
   case 'GAME_MOVE_FIGURE_ROTATE':
     if (!state.figure) {
       return state
     }
     figure = state.figure
     figure = { ...figure, rotations: figure.rotations + 1, figure: rotateFigure(figure.figure) }
-    if (checkCollision(figure, state.field) == 'TRUE')
+    if (checkCollision(figure, state.field)) {
       return { ...state, figure }
-    else
-      return state
+    }
+    return state
   case 'GAME_SET_MOVE_LISTENER':
     return { ...state, moveFigureListener: action.moveFigureListener }
   case 'GAME_CLEAR_MOVE_LISTENER':
@@ -117,4 +138,3 @@ const reducer = (state = {}, action) => {
 }
 
 export default reducer
-
