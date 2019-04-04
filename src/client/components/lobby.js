@@ -52,11 +52,7 @@ const mapDispatchToProps = (dispatch) => (
     },
     createGame: (roomName, playerName) => {
       console.log('roomName:', roomName, 'playerName:', playerName)
-      dispatch({
-        type: 'server/create_game',
-        roomName,
-        playerName,
-      })
+      dispatch({ type: 'server/create_game', roomName, playerName })
     },
   }
 )

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
+import { getFigureAction, setFigureAction } from '../actions/figure'
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener,
   fallFigureInterval, spectres,
@@ -57,16 +58,13 @@ const mapDispatchToProps = (dispatch) => (
   {
     getFigure: (roomName, playerName) => {
       console.log('roomName:', roomName, 'playerName:', playerName)
-      dispatch({
-        type: 'server/get_figure',
-        roomName,
-        playerName,
-      })
+      dispatch(getFigureAction(roomName, playerName))
     },
     moveFigure: (figure, moveFigureListener) => {
       if (figure && !moveFigureListener) {
         useEffect(() => {
           const input = event => {
+            event.preventDefault()
             const directions = {
               38: 'ROTATE',
               37: 'LEFT',
@@ -84,7 +82,7 @@ const mapDispatchToProps = (dispatch) => (
           return () => {};
         });
       }
-      else if (!figure) {
+      else if (!figure && moveFigureListener) {
         window.removeEventListener('keydown', moveFigureListener);
         dispatch({ type: 'GAME_CLEAR_MOVE_LISTENER' })
       }
@@ -105,13 +103,7 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     setFigure: (roomName, playerName, figure) => {
-      console.log('setFigure')
-      dispatch({
-        type: 'server/set_figure',
-        roomName,
-        playerName,
-        figure,
-      })
+      dispatch(setFigureAction(roomName, playerName, figure))
     },
   }
 )

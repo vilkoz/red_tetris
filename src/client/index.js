@@ -36,3 +36,16 @@ ReactDom.render((
 store.subscribe(() => {
   console.log('new client state', store.getState());
 })
+
+let dequeueRunning = false
+store.subscribe((whatisthat) => {
+  const { actionQueue } = store.getState()
+  if (!dequeueRunning && actionQueue && actionQueue.length > 0) {
+    actionQueue.forEach((action, i) => {
+      dequeueRunning = true
+      store.dispatch(action)
+      store.dispatch({ type: 'CLIENT_DEQUEUE_ACTION', index: i })
+      dequeueRunning = false
+    })
+  }
+})

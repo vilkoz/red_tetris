@@ -1,6 +1,7 @@
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
 import { CLIENT_UPDATE_COMPETITOR_SPECTRE } from '../../common/action_index'
+import { getFigureAction, setFigureAction } from '../actions/figure'
 import _ from 'lodash'
 
 const cutEmpty = (figure) => {
@@ -57,8 +58,23 @@ const rotateFigure = (figure) => {
   return res
 }
 
+const enqueueAction = (action, state) => {
+  let actionQueue = state.actionQueue
+  if (!actionQueue) {
+    actionQueue = []
+  }
+  actionQueue.push(action)
+  return actionQueue
+}
+
 const reducer = (state = {}, action) => {
   switch (action.type) {
+  case 'CLIENT_DEQUEUE_ACTION':
+    let actionQueue = state.actionQueue
+    if (!!actionQueue) {
+      actionQueue = actionQueue.filter((el, i) => i !== action.index)
+    }
+    return { ...state, actionQueue }
   case ALERT_POP:
     return { ...state, message: action.message }
   case 'client/error':
@@ -68,11 +84,18 @@ const reducer = (state = {}, action) => {
   case 'client/pong':
     return { ...state, message: action.message }
   case 'client/create_game':
-    return { ...state, message: action.message, field: action.field, gameUrl: `${state.roomName}${state.playerName}` }
+    return { ...state,
+      message: action.message,
+      field: action.field,
+      gameUrl: `${state.roomName}${state.playerName}`,
+      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
+    }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
-    return { ...state, message: action.message, field: action.field, figure: undefined }
+    return { ...state, message: action.message, field: action.field, figure: undefined,
+      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
+    }
   case 'client/new_player':
     console.log('NEW PLAYER!!!')
     const players = { ...state.players }
@@ -111,7 +134,9 @@ const reducer = (state = {}, action) => {
     if (checkCollision(figure, state.field)) {
       return { ...state, figure }
     }
-    return state
+    return { ...state,
+      actionQueue: enqueueAction(setFigureAction(state.roomName, state.playerName, state.figure), state)
+    }
   case 'GAME_MOVE_FIGURE_ROTATE':
     if (!state.figure) {
       return state
