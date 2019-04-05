@@ -1,5 +1,6 @@
 import React from 'react'
-import { StyleSheet, css } from 'aphrodite'
+import './style.css'
+import { StyleSheet, css } from 'aphrodite';
 
 const styles = StyleSheet.create({
   fieldElem: {
@@ -22,7 +23,7 @@ const CompetitorSpectre = ({ name, field }) => {
       {field.map((line, rowNum) => (
         <div key={`row ${rowNum}`}>
           {line.map((el, colNum) => (
-            <div className={css(el !== 0 ? styles.figureElem : styles.fieldElem)} key={colNum.toString() + rowNum.toString()}>{el}</div>)
+            <div className={css(el !== 0 ? figureElem : fieldElem)} key={colNum.toString() + rowNum.toString()}>{el}</div>)
           )}
         </div>
       ))}

@@ -13,10 +13,12 @@ module.exports = {
       test: /\.js$/,
       exclude: /node_modules/,
       loader: 'babel-loader',
-      // query: {
-      //   presets: ['env', 'react', 'stage-3'],
-      // },
-    }],
+    },
+    {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    },
+    ],
   },
   mode: 'development',
   devServer: {

@@ -1,17 +1,5 @@
 import React from 'react'
-import { StyleSheet, css } from 'aphrodite'
-
-const styles = StyleSheet.create({
-  fieldElem: {
-    display: 'inline-block',
-    fontFamily: 'monospaced',
-  },
-  figureElem: {
-    backgroundColor: 'red',
-    display: 'inline-block',
-    fontFamily: 'monospaced',
-  },
-})
+import './style.css'
 
 const GameField = ({ field, figure }) => {
   if (!field) {
@@ -35,7 +23,9 @@ const GameField = ({ field, figure }) => {
       {fieldWithFigure.map((line, rowNum) => (
         <div key={`row ${rowNum}`}>
           {line.map((el, colNum) => (
-            <div className={css(el !== 0 ? styles.figureElem : styles.fieldElem)} key={colNum.toString() + rowNum.toString()}>{el}</div>)
+            <div className={(el !== 0 ? 'figureElem' : 'fieldElem')}
+                 key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
+            )
           )}
         </div>
       ))}

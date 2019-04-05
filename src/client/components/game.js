@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
+import './style.css'
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener,
   fallFigureInterval, spectres,
@@ -23,7 +24,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
       <br/>
       <span>{playerName && roomName && playerName + roomName}</span>
       <br/>
-      <div>
+      <div className='gameField'>
         <GameField field={field} figure={figure}/>
         <button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>
         <button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>
