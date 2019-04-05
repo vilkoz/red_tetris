@@ -1,0 +1,144 @@
+/*LOBBY*/
+
+body {
+  background: #F2E5F5;
+  font-family: 'Baloo Chettan', cursive;
+  color: white;
+  margin: 0;
+  width: 100%;
+}
+
+.findGame {
+  display: flex;
+  flex-direction: row;
+}
+
+.findGame .createGame {
+  background: #2A0934;
+  display: flex;
+  width: 55%;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.findGame .createGame #roomName{
+  margin-left: 4px;
+}
+
+.findGame .createGame h1 {
+  margin-top: 200px;
+}
+
+.findGame .createGame .button {
+  margin-top: 11px;
+}
+
+.findGame .listLobby {
+  margin-top: 200px;
+  width: 45%;
+  color: #2A0934;
+  min-height: calc(100vh - 200px);
+}
+
+.findGame .listLobby .lobby {
+  padding: 5px 0 5px 5px;
+  flex-direction: row;
+  display: flex;
+}
+
+.findGame .listLobby .lobby .gameName {
+  padding-left: 40px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.findGame .listLobby .lobby .gameName:hover {
+  animation: jiggle 750ms;
+}
+
+@keyframes jiggle {
+  0%   {
+    margin-left: 0px;
+  }
+  50%   {
+    margin-left: 20px;
+  }
+  100% {
+    margin-left: 0px;
+  }
+}
+
+.findGame .listLobby .lobby .count {
+  margin-left: auto;
+  padding-right: 40px;
+  padding-left: 60px;
+}
+
+
+a.button{
+  font-family: 'Baloo Chettan', cursive;
+  display:inline-block;
+  padding:0.3em 1.2em;
+  margin:0 0.1em 0.1em 0;
+  border:0.16em solid rgba(255,255,255,0);
+  box-sizing: border-box;
+  text-decoration:none;
+  font-weight:300;
+  color:#FFFFFF;
+  text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+  text-align:center;
+  transition: all 0.2s;
+  background-color: #ebac0c;
+  width: 100%;
+  box-shadow: 0 0 10px #ebac0c;
+}
+a.button:hover{
+  width: 90%;
+  box-shadow: 0 0 20px #ebac0c;
+}
+@media all and (max-width:30em){
+   a.button{
+    display:block;
+    margin:0.2em auto;
+  }
+}
+
+input {
+  font-family: 'Baloo Chettan', cursive;
+  border: 5px solid white;
+  -webkit-box-shadow:
+    inset 0 0 8px  rgba(0,0,0,0.1),
+    0 0 16px rgba(0,0,0,0.1);
+  -moz-box-shadow:
+    inset 0 0 8px  rgba(0,0,0,0.1),
+    0 0 16px rgba(0,0,0,0.1);
+  box-shadow:
+    inset 0 0 8px  rgba(0,0,0,0.1),
+    0 0 16px rgba(0,0,0,0.1);
+  padding: 15px;
+  background: rgba(255,255,255,0.5);
+  margin: 0 0 10px 0;
+}
+
+
+/*GAME*/
+
+.gameField {
+}
+
+.fieldElem {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  background-color: gray;
+}
+
+.figureElem {
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  display: inline-flex;
+}

@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
+import './style.css'
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener,
   fallFigureInterval, spectres,

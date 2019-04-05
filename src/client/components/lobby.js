@@ -9,21 +9,45 @@ const Lobby = ({ message, playerName, roomName, field, gameUrl,
     history.push(gameUrl)
   }
   return (
-    <div>
-      <h1>Lobby</h1>
-      <span>{message}</span>
-      <br/>
-      <span>{playerName}</span>
-      <span>&nbsp;</span>
-      <span>{roomName}</span>
-      <br/>
-      <label htmlFor='#roomName'>Game name: </label>
-      <input id='roomName' onChange={updateRoomName} type='text' />
-      <br/>
-      <label htmlFor='#playerName'>Player name: </label>
-      <input id='playerName' onChange={updatePlayerName} type='text' />
-      <br/>
-      <button onClick={() => createGame(roomName, playerName)}>Create Game</button>
+    <div className="findGame">
+      <div className="createGame">
+        <div>
+          <h1>Create a Game</h1>
+          <div>
+            <label htmlFor='#roomName'>Game name: </label>
+            <input id='roomName' onChange={updateRoomName} type='text'/>
+          </div>
+          <div>
+            <label htmlFor='#playerName'>Player name: </label>
+            <input id='playerName' onChange={updatePlayerName} type='text'/>
+          </div>
+          <a href="#" onClick={() => createGame(roomName, playerName)} className="button">Create</a>
+        </div>
+      </div>
+      <div className="listLobby">
+        <div className="lobby">
+          <div className="gameName"><h3>Game Name</h3></div>
+          <div className="count"><h3>Player Count</h3></div>
+        </div>
+        <div className="lobby">
+          <div className="gameName">pidarov</div>
+          <div className="count">3</div>
+        </div>
+        <div className="lobby">
+          <div className="gameName">lorem dlya pidarovpidarovpidarovpidarovpidarovpidarovpidarovpidarov</div>
+          <div className="count">3</div>
+        </div>
+        <div className="lobby">
+          <div className="gameName">lorem dlya pidarovpidarovpidarovpidarovpidarovpidarovpidarovpidarov</div>
+          <div className="count">3</div>
+        </div>
+
+
+        <div className="lobby">
+          <div className="gameName">lorem dlya pidarovpidarovpidarovpidarovpidarovpidarovpidarovpidarov</div>
+          <div className="count">3</div>
+        </div>
+      </div>
     </div>
   )
 }
