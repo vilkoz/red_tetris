@@ -65,7 +65,6 @@ const mapDispatchToProps = (dispatch) => (
       if (figure && !moveFigureListener) {
         useEffect(() => {
           const input = event => {
-            event.preventDefault()
             const directions = {
               38: 'ROTATE',
               37: 'LEFT',
@@ -75,6 +74,7 @@ const mapDispatchToProps = (dispatch) => (
             if (!(event.keyCode in directions)) {
               return
             }
+            event.preventDefault()
             const dir = directions[event.keyCode]
             dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
           };
