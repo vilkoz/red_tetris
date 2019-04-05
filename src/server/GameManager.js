@@ -302,7 +302,16 @@ class GameManager {
   }
 
   getGameList() {
-    return this.games.map((game) => ({ name: game.name, playerCount: game.fields.length, isPlaing: game.isStarted }))
+    const res = []
+    for (const name in this.games) {
+      const game = this.games[name]
+      let playerCount = 0
+      for (const playerName in game.fields) {
+        playerCount = playerCount + 1
+      }
+      res.push({ name, playerCount, isStarted: game.isStarted })
+    }
+    return res
   }
 }
 

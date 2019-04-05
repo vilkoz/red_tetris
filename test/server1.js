@@ -450,4 +450,24 @@ describe('GameManager.js', () => {
 
     done()
   })
+
+  test('getGameList should return list of games', (done) => {
+    const expected = [
+      {
+        name: 'roomName1',
+        playerCount: 1,
+        isStarted: false,
+      },
+      {
+        name: 'roomName2',
+        playerCount: 1,
+        isStarted: false,
+      },
+    ]
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.createGame('roomName2', 'playerName1', socket)
+    const ret = gameManager.getGameList()
+    expect(ret).toEqual(expected)
+    done()
+  })
 })
