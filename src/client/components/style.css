@@ -123,6 +123,12 @@ input {
   margin: 0 0 10px 0;
 }
 
+.errorMessage {
+  text-shadow: 0 0 10px red;
+  width: 60%;
+  margin: 10px auto;
+}
+
 
 /*GAME*/
 

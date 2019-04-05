@@ -16,7 +16,10 @@ import io from 'socket.io-client'
 const socket = io(':3004')
 const socketIoMiddleware = createSocketIoMiddleWare(socket, 'server/')
 
-const initialState = {}
+const initialState = {
+  playerName: '',
+  roomName: '',
+}
 
 const store = applyMiddleware(socketIoMiddleware)(createStore)(
   reducer,

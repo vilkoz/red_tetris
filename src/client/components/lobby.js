@@ -1,52 +1,59 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { Router, Route, Link } from 'react-router-dom';
+import _ from 'lodash'
+import {
+  getGameListAction,
+  createGameAction,
+} from '../actions/server'
 
-const Lobby = ({ message, playerName, roomName, field, gameUrl,
-  updateRoomName, updatePlayerName, createGame, history
+const Lobby = ({ message, playerName, roomName, field, gameUrl, gameList, errorMessage,
+  updateRoomName, updatePlayerName, createGame, history, getGameList
 }) => {
   if (gameUrl) {
     history.push(gameUrl)
   }
+  if (!gameList) {
+    getGameList()
+  }
   return (
-    <div className="findGame">
-      <div className="createGame">
+    <div className='findGame'>
+      <div className='createGame'>
         <div>
           <h1>Create a Game</h1>
+          { errorMessage &&
+            (<div className='errorMessage'>{errorMessage}</div>)
+          }
           <div>
             <label htmlFor='#roomName'>Game name: </label>
-            <input id='roomName' onChange={updateRoomName} type='text'/>
+            <input id='roomName' onChange={updateRoomName} type='text' value={roomName}/>
           </div>
           <div>
             <label htmlFor='#playerName'>Player name: </label>
-            <input id='playerName' onChange={updatePlayerName} type='text'/>
+            <input id='playerName' onChange={updatePlayerName} type='text' value={playerName}/>
           </div>
-          <a href="#" onClick={() => createGame(roomName, playerName)} className="button">Create</a>
+          <a className='button' href='#' onClick={() => createGame(roomName, playerName)}>
+            { (gameList && _.some(gameList, (el) => el.name === roomName)) ? 'Connect' : 'Create' }
+          </a>
         </div>
       </div>
-      <div className="listLobby">
-        <div className="lobby">
-          <div className="gameName"><h3>Game Name</h3></div>
-          <div className="count"><h3>Player Count</h3></div>
+      <div className='listLobby'>
+        <div className='lobby'>
+          <div className='gameName'><h3>Game Name</h3></div>
+          <div className='count'><h3>Player Count</h3></div>
         </div>
-        <div className="lobby">
-          <div className="gameName">pidarov</div>
-          <div className="count">3</div>
-        </div>
-        <div className="lobby">
-          <div className="gameName">lorem dlya pidarovpidarovpidarovpidarovpidarovpidarovpidarovpidarov</div>
-          <div className="count">3</div>
-        </div>
-        <div className="lobby">
-          <div className="gameName">lorem dlya pidarovpidarovpidarovpidarovpidarovpidarovpidarovpidarov</div>
-          <div className="count">3</div>
-        </div>
-
-
-        <div className="lobby">
-          <div className="gameName">lorem dlya pidarovpidarovpidarovpidarovpidarovpidarovpidarovpidarov</div>
-          <div className="count">3</div>
-        </div>
+        { (gameList && gameList.length > 0) ?
+          gameList.map((game, i) => (
+            <div className='lobby' key={i} onClick={() => updateRoomName({ target: { value: game.name } })}>
+              <div className='gameName'>{game.name}</div>
+              <div className='count'>{game.playerCount}</div>
+            </div>
+          )) : (
+            <div className='lobby'>
+              <div className='gameName'>No games yet</div>
+            </div>
+          )
+        }
       </div>
     </div>
   )
@@ -59,6 +66,8 @@ const mapStateToProps = (state) => (
     playerName: state.playerName,
     field: state.field,
     gameUrl: state.gameUrl,
+    gameList: state.gameList,
+    errorMessage: state.errorMessage,
   }
 )
 
@@ -76,7 +85,12 @@ const mapDispatchToProps = (dispatch) => (
     },
     createGame: (roomName, playerName) => {
       console.log('roomName:', roomName, 'playerName:', playerName)
-      dispatch({ type: 'server/create_game', roomName, playerName })
+      const sendRoomName = (roomName === '') ? undefined : roomName
+      const sendPlayerName = (playerName === '') ? undefined : playerName
+      dispatch(createGameAction(sendRoomName, sendPlayerName))
+    },
+    getGameList: () => {
+      dispatch(getGameListAction())
     },
   }
 )

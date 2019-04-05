@@ -1,6 +1,10 @@
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
-import { CLIENT_UPDATE_COMPETITOR_SPECTRE } from '../../common/action_index'
+import {
+  SERVER_UNSUBSCRIBE_GAME_LIST,
+  CLIENT_UPDATE_COMPETITOR_SPECTRE,
+  CLIENT_UPDATE_GAME_LIST,
+} from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import _ from 'lodash'
 
@@ -78,7 +82,7 @@ const reducer = (state = {}, action) => {
   case ALERT_POP:
     return { ...state, message: action.message }
   case 'client/error':
-    return { ...state, message: action.message }
+    return { ...state, message: action.message, errorMessage: action.message }
   case ACTION_PING:
     return { ...state, message: action.message }
   case 'client/pong':
@@ -88,7 +92,8 @@ const reducer = (state = {}, action) => {
       message: action.message,
       field: action.field,
       gameUrl: `${state.roomName}${state.playerName}`,
-      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
+      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state)
+        .concat([{ type: SERVER_UNSUBSCRIBE_GAME_LIST }]),
     }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
@@ -157,6 +162,8 @@ const reducer = (state = {}, action) => {
     return { ...state, fallFigureInterval: undefined }
   case CLIENT_UPDATE_COMPETITOR_SPECTRE:
     return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
+  case CLIENT_UPDATE_GAME_LIST:
+    return { ...state, gameList: action.gameList }
   default:
     return state
   }
