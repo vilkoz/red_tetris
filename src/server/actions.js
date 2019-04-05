@@ -6,6 +6,7 @@ import {
   SERVER_GET_FIGURE,
   SERVER_SET_FIGURE,
   SERVER_GET_GAME_LIST,
+  SERVER_UNSUBSCRIBE_GAME_LIST,
   CLIENT_CREATE_GAME,
   CLIENT_ERROR,
   CLIENT_NEW_PLAYER,
@@ -25,6 +26,7 @@ class ActionManager {
       [SERVER_GET_FIGURE]: this.getFigure,
       [SERVER_SET_FIGURE]: this.setFigure,
       [SERVER_GET_GAME_LIST]: this.getGameList,
+      [SERVER_UNSUBSCRIBE_GAME_LIST]: this.usubscribeGameListUpdate,
     }
     this.gameListSubscribers = {}
   }

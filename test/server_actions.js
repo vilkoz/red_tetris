@@ -6,6 +6,7 @@ import {
   SERVER_GET_FIGURE,
   SERVER_SET_FIGURE,
   SERVER_GET_GAME_LIST,
+  SERVER_UNSUBSCRIBE_GAME_LIST,
   CLIENT_CREATE_GAME,
   CLIENT_ERROR,
   CLIENT_NEW_PLAYER,
@@ -316,6 +317,9 @@ describe('server/actions.js', () => {
     chai.expect(fakeSocket1Data[0].gameList).to.equal(fakeGameList)
     chai.expect(actionManager.gameListSubscribers).to.deep.equal(expectedGameListSubscribers)
 
+    actionManager.dispatch({ type: SERVER_UNSUBSCRIBE_GAME_LIST }, fakeSocket1)
+
+    chai.expect(actionManager.gameListSubscribers).to.deep.equal({})
     done()
   })
 })
