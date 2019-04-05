@@ -5,6 +5,7 @@ import {
   SERVER_CREATE_GAME,
   SERVER_GET_FIGURE,
   SERVER_SET_FIGURE,
+  SERVER_GET_GAME_LIST,
   CLIENT_CREATE_GAME,
   CLIENT_ERROR,
   CLIENT_NEW_PLAYER,
@@ -284,6 +285,36 @@ describe('server/actions.js', () => {
     chai.expect(
       actionManager.verifyRequiredActionArgs(fakeAction, [])
     ).to.equal(fakeAction)
+
+    done()
+  })
+
+  test('getGameList test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+        },
+      }),
+    }
+    const expectedGameListSubscribers = {
+      1: true,
+    }
+    const fakeGameList = 'this is fake game list'
+    actionManager = new actions.ActionManager({
+      getGameList: () => fakeGameList,
+    }, fakeIo)
+
+    actionManager.dispatch({ type: SERVER_GET_GAME_LIST }, fakeSocket1)
+
+    chai.expect(fakeSocket1Data[0]).to.have.property('gameList')
+    chai.expect(fakeSocket1Data[0].gameList).to.equal(fakeGameList)
+    chai.expect(actionManager.gameListSubscribers).to.deep.equal(expectedGameListSubscribers)
 
     done()
   })

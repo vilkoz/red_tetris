@@ -5,6 +5,7 @@ import {
   SERVER_CREATE_GAME,
   SERVER_GET_FIGURE,
   SERVER_SET_FIGURE,
+  SERVER_GET_GAME_LIST,
   CLIENT_CREATE_GAME,
   CLIENT_ERROR,
   CLIENT_NEW_PLAYER,
@@ -12,6 +13,7 @@ import {
   CLIENT_SET_FIGURE,
   CLIENT_UPDATE_COMPETITOR_SPECTRE,
   CLIENT_COMPETITOR_DISCONNECTED,
+  CLIENT_UPDATE_GAME_LIST,
 } from '../common/action_index'
 
 class ActionManager {
@@ -22,7 +24,9 @@ class ActionManager {
       [SERVER_CREATE_GAME]: this.createGame,
       [SERVER_GET_FIGURE]: this.getFigure,
       [SERVER_SET_FIGURE]: this.setFigure,
+      [SERVER_GET_GAME_LIST]: this.getGameList,
     }
+    this.gameListSubscribers = {}
   }
 
   dispatch = (action, socket) => {
@@ -73,6 +77,11 @@ class ActionManager {
         message: `game crated, to connect redirect to: \
                  http://host:port/#${roomName}${playerName}`,
         field: game.fields[playerName] })
+    }
+    for (const id in this.gameListSubscribers) {
+      const s = this.io.of('/').connected[id]
+      s.emit('action', { type: CLIENT_UPDATE_GAME_LIST,
+        gameList: this.gameManager.getGameList() })
     }
   }
 
@@ -143,6 +152,19 @@ class ActionManager {
         return cb(s, playerName)
       }
     }
+  }
+
+  getGameList = ({ socket }) => {
+    const gameList = this.gameManager.getGameList()
+    this.gameListSubscribers[socket.id] = true
+    socket.emit('action', { type: CLIENT_UPDATE_GAME_LIST,
+      message: 'Success',
+      gameList,
+    })
+  }
+
+  usubscribeGameListUpdate = ({ socket }) => {
+    delete this.gameListSubscribers[socket.id]
   }
 }
 

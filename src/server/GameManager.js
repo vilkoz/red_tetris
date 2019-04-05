@@ -37,6 +37,7 @@ class GameManager {
       fields: {},
       figures: {},
       scores: {},
+      isStarted: false,
     }
     game.roomName = roomName
     game.fields[playerName] = this.createField()
@@ -298,6 +299,10 @@ class GameManager {
     delete this.games[roomName].fields[playerName]
     delete this.games[roomName].figures[playerName]
     delete this.games[roomName].scores[playerName]
+  }
+
+  getGameList() {
+    return this.games.map((game) => ({ name: game.name, playerCount: game.fields.length, isPlaing: game.isStarted }))
   }
 }
 

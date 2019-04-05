@@ -59,6 +59,7 @@ describe('GameManager.js', () => {
       figures: {},
       roomName: 'roomName1',
       scores: { 'playerName1': 0 },
+      isStarted: false,
     }
     const game = gameManager.createGame('roomName1', 'playerName1', socket)
     chai.expect(game).to.deep.equal(expectedGame)
@@ -435,6 +436,7 @@ describe('GameManager.js', () => {
         figures: {},
         scores: {},
         roomName: 'room',
+        isStarted: false,
       },
     }
 
