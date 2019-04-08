@@ -1,5 +1,5 @@
 import debug from 'debug'
-const loginfo = debug('tetris:info')
+const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
 
 import * as actions from '../common/action_index'
 
@@ -13,13 +13,19 @@ class ActionManager {
       [actions.SERVER_SET_FIGURE]: this.setFigure,
       [actions.SERVER_GET_GAME_LIST]: this.getGameList,
       [actions.SERVER_UNSUBSCRIBE_GAME_LIST]: this.usubscribeGameListUpdate,
+      [actions.SERVER_GET_PLAYER_READY_LIST]: this.getPlayerReadyList,
+      [actions.SERVER_TOGGLE_READY]: this.playerToggleReady,
+      [actions.SERVER_START_GAME]: this.startGame,
+      [actions.SERVER_EXIT_GAME]: this.playerExitGame,
+      [actions.SERVER_GAME_RESTART]: this.gameRestart,
+      [actions.SERVER_DISCONNECT_GAME]: this.disconnectPlayer,
     }
     this.gameListSubscribers = {}
   }
 
   dispatch = (action, socket) => {
     if (!(action.type in this.actionMap)) {
-      loginfo('actionMap', this.actionMap)
+      loginfo('actionMap', this.actionMap, 'action.type', action)
       socket.emit('action', { type: actions.CLIENT_ERROR, message: `action ${action.type} is not supported!` })
       return
     }
@@ -29,6 +35,7 @@ class ActionManager {
     }
     catch (e) {
       socket.emit('action', { type: actions.CLIENT_ERROR, message: e.message })
+      logerror(e.message)
     }
   }
 
@@ -87,13 +94,25 @@ class ActionManager {
       action,
       ['roomName', 'playerName', 'figure']
     )
-    const { field, score } = this.gameManager.setFigure(roomName, playerName, figure)
+    const { field, score, isGameOver } = this.gameManager.setFigure(roomName, playerName, figure)
     socket.emit('action', { type: actions.CLIENT_SET_FIGURE,
       message: 'Success',
       field,
       score,
     })
     this.roomCheckDisconnected(roomName)
+    if (isGameOver) {
+      const { isFinished, scores } = this.checkGameFinished(roomName)
+      if (isFinished) {
+        this.roomForEachSocket(roomName, -1, (s) => {
+          s.emit('action', { type: actions.CLIENT_GAME_FINISHED, scores })
+        })
+        return
+      }
+
+      socket.emit('action', { type: actions.CLIENT_GAME_OVER, message: 'Game is over for you' })
+      return
+    }
     this.roomForEachSocket(roomName, socket.id, (s) => {
       s.emit('action', { type: actions.CLIENT_UPDATE_COMPETITOR_SPECTRE,
         message: `Player ${playerName} placed figure`,
@@ -153,6 +172,98 @@ class ActionManager {
 
   usubscribeGameListUpdate = ({ socket }) => {
     delete this.gameListSubscribers[socket.id]
+  }
+
+  getPlayerReadyList = ({ action, socket }) => {
+    const { roomName } = this.verifyRequiredActionArgs(action, ['roomName'])
+    const playerReadyList = this.gameManager.getPlayerReadyList(roomName)
+    socket.emit('action', { type: actions.CLIENT_GET_PLAYER_READY_LIST,
+      message: 'Success get player ready list',
+      playerReadyList,
+    })
+  }
+
+  playerToggleReady = ({ action, socket }) => {
+    const { roomName, playerName } = this.verifyRequiredActionArgs(action, ['roomName', 'playerName'])
+    const currentReadyStatus = this.gameManager.playerToggleReady(roomName, playerName)
+    socket.emit('action', { type: actions.CLIENT_TOGGLE_READY,
+      message: 'Success playerToggleReady',
+      currentReadyStatus,
+    })
+    const playerReadyList = this.gameManager.getPlayerReadyList(roomName)
+    this.roomForEachSocket(roomName, socket.id, (s) => {
+      s.emit('action', { type: actions.CLIENT_GET_PLAYER_READY_LIST,
+        message: 'Player ready list was updated',
+        playerReadyList,
+      })
+    })
+  }
+
+  startGame = ({ action, socket }) => {
+    const { roomName } = this.verifyRequiredActionArgs(action, ['roomName'])
+    this.gameManager.startGame(roomName, socket.id)
+    this.roomForEachSocket(roomName, -1, (s) => {
+      s.emit('action', { type: actions.CLIENT_START_GAME,
+        message: 'Success starting game',
+      })
+    })
+  }
+
+  playerExitGame = ({ action, socket }) => {
+    const { roomName, playerName } = this.verifyRequiredActionArgs(action, ['roomName', 'playerName'])
+    this.gameManager.roomRemovePlayer(roomName, playerName)
+    socket.emit('action', { type: actions.CLIENT_EXIT_GAME,
+      message: 'Success exiting game',
+    })
+    this.roomForEachSocket(roomName, -1, (s) => {
+      s.emit('action', { type: actions.CLIENT_PLAYER_EXITED,
+        message: `Player ${playerName} exited`,
+        playerName,
+      })
+    })
+  }
+
+  gameRestart = ({ action, socket }) => {
+    const { roomName } = this.verifyRequiredActionArgs(action, ['roomName'])
+    this.gameManager.gameRestart(roomName, socket.id)
+    this.roomForEachSocket(roomName, -1, (s) => {
+      s.emit('action', { type: actions.CLIENT_GAME_RESTART,
+        message: 'Success restarting game',
+      })
+    })
+  }
+
+  disconnectPlayer = ({ action, socket }) => {
+    let disconnectedPlayerGame
+    let playerName
+    for (const game in this.gameManager.games) {
+      const sockets = this.gameManager.getConnectedSockets(game)
+      for (const player in sockets) {
+        if (socket.id === sockets[player]) {
+          disconnectedPlayerGame = game
+          playerName = player
+          break
+        }
+      }
+      if (disconnectedPlayerGame && playerName) {
+        break
+      }
+    }
+    loginfo(`free: ${disconnectedPlayerGame}  ${playerName}`)
+    if (!disconnectedPlayerGame || !playerName) {
+
+      /* player hasn't been connected to any game */
+      return
+    }
+
+    const deleteRoom = this.gameManager.roomRemovePlayer(disconnectedPlayerGame, playerName)
+    if (deleteRoom) {
+      for (const id in this.gameListSubscribers) {
+        const s = this.io.of('/').connected[id]
+        s.emit('action', { type: actions.CLIENT_UPDATE_GAME_LIST,
+          gameList: this.gameManager.getGameList() })
+      }
+    }
   }
 }
 

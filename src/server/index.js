@@ -7,6 +7,7 @@ const path = require('path');
 const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
 const _ = require('lodash')
 const GameManager = require('./GameManager.js')
+const action_index = require('../common/action_index')
 
 const actions = require('./actions.js')
 
@@ -48,6 +49,14 @@ const initEngine = io => {
       else {
         actionManager.dispatch(action, socket)
       }
+    })
+
+    socket.on('disconnect', () => {
+      logerror(`disconnect ${socket.id}`)
+      const playerExitGameAction = {
+        type: action_index.SERVER_DISCONNECT_GAME,
+      }
+      actionManager.dispatch(playerExitGameAction, socket)
     })
   })
 }

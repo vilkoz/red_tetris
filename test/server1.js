@@ -444,22 +444,27 @@ describe('GameManager.js', () => {
 
   test('roomRemovePlayer', (done) => {
     gameManager.createGame('room', 'player', socket)
+    gameManager.connectGame('room', 'player1', socket1)
 
     const resGames = {
       'room': {
-        fields: {},
+        fields: {
+          player1: emptyField,
+        },
         figures: {},
         isPlaying: {
-          player: false,
+          player1: false,
         },
         isStarted: false,
-        owner: 'player',
+        owner: 'player1',
         readyList: {
-          player: true,
+          player1: true,
         },
         roomName: 'room',
         scores: {},
-        sockets: {},
+        sockets: {
+          player1: socket1.id,
+        },
         state: 'game_lobby',
       },
     }

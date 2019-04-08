@@ -320,6 +320,7 @@ class GameManager {
       for (const player in this.games[roomName].fields) {
         if (player !== playerName) {
           this.games[roomName].owner = player
+          this.games[roomName].readyList[player] = true
           break
         }
       }
@@ -329,6 +330,17 @@ class GameManager {
     delete this.games[roomName].fields[playerName]
     delete this.games[roomName].figures[playerName]
     delete this.games[roomName].scores[playerName]
+    delete this.games[roomName].isPlaying[playerName]
+    delete this.games[roomName].readyList[playerName]
+    let playerNum = 0
+    _.forOwn(this.games[roomName].fields, (player) => {
+      playerNum = playerNum + 1
+    })
+    if (playerNum === 0) {
+      delete this.games[roomName]
+      return true
+    }
+    return false
   }
 
   getGameList() {
@@ -358,6 +370,9 @@ class GameManager {
     }
     if (!(playerName in this.games[roomName])) {
       throw Error(`Player ${playerName} isn't connected to the room ${roomName}`)
+    }
+    if (this.games[roomName].state !== STATE_GAME_LOBBY) {
+      throw Error('You can set ready status only in game lobby!')
     }
 
     const current = this.games[roomName].readyList[playerName]
@@ -391,6 +406,7 @@ class GameManager {
     this.games[roomName].state = STATE_GAME
     _.forOwn(this.games[roomName].isPlaying, (value, player) => {
       this.games[roomName].isPlaying[player] = true
+      this.games[roomName].fields[player] = this.createField()
     })
   }
 
@@ -405,7 +421,37 @@ class GameManager {
       }
     })
     const scores = this.games[roomName].scores
+    if (isFinished && this.games[roomName].state === STATE_GAME) {
+      this.games[roomName].state = STATE_LEADER_BOARD
+    }
     return { isFinished, scores }
+  }
+
+  gameRestart(roomName, socketId) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    const game = this.games[roomName]
+    if (game.state !== STATE_LEADER_BOARD) {
+      throw Error(`Game can't be restarted from the ${game.state}`)
+    }
+    let playerName
+    _.forOwn(game.sockets, (id, player) => {
+      if (id === socketId) {
+        playerName = player
+      }
+    })
+    if (!playerName || playerName !== game.owner) {
+      throw Error(`Only owner (${game.owner}) can restart the game`)
+    }
+
+    game.state = STATE_GAME_LOBBY
+    _.forOwn(game.fields, (player) => {
+      game.scores[player] = 0
+      game.isPlaying[player] = false
+      game.readyList[player] = (game.owner === player)
+    })
+    this.games[roomName] = game
   }
 }
 
