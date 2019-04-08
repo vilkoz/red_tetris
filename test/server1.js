@@ -1,5 +1,10 @@
 import * as chai from 'chai'
 import _ from 'lodash'
+import {
+  STATE_GAME_LOBBY,
+  STATE_GAME,
+  STATE_LEADER_BOARD,
+} from '../src/common/game_states.js'
 
 // import { startServer, configureStore } from './helpers/server'
 
@@ -54,6 +59,10 @@ describe('GameManager.js', () => {
 
   test('should create game', (done) => {
     const expectedGame = {
+      state: STATE_GAME_LOBBY,
+      owner: 'playerName1',
+      readyList: { 'playerName1': true },
+      isPlaying: { 'playerName1': false },
       sockets: { 'playerName1': 1 },
       fields: { 'playerName1': emptyField },
       figures: {},
@@ -62,8 +71,8 @@ describe('GameManager.js', () => {
       isStarted: false,
     }
     const game = gameManager.createGame('roomName1', 'playerName1', socket)
-    chai.expect(game).to.deep.equal(expectedGame)
-    chai.expect(gameManager.games['roomName1']).to.deep.equal(expectedGame)
+    expect(game).toEqual(expectedGame)
+    expect(gameManager.games['roomName1']).toEqual(expectedGame)
     done()
   })
 
@@ -192,6 +201,7 @@ describe('GameManager.js', () => {
     gameManager.games['roomName1'].figures['playerName1'] = [
       [1, 1, 1]
     ]
+    gameManager.startGame('roomName1', socket.id)
     gameManager.setFigure('roomName1', 'playerName1', { x: 0, y: 17, rotations: 1 })
     chai.expect(gameManager.games['roomName1'].fields['playerName1']).to.deep.equal(
       [
@@ -225,6 +235,7 @@ describe('GameManager.js', () => {
     gameManager.games['roomName1'].figures['playerName1'] = [
       [1, 1, 1]
     ]
+    gameManager.startGame('roomName1', socket.id)
     gameManager.setFigure('roomName1', 'playerName1', { x: 0, y: 17, rotations: 1 })
     chai.expect(gameManager.games['roomName1'].figures).to.not.have.property('playerName1')
     done()
@@ -237,6 +248,7 @@ describe('GameManager.js', () => {
       gameManager.games['roomName1'].figures['playerName1'] = [
         [1, 1, 1]
       ]
+      gameManager.startGame('roomName1', socket.id)
       gameManager.setFigure('roomName1', 'playerName1', { x: 0, y: 17, rotations: 1 })
       gameManager.games['roomName1'].figures['playerName1'] = [
         [1, 1, 1]
@@ -253,6 +265,7 @@ describe('GameManager.js', () => {
     gameManager.games['roomName1'].figures['playerName1'] = [
       [1, 1, 1]
     ]
+    gameManager.startGame('roomName1', socket.id)
     gameManager.setFigure('roomName1', 'playerName1', { x: 0, y: 17, rotations: 1 })
     gameManager.games['roomName1'].figures['playerName1'] = [
       [1, 1, 1]
@@ -272,6 +285,7 @@ describe('GameManager.js', () => {
       gameManager.games['roomName1'].figures['playerName1'] = [
         [1, 1, 1]
       ]
+      gameManager.startGame('roomName1', socket.id)
       gameManager.setFigure('roomName1', 'playerName1', { x: 0, y: 17, rotations: 1 })
       const field = gameManager.games['roomName1'].fields['playerName1']
       chai.expect(gameManager.checkFigureIsNotFlying({ x: 0, y: 15, figure: [[1, 1, 1]] }, field)).to.equal(false)
@@ -282,14 +296,16 @@ describe('GameManager.js', () => {
   )
 
   test('getSpectre roomName and playerName check', (done) => {
-    chai.expect(() => gameManager.getSpectre('roomName1', 'playerName1')).to.throw(Error)
     gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.startGame('roomName1', socket.id)
+    chai.expect(() => gameManager.getSpectre('roomName2', 'playerName1')).to.throw(Error)
     chai.expect(() => gameManager.getSpectre('roomName1', 'playerName2')).to.throw(Error)
     done()
   })
 
   test('getSpectre roomName and playerName check', (done) => {
     gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.startGame('roomName1', socket.id)
     gameManager.games['roomName1'].figures['playerName1'] = [
       [1, 1, 1],
       [0, 1, 0],
@@ -431,18 +447,26 @@ describe('GameManager.js', () => {
 
     const resGames = {
       'room': {
-        sockets: {},
         fields: {},
         figures: {},
-        scores: {},
-        roomName: 'room',
+        isPlaying: {
+          player: false,
+        },
         isStarted: false,
+        owner: 'player',
+        readyList: {
+          player: true,
+        },
+        roomName: 'room',
+        scores: {},
+        sockets: {},
+        state: 'game_lobby',
       },
     }
 
     gameManager.roomRemovePlayer('room', 'player')
 
-    chai.expect(gameManager.games).to.deep.equal(resGames)
+    expect(gameManager.games).toEqual(resGames)
 
     chai.expect(
       () => gameManager.roomRemovePlayer('room1', 'player')
@@ -468,6 +492,20 @@ describe('GameManager.js', () => {
     gameManager.createGame('roomName2', 'playerName1', socket)
     const ret = gameManager.getGameList()
     expect(ret).toEqual(expected)
+    done()
+  })
+
+  test('getPlayerReadyList', (done) => {
+
+    const expected = {
+      'playerName1': true,
+      'playerName2': false,
+    }
+
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.connectGame('roomName1', 'playerName2', socket)
+    const readyList = gameManager.getPlayerReadyList('roomName1')
+    expect(readyList).toEqual(expected)
     done()
   })
 })

@@ -1,6 +1,11 @@
 import debug from 'debug'
 const loginfo = debug('tetris:info')
 import _ from 'lodash'
+import {
+  STATE_GAME_LOBBY,
+  STATE_GAME,
+  STATE_LEADER_BOARD,
+} from '../common/game_states.js'
 
 class GameManager {
   constructor() {
@@ -33,6 +38,10 @@ class GameManager {
     }
     let game = this.games[roomName]
     game = {
+      state: STATE_GAME_LOBBY,
+      readyList: {},
+      owner: playerName,
+      isPlaying: {},
       sockets: {},
       fields: {},
       figures: {},
@@ -43,6 +52,8 @@ class GameManager {
     game.fields[playerName] = this.createField()
     game.sockets[playerName] = socket.id
     game.scores[playerName] = 0
+    game.readyList[playerName] = true
+    game.isPlaying[playerName] = false
     this.games[roomName] = game
     return game
   }
@@ -57,6 +68,8 @@ class GameManager {
     }
     game.fields[playerName] = this.createField()
     game.sockets[playerName] = socket.id
+    game.readyList[playerName] = false
+    game.isPlaying[playerName] = false
     return game
   }
 
@@ -168,6 +181,9 @@ class GameManager {
     if (!(playerName in this.games[roomName].figures)) {
       throw Error(`Player with name ${playerName} doesn't have any figures to place!`)
     }
+    if (!this.games[roomName].isPlaying[playerName]) {
+      throw Error(`For player ${playerName} game is over!`)
+    }
     let rotatedFigure = this.games[roomName].figures[playerName]
 
     for (let i = 0; i < figure.rotations; i = i + 1) {
@@ -215,7 +231,12 @@ class GameManager {
     this.games[roomName].scores[playerName] = score
     loginfo('field', scoredField)
     loginfo('score', score)
-    return { field: scoredField, score }
+    let isGameOver = false
+    if (_.some(scoredField, (row) => row[0] !== 0)) {
+      isGameOver = true
+      this.games[roomName].isPlaying[playerName] = false
+    }
+    return { field: scoredField, score, isGameOver }
   }
 
   checkFigureIsNotFlying(figure, field) {
@@ -295,6 +316,15 @@ class GameManager {
       throw Error(`Game with name ${roomName} doesn't exist`)
     }
 
+    if (this.games[roomName].owner === playerName) {
+      for (const player in this.games[roomName].fields) {
+        if (player !== playerName) {
+          this.games[roomName].owner = player
+          break
+        }
+      }
+    }
+
     delete this.games[roomName].sockets[playerName]
     delete this.games[roomName].fields[playerName]
     delete this.games[roomName].figures[playerName]
@@ -312,6 +342,70 @@ class GameManager {
       res.push({ name, playerCount, isStarted: game.isStarted })
     }
     return res
+  }
+
+  getPlayerReadyList(roomName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+
+    return this.games[roomName].readyList
+  }
+
+  playerToggleReady(roomName, playerName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    if (!(playerName in this.games[roomName])) {
+      throw Error(`Player ${playerName} isn't connected to the room ${roomName}`)
+    }
+
+    const current = this.games[roomName].readyList[playerName]
+    this.games[roomName].readyList[playerName] = current === false
+    return this.games[roomName].readyList[playerName]
+  }
+
+  startGame(roomName, socketId) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    if (this.games[roomName].state !== STATE_GAME_LOBBY) {
+      throw Error(`Game can't be started from the ${this.games[roomName].state}`)
+    }
+    let playerName
+    _.forOwn(this.games[roomName].sockets, (id, player) => {
+      if (id === socketId) {
+        playerName = player
+      }
+    })
+    if (!playerName || playerName !== this.games[roomName].owner) {
+      throw Error(`Only owner (${this.games[roomName].owner}) can start the game`)
+    }
+
+    const readyList = this.getPlayerReadyList(roomName)
+    _.forOwn(readyList, (ready, player) => {
+      if (!ready) {
+        throw Error(`Can't start game when player ${player} isn't ready`)
+      }
+    })
+    this.games[roomName].state = STATE_GAME
+    _.forOwn(this.games[roomName].isPlaying, (value, player) => {
+      this.games[roomName].isPlaying[player] = true
+    })
+  }
+
+  checkGameFinished(roomName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    let isFinished = true
+    _.forOwn(this.games[roomName].isPlaying, (isPlaying) => {
+      if (isPlaying) {
+        isFinished = false
+      }
+    })
+    const scores = this.games[roomName].scores
+    return { isFinished, scores }
   }
 }
 
