@@ -6,8 +6,8 @@ import Game from '../components/game'
 
 const App = () => (
   <Switch>
-    <Route exact path="/" component={Lobby} />
-    <Route exact path="/:room" component={Game} />
+    <Route exact path='/' component={Lobby} />
+    <Route exact path='/:room[:player_name]' component={Game} />
   </Switch>
 )
 

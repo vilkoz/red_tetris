@@ -91,7 +91,7 @@ const reducer = (state = {}, action) => {
     return { ...state,
       message: action.message,
       field: action.field,
-      gameUrl: `${state.roomName}${state.playerName}`,
+      gameUrl: `${state.roomName}[${state.playerName}]`,
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state)
         .concat([{ type: SERVER_UNSUBSCRIBE_GAME_LIST }]),
     }
