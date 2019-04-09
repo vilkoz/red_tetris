@@ -1,5 +1,6 @@
 import debug from 'debug'
 const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
+import _ from 'lodash'
 
 import * as actions from '../common/action_index'
 
@@ -58,20 +59,27 @@ class ActionManager {
         message: `You are connected to the game now, to connect redirect to: \
                  http://host:port/#${action.roomName}${action.playerName}`,
         field: game.fields[playerName] })
-      this.roomForEachSocket(roomName, socket.id, (s) => (
+      this.roomForEachSocket(roomName, socket.id, (s) => {
         s.emit('action', { type: actions.CLIENT_NEW_PLAYER,
           message: `Player ${playerName} connected`,
           name: playerName,
           spectre: this.gameManager.getSpectre(roomName, playerName),
         })
-      ))
+        const playerReadyList = this.gameManager.getPlayerReadyList(roomName)
+        s.emit('action', { type: actions.CLIENT_GET_PLAYER_READY_LIST,
+          message: `Player ${playerName} connected`,
+          playerReadyList,
+        })
+      })
     }
     else {
       const game = this.gameManager.createGame(roomName, playerName, socket)
       socket.emit('action', { type: actions.CLIENT_CREATE_GAME,
         message: `game crated, to connect redirect to: \
                  http://host:port/#${roomName}${playerName}`,
-        field: game.fields[playerName] })
+        field: game.fields[playerName],
+        isOwner: true,
+      })
     }
     for (const id in this.gameListSubscribers) {
       const s = this.io.of('/').connected[id]
@@ -152,13 +160,12 @@ class ActionManager {
       throw Error(`Game with name ${roomName} doesn't exist`)
     }
     const connected = this.gameManager.getConnectedSockets(roomName)
-    for (const playerName in connected) {
-      const id = connected[playerName]
+    _.forOwn(connected, (id, playerName) => {
       if (id !== currentSocketId) {
         const s = this.io.of('/').connected[id]
         return cb(s, playerName)
       }
-    }
+    })
   }
 
   getGameList = ({ socket }) => {
@@ -186,12 +193,12 @@ class ActionManager {
   playerToggleReady = ({ action, socket }) => {
     const { roomName, playerName } = this.verifyRequiredActionArgs(action, ['roomName', 'playerName'])
     const currentReadyStatus = this.gameManager.playerToggleReady(roomName, playerName)
-    socket.emit('action', { type: actions.CLIENT_TOGGLE_READY,
-      message: 'Success playerToggleReady',
-      currentReadyStatus,
-    })
     const playerReadyList = this.gameManager.getPlayerReadyList(roomName)
-    this.roomForEachSocket(roomName, socket.id, (s) => {
+    // socket.emit('action', { type: actions.CLIENT_TOGGLE_READY,
+    //   message: 'Success playerToggleReady',
+    //   currentReadyStatus,
+    // })
+    this.roomForEachSocket(roomName, -1, (s) => {
       s.emit('action', { type: actions.CLIENT_GET_PLAYER_READY_LIST,
         message: 'Player ready list was updated',
         playerReadyList,
@@ -202,9 +209,10 @@ class ActionManager {
   startGame = ({ action, socket }) => {
     const { roomName } = this.verifyRequiredActionArgs(action, ['roomName'])
     this.gameManager.startGame(roomName, socket.id)
-    this.roomForEachSocket(roomName, -1, (s) => {
+    this.roomForEachSocket(roomName, -1, (s, player) => {
       s.emit('action', { type: actions.CLIENT_START_GAME,
         message: 'Success starting game',
+        field: this.gameManager.getPlayerField(roomName, player),
       })
     })
   }
