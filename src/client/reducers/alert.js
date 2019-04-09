@@ -7,6 +7,7 @@ import {
   CLIENT_UPDATE_COMPETITOR_SPECTRE,
   CLIENT_UPDATE_GAME_LIST,
   CLIENT_GET_PLAYER_READY_LIST,
+  CLIENT_START_GAME,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import {
@@ -101,12 +102,20 @@ const reducer = (state = {}, action) => {
       gameState: STATE_GAME_LOBBY,
       message: action.message,
       field: action.field,
-      gameUrl: mapStateToRoute({ roomName: state.roomName, playerName: state.playerName }),
-      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state)
+      gameUrl: mapStateToRoute({ roomName: state.roomName, playerName: state.playerName }), // TODO: clever solution
+      actionQueue: enqueueAction({ type: SERVER_UNSUBSCRIBE_GAME_LIST }, state)
         .concat([
-          { type: SERVER_UNSUBSCRIBE_GAME_LIST },
           { type: SERVER_GET_PLAYER_READY_LIST, roomName: state.roomName },
         ]),
+      isOwner: action.isOwner,
+    }
+  case CLIENT_START_GAME:
+    return { ...state,
+      gameState: STATE_GAME,
+      message: action.message,
+      field: action.field,
+      gameUrl: mapStateToRoute({ roomName: state.roomName, playerName: state.playerName }), // TODO: clever solution
+      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
     }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }

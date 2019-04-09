@@ -4,15 +4,15 @@ import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import './style.css'
+import { changeRouteByState } from '../routes'
+import { switchGameUrlAction } from '../actions/route'
 
-const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener,
-  fallFigureInterval, spectres,
-  history, moveFigure, setFigure, fallFigure }) => {
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
+  fallFigureInterval, spectres, switchGameUrl, history, moveFigure, setFigure, fallFigure
+}) => {
   moveFigure(figure, moveFigureListener)
   fallFigure(figure, fallFigureInterval)
-  if (!gameUrl) {
-    history.push('/')
-  }
+  changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   console.log('render game')
   const spectreArr = []
   for (const name in spectres) {
@@ -48,6 +48,7 @@ const mapStateToProps = (state) => (
     playerName: state.playerName,
     field: state.field,
     gameUrl: state.gameUrl,
+    gameState: state.gameState,
     figure: state.figure,
     message: state.message,
     moveFigureListener: state.moveFigureListener,
@@ -105,6 +106,9 @@ const mapDispatchToProps = (dispatch) => (
     },
     setFigure: (roomName, playerName, figure) => {
       dispatch(setFigureAction(roomName, playerName, figure))
+    },
+    switchGameUrl: (url) => {
+      dispatch(switchGameUrlAction(url))
     },
   }
 )
