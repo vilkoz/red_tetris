@@ -32,6 +32,16 @@ class GameManager {
     return this.games[roomName].sockets
   }
 
+  getPlayerField(roomName, playerName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} does not exist!`)
+    }
+    if (!(playerName in this.games[roomName].fields)) {
+      throw Error(`Player with name ${playerName} doesn't connected to the room ${roomName}!`)
+    }
+    return this.games[roomName].fields[playerName]
+  }
+
   createGame(roomName, playerName, socket) {
     if (this.isGameExists(roomName)) {
       throw Error(`Game with name ${roomName} already exists!`)
@@ -232,7 +242,7 @@ class GameManager {
     loginfo('field', scoredField)
     loginfo('score', score)
     let isGameOver = false
-    if (_.some(scoredField, (row) => row[0] !== 0)) {
+    if (_.some(scoredField[0], (el) => el !== 0)) {
       isGameOver = true
       this.games[roomName].isPlaying[playerName] = false
     }
@@ -374,11 +384,14 @@ class GameManager {
     if (!this.isGameExists(roomName)) {
       throw Error(`Game with name ${roomName} doesn't exist`)
     }
-    if (!(playerName in this.games[roomName])) {
+    if (!(playerName in this.games[roomName].fields)) {
       throw Error(`Player ${playerName} isn't connected to the room ${roomName}`)
     }
     if (this.games[roomName].state !== STATE_GAME_LOBBY) {
       throw Error('You can set ready status only in game lobby!')
+    }
+    if (this.games[roomName].owner === playerName) {
+      throw Error('Owner can not be unready (use start_game instead of toggle_ready')
     }
 
     const current = this.games[roomName].readyList[playerName]
@@ -404,8 +417,9 @@ class GameManager {
     }
 
     const readyList = this.getPlayerReadyList(roomName)
-    _.forOwn(readyList, (ready, player) => {
-      if (!ready) {
+    readyList.forEach(({ player, readyStatus }) => {
+      loginfo('readyList:', readyStatus, player)
+      if (!readyStatus) {
         throw Error(`Can't start game when player ${player} isn't ready`)
       }
     })
