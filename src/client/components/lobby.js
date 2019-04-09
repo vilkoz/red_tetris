@@ -6,13 +6,13 @@ import {
   getGameListAction,
   createGameAction,
 } from '../actions/server'
+import { switchGameUrlAction } from '../actions/route'
+import { changeRouteByState } from '../routes'
 
-const Lobby = ({ message, playerName, roomName, field, gameUrl, gameList, errorMessage,
-  updateRoomName, updatePlayerName, createGame, history, getGameList
+const Lobby = ({ message, playerName, roomName, field, gameUrl, gameList, errorMessage, gameState,
+  updateRoomName, updatePlayerName, createGame, history, getGameList, switchGameUrl
 }) => {
-  if (gameUrl) {
-    history.push(gameUrl)
-  }
+  changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   if (!gameList) {
     getGameList()
   }
@@ -68,6 +68,7 @@ const mapStateToProps = (state) => (
     gameUrl: state.gameUrl,
     gameList: state.gameList,
     errorMessage: state.errorMessage,
+    gameState: state.gameState,
   }
 )
 
@@ -92,6 +93,9 @@ const mapDispatchToProps = (dispatch) => (
     getGameList: () => {
       dispatch(getGameListAction())
     },
+    switchGameUrl: (url) => {
+      dispatch(switchGameUrlAction(url))
+    }
   }
 )
 

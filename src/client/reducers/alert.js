@@ -1,12 +1,21 @@
+import _ from 'lodash'
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
 import {
   SERVER_UNSUBSCRIBE_GAME_LIST,
+  SERVER_GET_PLAYER_READY_LIST,
   CLIENT_UPDATE_COMPETITOR_SPECTRE,
   CLIENT_UPDATE_GAME_LIST,
+  CLIENT_GET_PLAYER_READY_LIST,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
-import _ from 'lodash'
+import {
+  STATE_LOBBY,
+  STATE_GAME_LOBBY,
+  STATE_GAME,
+  STATE_LEADER_BOARD,
+} from '../../common/game_states'
+import { mapStateToRoute } from '../routes'
 
 const cutEmpty = (figure) => {
   const shift = {
@@ -89,11 +98,15 @@ const reducer = (state = {}, action) => {
     return { ...state, message: action.message }
   case 'client/create_game':
     return { ...state,
+      gameState: STATE_GAME_LOBBY,
       message: action.message,
       field: action.field,
-      gameUrl: `${state.roomName}[${state.playerName}]`,
+      gameUrl: mapStateToRoute({ roomName: state.roomName, playerName: state.playerName }),
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state)
-        .concat([{ type: SERVER_UNSUBSCRIBE_GAME_LIST }]),
+        .concat([
+          { type: SERVER_UNSUBSCRIBE_GAME_LIST },
+          { type: SERVER_GET_PLAYER_READY_LIST, roomName: state.roomName },
+        ]),
     }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
@@ -106,6 +119,8 @@ const reducer = (state = {}, action) => {
     const players = { ...state.players }
     players[action.playerName] = action.spectre
     return { ...state, players: { ...players } }
+  case CLIENT_GET_PLAYER_READY_LIST:
+    return { ...state, playerReadyList: action.playerReadyList }
   case 'SAVE_GAME_NAME':
     return { ...state, roomName: action.roomName }
   case 'SAVE_PLAYER_NAME':
@@ -164,6 +179,8 @@ const reducer = (state = {}, action) => {
     return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
   case CLIENT_UPDATE_GAME_LIST:
     return { ...state, gameList: action.gameList }
+  case 'SWITCH_GAME_URL':
+    return { ...state, gameUrl: action.gameUrl }
   default:
     return state
   }

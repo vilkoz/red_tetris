@@ -6,16 +6,23 @@ import {
   getGameListAction,
   createGameAction,
 } from '../actions/server'
+import { switchGameUrlAction } from '../actions/route'
+import { changeRouteByState } from '../routes'
 
-const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage,
-  history
+const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, playerReadyList,
+  history, switchGameUrl
 }) => {
-  if (gameUrl) {
-    history.push(gameUrl)
-  }
+  changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   return (
     <div>
       <h1> Game lobby {roomName} </h1>
+      <ul>
+        { playerReadyList &&
+          playerReadyList.map((el) => (
+            <li key={el.player}><span>name: {el.player}</span><span>ready: {el.readyStatus}</span></li>
+          ))
+        }
+      </ul>
       <button>Set ready / Start game</button>
     </div>
   )
@@ -28,11 +35,16 @@ const mapStateToProps = (state) => (
     playerName: state.playerName,
     gameUrl: state.gameUrl,
     errorMessage: state.errorMessage,
+    gameState: state.gameState,
+    playerReadyList: state.playerReadyList,
   }
 )
 
 const mapDispatchToProps = (dispatch) => (
   {
+    switchGameUrl: (url) => {
+      dispatch(switchGameUrlAction(url))
+    }
   }
 )
 

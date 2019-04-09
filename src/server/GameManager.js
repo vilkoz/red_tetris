@@ -361,7 +361,13 @@ class GameManager {
       throw Error(`Game with name ${roomName} doesn't exist`)
     }
 
-    return this.games[roomName].readyList
+    const res = []
+    _.forOwn(this.games[roomName].readyList, (readyStatus, player) => {
+      res.push({ player, readyStatus })
+    })
+    console.log(res)
+
+    return res
   }
 
   playerToggleReady(roomName, playerName) {
