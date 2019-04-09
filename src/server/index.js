@@ -14,7 +14,16 @@ const actions = require('./actions.js')
 const initApp = (app, params, cb) => {
   const { host, port } = params
   const handler = (req, res) => {
-    const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../index.html'
+    const files = {
+      '/bundle.js': '/../../build/bundle.js',
+      '/static/baloochettah.ttf': '/../../static/baloochettah.ttf',
+      '/static/font.css': '/../../static/font.css',
+    }
+    let file = files[req.url]
+    if (!file) {
+      file = '/../../index.html'
+    }
+    loginfo('path:', path.join(__dirname, file))
     fs.readFile(path.join(__dirname, file), (err, data) => {
       if (err) {
         logerror(err)
