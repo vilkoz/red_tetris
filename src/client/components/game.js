@@ -4,16 +4,16 @@ import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import './style.css'
+import { changeRouteByState } from '../routes'
+import { switchGameUrlAction } from '../actions/route'
 
-const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener,
-  fallFigureInterval, spectres,
-  history, moveFigure, setFigure, fallFigure }) => {
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
+  score,
+  fallFigureInterval, spectres, switchGameUrl, history, moveFigure, setFigure, fallFigure
+}) => {
   moveFigure(figure, moveFigureListener)
-  // fallFigure(figure, fallFigureInterval)
-  if (!gameUrl) {
-    history.push('/')
-  }
-  console.log('render game')
+  fallFigure(figure, fallFigureInterval)
+  changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   const spectreArr = []
   for (const name in spectres) {
     spectreArr.push({ field: spectres[name], name })
@@ -24,6 +24,8 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
       <span>{message}</span>
       <br/>
       <span>{playerName && roomName && playerName + roomName}</span>
+      <br/>
+      <span>Score: {score ? score : '0'}</span>
       <br/>
       <div className='gameField'>
         <GameField field={field} figure={figure}/>
@@ -48,11 +50,13 @@ const mapStateToProps = (state) => (
     playerName: state.playerName,
     field: state.field,
     gameUrl: state.gameUrl,
+    gameState: state.gameState,
     figure: state.figure,
     message: state.message,
     moveFigureListener: state.moveFigureListener,
     fallFigureInterval: state.fallFigureInterval,
     spectres: state.spectres,
+    score: state.score,
   }
 )
 const mapDispatchToProps = (dispatch) => (
@@ -70,6 +74,7 @@ const mapDispatchToProps = (dispatch) => (
               37: 'LEFT',
               39: 'RIGHT',
               40: 'DOWN',
+              32: 'MAX_DOWN',
             }
             if (!(event.keyCode in directions)) {
               return
@@ -105,6 +110,9 @@ const mapDispatchToProps = (dispatch) => (
     },
     setFigure: (roomName, playerName, figure) => {
       dispatch(setFigureAction(roomName, playerName, figure))
+    },
+    switchGameUrl: (url) => {
+      dispatch(switchGameUrlAction(url))
     },
   }
 )

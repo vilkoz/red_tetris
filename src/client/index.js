@@ -16,9 +16,13 @@ import io from 'socket.io-client'
 const socket = io(':3004')
 const socketIoMiddleware = createSocketIoMiddleWare(socket, 'server/')
 
+import { STATE_LOBBY } from '../common/game_states'
+
 const initialState = {
   playerName: '',
   roomName: '',
+  gameState: STATE_LOBBY,
+  gameUrl: '/',
 }
 
 const store = applyMiddleware(socketIoMiddleware)(createStore)(

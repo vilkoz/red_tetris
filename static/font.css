@@ -1,0 +1,6 @@
+@font-face {
+  font-family: 'Baloo Chettan';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Baloo Chettan Regular'), local('BalooChettan-Regular'), url(/static/baloochettah.ttf) format('truetype');
+}

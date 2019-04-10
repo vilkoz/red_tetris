@@ -1,12 +1,28 @@
+import _ from 'lodash'
 import { ALERT_POP } from '../actions/alert'
 import { ACTION_PING } from '../actions/server'
 import {
   SERVER_UNSUBSCRIBE_GAME_LIST,
+  SERVER_GET_PLAYER_READY_LIST,
   CLIENT_UPDATE_COMPETITOR_SPECTRE,
   CLIENT_UPDATE_GAME_LIST,
+  CLIENT_GET_PLAYER_READY_LIST,
+  CLIENT_START_GAME,
+  CLIENT_GAME_FINISHED,
+  CLIENT_GAME_RESTART,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
-import _ from 'lodash'
+import { gameOverAction } from '../actions/server'
+import {
+  STATE_LOBBY,
+  STATE_GAME_LOBBY,
+  STATE_GAME,
+  STATE_LEADER_BOARD,
+} from '../../common/game_states'
+import {
+  mapStateToRoute,
+  doMapStateToRoute,
+} from '../routes'
 
 const cutEmpty = (figure) => {
   const shift = {
@@ -89,23 +105,56 @@ const reducer = (state = {}, action) => {
     return { ...state, message: action.message }
   case 'client/create_game':
     return { ...state,
+      gameState: STATE_GAME_LOBBY,
       message: action.message,
       field: action.field,
-      gameUrl: `${state.roomName}${state.playerName}`,
-      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state)
-        .concat([{ type: SERVER_UNSUBSCRIBE_GAME_LIST }]),
+      gameUrl: doMapStateToRoute(state),
+      actionQueue: enqueueAction({ type: SERVER_UNSUBSCRIBE_GAME_LIST }, state)
+        .concat([
+          { type: SERVER_GET_PLAYER_READY_LIST, roomName: state.roomName },
+        ]),
+      isOwner: action.isOwner,
+    }
+  case CLIENT_START_GAME:
+    return { ...state,
+      gameState: STATE_GAME,
+      message: action.message,
+      field: action.field,
+      gameUrl: doMapStateToRoute(state),
+      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
+    }
+  case CLIENT_GAME_FINISHED:
+    return {
+      ...state,
+      gameState: STATE_LEADER_BOARD,
+      message: action.message,
+      gameUrl: doMapStateToRoute(state),
+      scores: action.scores,
+    }
+  case CLIENT_GAME_RESTART:
+    return {
+      ...state,
+      gameState: STATE_GAME_LOBBY,
+      message: action.message,
+      gameUrl: doMapStateToRoute(state),
+      playerReadyList: action.playerReadyList,
+      figure: undefined,
+      scores: undefined,
+      field: undefined,
+      spectres: undefined,
     }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
-    return { ...state, message: action.message, field: action.field, figure: undefined,
+    return { ...state, message: action.message, field: action.field, figure: undefined, score: action.score,
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
     }
   case 'client/new_player':
-    console.log('NEW PLAYER!!!')
     const players = { ...state.players }
     players[action.playerName] = action.spectre
     return { ...state, players: { ...players } }
+  case CLIENT_GET_PLAYER_READY_LIST:
+    return { ...state, playerReadyList: action.playerReadyList }
   case 'SAVE_GAME_NAME':
     return { ...state, roomName: action.roomName }
   case 'SAVE_PLAYER_NAME':
@@ -135,6 +184,12 @@ const reducer = (state = {}, action) => {
       return state
     }
     figure = state.figure
+    if (figure.y === 0 && !checkCollision(figure, state.field)) {
+      return {
+        ...state,
+        actionQueue: enqueueAction(gameOverAction(state.roomName, state.playerName), state),
+      }
+    }
     figure = { ...figure, y: figure.y + 1 }
     if (checkCollision(figure, state.field)) {
       return { ...state, figure }
@@ -152,6 +207,25 @@ const reducer = (state = {}, action) => {
       return { ...state, figure }
     }
     return state
+  case 'GAME_MOVE_FIGURE_MAX_DOWN':
+    if (!state.figure) {
+      return state
+    }
+    figure = state.figure
+    if (figure.y === 0 && !checkCollision(figure, state.field)) {
+      return {
+        ...state,
+        actionQueue: enqueueAction(gameOverAction(state.roomName, state.playerName), state),
+      }
+    }
+    while (checkCollision(figure, state.field)) {
+      console.log('Y:', figure.y)
+      figure.y = figure.y + 1
+    }
+    figure.y = figure.y - 1
+    return { ...state,
+      actionQueue: enqueueAction(setFigureAction(state.roomName, state.playerName, state.figure), state)
+    }
   case 'GAME_SET_MOVE_LISTENER':
     return { ...state, moveFigureListener: action.moveFigureListener }
   case 'GAME_CLEAR_MOVE_LISTENER':
@@ -164,6 +238,8 @@ const reducer = (state = {}, action) => {
     return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
   case CLIENT_UPDATE_GAME_LIST:
     return { ...state, gameList: action.gameList }
+  case 'SWITCH_GAME_URL':
+    return { ...state, gameUrl: action.gameUrl }
   default:
     return state
   }

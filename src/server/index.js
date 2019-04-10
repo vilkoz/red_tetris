@@ -7,13 +7,23 @@ const path = require('path');
 const logerror = debug('tetris:error'), loginfo = debug('tetris:info')
 const _ = require('lodash')
 const GameManager = require('./GameManager.js')
+const action_index = require('../common/action_index')
 
 const actions = require('./actions.js')
 
 const initApp = (app, params, cb) => {
   const { host, port } = params
   const handler = (req, res) => {
-    const file = req.url === '/bundle.js' ? '/../../build/bundle.js' : '/../../index.html'
+    const files = {
+      '/bundle.js': '/../../build/bundle.js',
+      '/static/baloochettah.ttf': '/../../static/baloochettah.ttf',
+      '/static/font.css': '/../../static/font.css',
+    }
+    let file = files[req.url]
+    if (!file) {
+      file = '/../../index.html'
+    }
+    loginfo('path:', path.join(__dirname, file))
     fs.readFile(path.join(__dirname, file), (err, data) => {
       if (err) {
         logerror(err)
@@ -48,6 +58,14 @@ const initEngine = io => {
       else {
         actionManager.dispatch(action, socket)
       }
+    })
+
+    socket.on('disconnect', () => {
+      logerror(`disconnect ${socket.id}`)
+      const playerExitGameAction = {
+        type: action_index.SERVER_DISCONNECT_GAME,
+      }
+      actionManager.dispatch(playerExitGameAction, socket)
     })
   })
 }
