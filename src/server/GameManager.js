@@ -231,22 +231,26 @@ class GameManager {
     )
     const brakeRes = this.checkRowBrake(field)
     const scoredField = brakeRes.field
-    const score = brakeRes.score
+    const figureBlockCount = 4
+    const lineBlockCount = 10
+    const setScore = figureBlockCount + brakeRes.score * (lineBlockCount)
+    const beforeScore = this.games[roomName].scores[playerName]
+    const currentScore = (beforeScore ? beforeScore : 0) + setScore
 
     /* eslint-disable prefer-reflect */
     delete this.games[roomName].figures[playerName]
 
     /* eslint-enable prefer-reflect */
     this.games[roomName].fields[playerName] = scoredField
-    this.games[roomName].scores[playerName] = score
+    this.games[roomName].scores[playerName] = currentScore
     loginfo('field', scoredField)
-    loginfo('score', score)
+    loginfo('score', currentScore)
     let isGameOver = false
     if (_.some(scoredField[0], (el) => el !== 0)) {
       isGameOver = true
       this.games[roomName].isPlaying[playerName] = false
     }
-    return { field: scoredField, score, isGameOver }
+    return { field: scoredField, score: currentScore, isGameOver }
   }
 
   checkFigureIsNotFlying(figure, field) {
@@ -292,8 +296,8 @@ class GameManager {
       newField[i] = newField[i].map(() => 0)
     }
 
-    const arrayDiff = _.filter(rowBraked, (el) => el === true)
-    return { field: newField, score: arrayDiff.length }
+    loginfo('emptyZone:', emptyZone)
+    return { field: newField, score: emptyZone }
   }
 
   getSpectre(roomName, playerName) {
@@ -430,6 +434,16 @@ class GameManager {
     })
   }
 
+  playerSetGameOver(roomName, playerName) {
+    if (!this.isGameExists(roomName)) {
+      throw Error(`Game with name ${roomName} doesn't exist`)
+    }
+    if (!(playerName in this.games[roomName].fields)) {
+      throw Error(`Player ${playerName} isn't connected to the room ${roomName}`)
+    }
+    this.games[roomName].isPlaying[playerName] = false
+  }
+
   checkGameFinished(roomName) {
     if (!this.isGameExists(roomName)) {
       throw Error(`Game with name ${roomName} doesn't exist`)
@@ -440,7 +454,10 @@ class GameManager {
         isFinished = false
       }
     })
-    const scores = this.games[roomName].scores
+    const scores = []
+    _.forOwn(this.games[roomName].scores, (score, player) => {
+      scores.push({ score, player })
+    })
     if (isFinished && this.games[roomName].state === STATE_GAME) {
       this.games[roomName].state = STATE_LEADER_BOARD
     }
@@ -466,12 +483,15 @@ class GameManager {
     }
 
     game.state = STATE_GAME_LOBBY
-    _.forOwn(game.fields, (player) => {
+    _.forOwn(game.fields, (field, player) => {
       game.scores[player] = 0
       game.isPlaying[player] = false
+      game.readyList[player] = false
       game.readyList[player] = (game.owner === player)
     })
     this.games[roomName] = game
+    this.games[roomName].figures = {}
+    loginfo('game_restart:', game)
   }
 }
 

@@ -20,13 +20,16 @@ class ActionManager {
       [actions.SERVER_EXIT_GAME]: this.playerExitGame,
       [actions.SERVER_GAME_RESTART]: this.gameRestart,
       [actions.SERVER_DISCONNECT_GAME]: this.disconnectPlayer,
+      [actions.SERVER_GAME_OVER]: this.playerGameOver,
     }
     this.gameListSubscribers = {}
   }
 
   dispatch = (action, socket) => {
+    if (action.roomName) {
+      loginfo('game:', this.gameManager.games[action.roomName])
+    }
     if (!(action.type in this.actionMap)) {
-      loginfo('actionMap', this.actionMap, 'action.type', action)
       socket.emit('action', { type: actions.CLIENT_ERROR, message: `action ${action.type} is not supported!` })
       return
     }
@@ -110,7 +113,7 @@ class ActionManager {
     })
     this.roomCheckDisconnected(roomName)
     if (isGameOver) {
-      const { isFinished, scores } = this.checkGameFinished(roomName)
+      const { isFinished, scores } = this.gameManager.checkGameFinished(roomName)
       if (isFinished) {
         this.roomForEachSocket(roomName, -1, (s) => {
           s.emit('action', { type: actions.CLIENT_GAME_FINISHED, scores })
@@ -234,9 +237,11 @@ class ActionManager {
   gameRestart = ({ action, socket }) => {
     const { roomName } = this.verifyRequiredActionArgs(action, ['roomName'])
     this.gameManager.gameRestart(roomName, socket.id)
+    const playerReadyList = this.gameManager.getPlayerReadyList(roomName)
     this.roomForEachSocket(roomName, -1, (s) => {
       s.emit('action', { type: actions.CLIENT_GAME_RESTART,
         message: 'Success restarting game',
+        playerReadyList,
       })
     })
   }
@@ -271,6 +276,20 @@ class ActionManager {
         s.emit('action', { type: actions.CLIENT_UPDATE_GAME_LIST,
           gameList: this.gameManager.getGameList() })
       }
+    }
+  }
+
+  playerGameOver = ({ action, socket }) => {
+    const { roomName, playerName } = this.verifyRequiredActionArgs(action, ['roomName', 'playerName'])
+    socket.emit('action', { type: actions.CLIENT_GAME_OVER, message: 'Game is over for you' })
+    this.gameManager.playerSetGameOver(roomName, playerName)
+    const { isFinished, scores } = this.gameManager.checkGameFinished(roomName)
+    console.log('game over isFinished: ', isFinished)
+    if (isFinished) {
+      this.roomForEachSocket(roomName, -1, (s) => {
+        s.emit('action', { type: actions.CLIENT_GAME_FINISHED, scores })
+      })
+      return
     }
   }
 }
