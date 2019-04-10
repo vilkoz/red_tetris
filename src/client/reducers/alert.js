@@ -8,15 +8,21 @@ import {
   CLIENT_UPDATE_GAME_LIST,
   CLIENT_GET_PLAYER_READY_LIST,
   CLIENT_START_GAME,
+  CLIENT_GAME_FINISHED,
+  CLIENT_GAME_RESTART,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
+import { gameOverAction } from '../actions/server'
 import {
   STATE_LOBBY,
   STATE_GAME_LOBBY,
   STATE_GAME,
   STATE_LEADER_BOARD,
 } from '../../common/game_states'
-import { mapStateToRoute } from '../routes'
+import {
+  mapStateToRoute,
+  doMapStateToRoute,
+} from '../routes'
 
 const cutEmpty = (figure) => {
   const shift = {
@@ -102,7 +108,7 @@ const reducer = (state = {}, action) => {
       gameState: STATE_GAME_LOBBY,
       message: action.message,
       field: action.field,
-      gameUrl: mapStateToRoute({ roomName: state.roomName, playerName: state.playerName }), // TODO: clever solution
+      gameUrl: doMapStateToRoute(state),
       actionQueue: enqueueAction({ type: SERVER_UNSUBSCRIBE_GAME_LIST }, state)
         .concat([
           { type: SERVER_GET_PLAYER_READY_LIST, roomName: state.roomName },
@@ -114,17 +120,36 @@ const reducer = (state = {}, action) => {
       gameState: STATE_GAME,
       message: action.message,
       field: action.field,
-      gameUrl: mapStateToRoute({ roomName: state.roomName, playerName: state.playerName }), // TODO: clever solution
+      gameUrl: doMapStateToRoute(state),
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
+    }
+  case CLIENT_GAME_FINISHED:
+    return {
+      ...state,
+      gameState: STATE_LEADER_BOARD,
+      message: action.message,
+      gameUrl: doMapStateToRoute(state),
+      scores: action.scores,
+    }
+  case CLIENT_GAME_RESTART:
+    return {
+      ...state,
+      gameState: STATE_GAME_LOBBY,
+      message: action.message,
+      gameUrl: doMapStateToRoute(state),
+      playerReadyList: action.playerReadyList,
+      figure: undefined,
+      scores: undefined,
+      field: undefined,
+      spectres: undefined,
     }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
-    return { ...state, message: action.message, field: action.field, figure: undefined,
+    return { ...state, message: action.message, field: action.field, figure: undefined, score: action.score,
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
     }
   case 'client/new_player':
-    console.log('NEW PLAYER!!!')
     const players = { ...state.players }
     players[action.playerName] = action.spectre
     return { ...state, players: { ...players } }
@@ -159,6 +184,12 @@ const reducer = (state = {}, action) => {
       return state
     }
     figure = state.figure
+    if (figure.y === 0 && !checkCollision(figure, state.field)) {
+      return {
+        ...state,
+        actionQueue: enqueueAction(gameOverAction(state.roomName, state.playerName), state),
+      }
+    }
     figure = { ...figure, y: figure.y + 1 }
     if (checkCollision(figure, state.field)) {
       return { ...state, figure }
@@ -176,6 +207,25 @@ const reducer = (state = {}, action) => {
       return { ...state, figure }
     }
     return state
+  case 'GAME_MOVE_FIGURE_MAX_DOWN':
+    if (!state.figure) {
+      return state
+    }
+    figure = state.figure
+    if (figure.y === 0 && !checkCollision(figure, state.field)) {
+      return {
+        ...state,
+        actionQueue: enqueueAction(gameOverAction(state.roomName, state.playerName), state),
+      }
+    }
+    while (checkCollision(figure, state.field)) {
+      console.log('Y:', figure.y)
+      figure.y = figure.y + 1
+    }
+    figure.y = figure.y - 1
+    return { ...state,
+      actionQueue: enqueueAction(setFigureAction(state.roomName, state.playerName, state.figure), state)
+    }
   case 'GAME_SET_MOVE_LISTENER':
     return { ...state, moveFigureListener: action.moveFigureListener }
   case 'GAME_CLEAR_MOVE_LISTENER':

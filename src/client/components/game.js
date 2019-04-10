@@ -8,12 +8,12 @@ import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
+  score,
   fallFigureInterval, spectres, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
   moveFigure(figure, moveFigureListener)
   fallFigure(figure, fallFigureInterval)
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
-  console.log('render game')
   const spectreArr = []
   for (const name in spectres) {
     spectreArr.push({ field: spectres[name], name })
@@ -24,6 +24,8 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
       <span>{message}</span>
       <br/>
       <span>{playerName && roomName && playerName + roomName}</span>
+      <br/>
+      <span>Score: {score ? score : '0'}</span>
       <br/>
       <div>
         <GameField field={field} figure={figure}/>
@@ -54,6 +56,7 @@ const mapStateToProps = (state) => (
     moveFigureListener: state.moveFigureListener,
     fallFigureInterval: state.fallFigureInterval,
     spectres: state.spectres,
+    score: state.score,
   }
 )
 const mapDispatchToProps = (dispatch) => (
@@ -71,6 +74,7 @@ const mapDispatchToProps = (dispatch) => (
               37: 'LEFT',
               39: 'RIGHT',
               40: 'DOWN',
+              32: 'MAX_DOWN',
             }
             if (!(event.keyCode in directions)) {
               return
@@ -90,6 +94,7 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     fallFigure: (figure, fallFigureInterval) => {
+      return
       console.log('interval:', figure, fallFigureInterval)
       if (figure && !fallFigureInterval) {
         const oneSecondInterval = 1000

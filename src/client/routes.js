@@ -12,6 +12,8 @@ export const mapStateToRoute = ({ roomName, playerName }) => ({
   [STATE_LEADER_BOARD]: `/leader_board/${roomName}`,
 })
 
+export const doMapStateToRoute = (state) => mapStateToRoute(state)[state.gameState]
+
 export const changeRouteByState = ({ roomName, playerName, history, gameUrl, gameState, switchGameUrl }) => {
   const requiredRoute = mapStateToRoute({ roomName, playerName })[gameState]
   if (gameUrl !== requiredRoute) {

@@ -12,6 +12,8 @@ export const SERVER_EXIT_GAME = 'server/exit_game'
 export const SERVER_GAME_RESTART = 'server/game_restart'
 export const SERVER_DISCONNECT_GAME = 'server/disconnect_game'
 
+export const SERVER_GAME_OVER = 'server/game_over'
+
 export const CLIENT_CREATE_GAME = 'client/create_game'
 export const CLIENT_ERROR = 'client/error'
 export const CLIENT_NEW_PLAYER = 'client/new_player'
