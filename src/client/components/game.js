@@ -9,7 +9,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   fallFigureInterval, spectres,
   history, moveFigure, setFigure, fallFigure }) => {
   moveFigure(figure, moveFigureListener)
-  fallFigure(figure, fallFigureInterval)
+  // fallFigure(figure, fallFigureInterval)
   if (!gameUrl) {
     history.push('/')
   }
@@ -25,7 +25,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
       <br/>
       <span>{playerName && roomName && playerName + roomName}</span>
       <br/>
-      <div>
+      <div className='gameField'>
         <GameField field={field} figure={figure}/>
         <button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>
         <button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>
