@@ -213,6 +213,16 @@ input {
   box-shadow: 0 0 20px #ebac0c;
 }
 
+.gameLobby .preferences select {
+  width: 50%;
+  box-shadow: 0px 0 10px #2a0934;
+}
+
+.gameLobby .preferences select:hover {
+  width: 45%;
+  transition: all 0.2s;
+}
+
 .svg-inline--fa.fa-w-16, .svg-inline--fa.fa-w-18, .svg-inline--fa.fa-w-20 {
   height: 5em;
   width: 5em;

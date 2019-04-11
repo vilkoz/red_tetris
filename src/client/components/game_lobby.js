@@ -32,16 +32,16 @@ const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameS
 }) => {
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   return (
-    <div className="gameLobby">
+    <div className='gameLobby'>
       <div className={`playerLobby ${theme}`}>
-        <h1> Game lobby "{roomName}" </h1>
-        <div className="errorMessage">{ message && <b>{message}</b>}</div>
-        <div className="playerList">
+        <h1> Game lobby '{roomName}' </h1>
+        <div className='errorMessage'>{ message && <b>{message}</b>}</div>
+        <div className='playerList'>
           { playerReadyList &&
             playerReadyList.map((el) => (
               <div  className={el.readyStatus ? 'player ready' : 'player' }>
                 <FontAwesomeIcon icon={_.sample(images)}/>
-                <div className="container">
+                <div className='container'>
                   <p>{el.player}</p>
                 </div>
               </div>
@@ -49,15 +49,16 @@ const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameS
           }
         </div>
       </div>
-      <div className="preferences">
+      <div className='preferences'>
         <button onClick={() => isOwner ? startGame(roomName) : toggleReadyState(roomName, playerName)}>
           {isOwner ? 'Start game' : 'Toggle ready' }
         </button>
-        <div className="styled-select">
+        <div className='styled-select'>
+          <h3>Choose theme:</h3>
           <select value={theme} onChange={changeTheme}>
-            <option value="default">Default</option>
-            <option value="magic">Magic</option>
-            <option value="podval">Podval</option>
+            <option value='default'>Default</option>
+            <option value='magic'>Magic</option>
+            <option value='podval'>Podval</option>
           </select>
         </div>
       </div>
