@@ -106,12 +106,17 @@ class ActionManager {
       action,
       ['roomName', 'playerName', 'figure']
     )
-    const { field, score, isGameOver } = this.gameManager.setFigure(roomName, playerName, figure)
+    const { field, score, isGameOver, doFieldUpdate } = this.gameManager.setFigure(roomName, playerName, figure)
     socket.emit('action', { type: actions.CLIENT_SET_FIGURE,
       message: 'Success',
       field,
       score,
     })
+    if (doFieldUpdate) {
+      this.roomForEachSocket(roomName, socket.id, (s, player) => {
+        s.emit('action', { type: actions.CLIENT_UPDATE_FIELD, field: this.gameManager.games[roomName].fields[player] })
+      })
+    }
     this.roomCheckDisconnected(roomName)
     if (isGameOver) {
       const { isFinished, scores } = this.gameManager.checkGameFinished(roomName)

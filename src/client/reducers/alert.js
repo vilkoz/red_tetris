@@ -10,6 +10,7 @@ import {
   CLIENT_START_GAME,
   CLIENT_GAME_FINISHED,
   CLIENT_GAME_RESTART,
+  CLIENT_UPDATE_FIELD,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import { gameOverAction } from '../actions/server'
@@ -242,6 +243,8 @@ const reducer = (state = {}, action) => {
     return { ...state, gameUrl: action.gameUrl }
   case 'CHANGE_THEME':
     return { ...state, theme: action.theme }
+  case CLIENT_UPDATE_FIELD:
+    return { ...state, field: action.field }
   default:
     return state
   }

@@ -266,12 +266,33 @@ class GameManager {
     this.games[roomName].scores[playerName] = currentScore
     loginfo('field', scoredField)
     loginfo('score', currentScore)
+
+    if (brakeRes.score !== 0) {
+      this.appendLinePenalty(roomName, playerName, brakeRes.score)
+    }
+
     let isGameOver = false
     if (_.some(scoredField[0], (el) => el !== 0)) {
       isGameOver = true
       this.games[roomName].isPlaying[playerName] = false
     }
-    return { field: scoredField, score: currentScore, isGameOver }
+    return { field: scoredField, score: currentScore, isGameOver, doFieldUpdate: brakeRes.score !== 0 }
+  }
+
+  appendLinePenalty(roomName, noPenaltyName, rowsNumber) {
+    const game = this.games[roomName]
+    _.forOwn(game.fields, (field, playerName) => {
+      if (playerName === noPenaltyName) {
+        return
+      }
+      const getPenaltyRow = () => {
+        let res = (new Array(this.fieldWidth))
+        res = _.map(res, (el) => 1)
+        res[Math.floor(Math.random() * this.fieldWidth)] = 0
+        return res
+      }
+      game.fields[playerName] = field.map((row, i) => (i >= field.length - rowsNumber ? getPenaltyRow() : field[i + 1]))
+    })
   }
 
   checkFigureIsNotFlying(figure, field) {

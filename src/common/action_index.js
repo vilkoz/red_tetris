@@ -32,3 +32,5 @@ export const CLIENT_GAME_OVER = 'client/game_over'
 export const CLIENT_GAME_FINISHED = 'client/game_finished'
 export const CLIENT_GAME_RESTART = 'client/game_restart'
 export const CLIENT_PLAYER_EXITED = 'client/player_exited'
+
+export const CLIENT_UPDATE_FIELD = 'client/update_field'
