@@ -55,6 +55,8 @@ class GameManager {
       sockets: {},
       fields: {},
       figures: {},
+      figureNums: {},
+      figureList: [],
       scores: {},
       isStarted: false,
     }
@@ -64,6 +66,7 @@ class GameManager {
     game.scores[playerName] = 0
     game.readyList[playerName] = true
     game.isPlaying[playerName] = false
+    game.figureNums[playerName] = 0
     this.games[roomName] = game
     return game
   }
@@ -80,6 +83,7 @@ class GameManager {
     game.sockets[playerName] = socket.id
     game.readyList[playerName] = false
     game.isPlaying[playerName] = false
+    game.figureNums[playerName] = 0
     return game
   }
 
@@ -143,8 +147,19 @@ class GameManager {
         [0, 0, 0],
       ],
     ]
-    const playerFigure = figures[Math.floor(Math.random() * figures.length)]
-    this.games[roomName].figures[playerName] = playerFigure
+    const game = this.games[roomName]
+    let playerFigure
+    if (game.figureNums[playerName] === game.figureList.length) {
+      playerFigure = figures[Math.floor(Math.random() * figures.length)]
+      game.figureList.push(playerFigure)
+    }
+    else {
+      const figureNum = game.figureNums[playerName]
+      playerFigure = game.figureList[figureNum]
+    }
+    game.figures[playerName] = playerFigure
+    game.figureNums[playerName] = game.figureNums[playerName] + 1
+
     return playerFigure
   }
 
@@ -486,12 +501,12 @@ class GameManager {
     _.forOwn(game.fields, (field, player) => {
       game.scores[player] = 0
       game.isPlaying[player] = false
-      game.readyList[player] = false
       game.readyList[player] = (game.owner === player)
+      game.figureNums[player] = 0
     })
     this.games[roomName] = game
     this.games[roomName].figures = {}
-    loginfo('game_restart:', game)
+    this.games[roomName].figureList = []
   }
 }
 

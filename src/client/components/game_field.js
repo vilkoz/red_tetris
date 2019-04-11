@@ -22,11 +22,12 @@ const GameField = ({ field, figure }) => {
     <div>
       {fieldWithFigure.map((line, rowNum) => (
         <div key={`row ${rowNum}`}>
-          {line.map((el, colNum) => (
-            <div className={(el !== 0 ? 'figureElem' : 'fieldElem')}
-                 key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
-            )
-          )}
+          {
+            line.map((el, colNum) => (
+              <div className={(el !== 0 ? 'figureElem' : 'fieldElem')}
+                key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
+            ))
+          }
         </div>
       ))}
     </div>
