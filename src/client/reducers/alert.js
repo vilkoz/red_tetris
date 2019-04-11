@@ -240,6 +240,8 @@ const reducer = (state = {}, action) => {
     return { ...state, gameList: action.gameList }
   case 'SWITCH_GAME_URL':
     return { ...state, gameUrl: action.gameUrl }
+  case 'CHANGE_THEME':
+    return { ...state, theme: action.theme }
   default:
     return state
   }

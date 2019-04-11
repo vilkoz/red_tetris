@@ -7,27 +7,60 @@ import {
   startGameAction
 } from '../actions/server'
 import { changeRouteByState } from '../routes'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faCat, faCrow, faDog, faDove, faDragon, faFeather,
+  faFish, faFrog, faHippo, faHorse, faOtter, faPaw, faSpider,
+} from '@fortawesome/free-solid-svg-icons'
+library.add(
+  faCat, faCrow, faDog, faDove, faDragon, faFeather,
+  faFish, faFrog, faHippo, faHorse, faOtter, faPaw, faSpider
+)
 
-const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, playerReadyList, isOwner,
-  history, switchGameUrl, toggleReadyState, startGame
+const images = [
+  'cat', 'crow', 'dog', 'dove', 'dragon', 'feather', 'fish',
+  'frog', 'hippo', 'horse', 'otter', 'paw', 'spider',
+]
+
+const themeStyles = {
+  default: 'default'
+}
+
+const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, playerReadyList, isOwner, theme,
+  history, switchGameUrl, toggleReadyState, startGame, changeTheme
 }) => {
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   return (
-    <div>
-      <h1> Game lobby {roomName} </h1>
-      { message && <b>{message}</b>}
-      <ul>
-        { playerReadyList &&
-          playerReadyList.map((el) => (
-            <li key={el.player}>
-              <span>name: {el.player}</span><span>ready: {el.readyStatus ? 'true' : 'false'}</span>
-            </li>
-          ))
-        }
-      </ul>
-      <button onClick={() => isOwner ? startGame(roomName) : toggleReadyState(roomName, playerName)}>
-        {isOwner ? 'Start game' : 'Toggle ready' }
-      </button>
+    <div className="gameLobby">
+      <div className={`playerLobby ${theme}`}>
+        <h1> Game lobby "{roomName}" </h1>
+        <div className="errorMessage">{ message && <b>{message}</b>}</div>
+        <div className="playerList">
+          { playerReadyList &&
+            playerReadyList.map((el) => (
+              <div  className={el.readyStatus ? 'player ready' : 'player' }>
+                <FontAwesomeIcon icon={_.sample(images)}/>
+                <div className="container">
+                  <p>{el.player}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <div className="preferences">
+        <button onClick={() => isOwner ? startGame(roomName) : toggleReadyState(roomName, playerName)}>
+          {isOwner ? 'Start game' : 'Toggle ready' }
+        </button>
+        <div className="styled-select">
+          <select value={theme} onChange={changeTheme}>
+            <option value="default">Default</option>
+            <option value="magic">Magic</option>
+            <option value="podval">Podval</option>
+          </select>
+        </div>
+      </div>
     </div>
   )
 }
@@ -42,6 +75,7 @@ const mapStateToProps = (state) => (
     gameState: state.gameState,
     playerReadyList: state.playerReadyList,
     isOwner: state.isOwner,
+    theme: state.theme,
   }
 )
 
@@ -55,6 +89,9 @@ const mapDispatchToProps = (dispatch) => (
     },
     startGame: (roomName) => {
       dispatch(startGameAction(roomName))
+    },
+    changeTheme: (e) => {
+      dispatch({ type: 'CHANGE_THEME', theme: e.target.value })
     }
   }
 )
