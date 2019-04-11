@@ -157,6 +157,9 @@ class GameManager {
       const figureNum = game.figureNums[playerName]
       playerFigure = game.figureList[figureNum]
     }
+    const colorsNum = 5
+    const randColor = Math.floor(Math.random() * colorsNum) + 1
+    playerFigure = playerFigure.map((row) => row.map(el => (el !== 0 ? randColor : 0)))
     game.figures[playerName] = playerFigure
     game.figureNums[playerName] = game.figureNums[playerName] + 1
 
@@ -236,7 +239,7 @@ class GameManager {
         if (y >= figure.y && y < figure.y + rotatedFigure.length &&
             x >= figure.x && x < figure.x + rotatedFigure[0].length) {
           const figurePiece = rotatedFigure[y - figure.y][x - figure.x]
-          if (figurePiece === 1 && el === 1) {
+          if (figurePiece !== 0 && el !== 0) {
             throw Error(`Figure intersects with existing piece on field coords: ${x} ${y}`);
           }
           return (figurePiece !== 0) ? figurePiece : el
@@ -274,7 +277,7 @@ class GameManager {
     /* eslint-disable no-confusing-arrow */
     const coordsToCheck = collumns.map((collumn, collumnNum) => {
       const maxY = collumn
-        .map((el, y) => (el === 1 ? y : -1))
+        .map((el, y) => (el !== 0 ? y : -1))
         .reduce((max, el) => (max < el) ? el : max)
       return { x: collumnNum + figure.x, y: maxY + figure.y + 1 }
     })
@@ -285,7 +288,7 @@ class GameManager {
       if (x >= field[0].length || y >= field.length) {
         return false
       }
-      if (field[y][x] === 1) {
+      if (field[y][x] !== 0) {
         return false
       }
       return true
@@ -295,7 +298,7 @@ class GameManager {
   }
 
   checkRowBrake(field) {
-    const rowBraked = field.map((row) => row.every(v => v === 1))
+    const rowBraked = field.map((row) => row.every(v => v !== 0))
     const newField = field.map(row => row.map(e => e))
 
     rowBraked.forEach((isBraked, y) => {

@@ -1,6 +1,14 @@
 import React from 'react'
 import './style.css'
 
+const figureColors = {
+  1: 'bg-red',
+  2: 'bg-blue',
+  3: 'bg-green',
+  4: 'bg-yellow',
+  5: 'bg-aqua',
+}
+
 const GameField = ({ field, figure }) => {
   if (!field) {
     return <div/>
@@ -24,7 +32,7 @@ const GameField = ({ field, figure }) => {
         <div key={`row ${rowNum}`}>
           {
             line.map((el, colNum) => (
-              <div className={(el !== 0 ? 'figureElem' : 'fieldElem')}
+              <div className={`fieldElem ${figureColors[el]}`}
                 key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
             ))
           }
