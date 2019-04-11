@@ -79,6 +79,9 @@ class GameManager {
     if (playerName in game.fields) {
       throw Error(`Player with name ${playerName} already connected to the room ${roomName}!`)
     }
+    if (game.state !== STATE_GAME_LOBBY) {
+      throw Error(`The game "${roomName}" already started, please wait until it is finished`)
+    }
     game.fields[playerName] = this.createField()
     game.sockets[playerName] = socket.id
     game.readyList[playerName] = false
