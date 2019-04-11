@@ -40,6 +40,7 @@ class ActionManager {
     catch (e) {
       socket.emit('action', { type: actions.CLIENT_ERROR, message: e.message })
       logerror(e.message)
+      logerror(e.stack)
     }
   }
 
@@ -84,11 +85,11 @@ class ActionManager {
         isOwner: true,
       })
     }
-    for (const id in this.gameListSubscribers) {
+    _.forOwn(this.gameListSubscribers, (value, id) => {
       const s = this.io.of('/').connected[id]
       s.emit('action', { type: actions.CLIENT_UPDATE_GAME_LIST,
         gameList: this.gameManager.getGameList() })
-    }
+    })
   }
 
   getFigure = ({ action, socket }) => {
