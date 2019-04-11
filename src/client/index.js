@@ -16,18 +16,91 @@ import io from 'socket.io-client'
 const socket = io(':3004')
 const socketIoMiddleware = createSocketIoMiddleWare(socket, 'server/')
 
-import { STATE_LOBBY } from '../common/game_states'
+import { STATE_LOBBY, STATE_GAME_LOBBY, STATE_GAME } from '../common/game_states'
 
 const initialState = {
   playerName: '',
   roomName: '',
   gameState: STATE_LOBBY,
   gameUrl: '/',
+  theme: 'default',
+}
+
+const fakeInitialStateGame = {
+  playerName: 'kosp',
+  roomName: '1241kksla',
+  gameState: STATE_GAME,
+  gameUrl: '/sdasd[adsasd]',
+  score: '150',
+  theme: 'default',
+  field: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  ],
+  scores: '1212',
+  spectres: { 'player1': [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    ],
+  },
+}
+
+const fakeInitialState = {
+  playerName: 'kosp',
+  roomName: '1241kksla',
+  gameState: STATE_GAME_LOBBY,
+  gameUrl: '/game_lobby/1241kksla',
+  isOwner: true,
+  playerReadyList: [
+    {player: 'sraka', readyStatus: true},
+    {player: 'vilko', readyStatus: false},
+    {player: 'sraka2', readyStatus: true},
+    {player: 'sraka3', readyStatus: false},
+  ],
+  theme: 'default',
 }
 
 const store = applyMiddleware(socketIoMiddleware)(createStore)(
   reducer,
-  initialState,
+  // fakeInitialState,
+  fakeInitialStateGame,
+  // initialState,
   applyMiddleware(thunk, createLogger())
   // applyMiddleware(thunk)
 )

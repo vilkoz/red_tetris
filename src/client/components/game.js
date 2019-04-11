@@ -8,8 +8,8 @@ import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
-  score,
-  fallFigureInterval, spectres, switchGameUrl, history, moveFigure, setFigure, fallFigure
+  score, theme,
+  fallFigureInterval, spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
   moveFigure(figure, moveFigureListener)
   fallFigure(figure, fallFigureInterval)
@@ -19,7 +19,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
     spectreArr.push({ field: spectres[name], name })
   }
   return (
-    <div>
+    <div className={theme}>
       <h1>Game</h1>
       <span>{message}</span>
       <br/>
@@ -27,12 +27,13 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
       <br/>
       <span>Score: {score ? score : '0'}</span>
       <br/>
-      <div>
+      {scores}
+      <div className='gameField'>
         <GameField field={field} figure={figure}/>
-        <button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>
-        <button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>
+        {/*<button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>*/}
+        {/*<button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>*/}
       </div>
-      <div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>
+      {/*<div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>*/}
       <div>
         {
           spectres && spectreArr.map((el, competitorKey) => (
@@ -57,6 +58,8 @@ const mapStateToProps = (state) => (
     fallFigureInterval: state.fallFigureInterval,
     spectres: state.spectres,
     score: state.score,
+    theme: state.theme,
+    scores: state.scores
   }
 )
 const mapDispatchToProps = (dispatch) => (
@@ -94,7 +97,6 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     fallFigure: (figure, fallFigureInterval) => {
-      return
       console.log('interval:', figure, fallFigureInterval)
       if (figure && !fallFigureInterval) {
         const oneSecondInterval = 1000
