@@ -99,10 +99,9 @@ const fakeInitialState = {
 const store = applyMiddleware(socketIoMiddleware)(createStore)(
   reducer,
   // fakeInitialState,
-  fakeInitialStateGame,
-  // initialState,
+  // fakeInitialStateGame,
+  initialState,
   applyMiddleware(thunk, createLogger())
-  // applyMiddleware(thunk)
 )
 
 ReactDom.render((

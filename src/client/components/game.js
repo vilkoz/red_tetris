@@ -8,7 +8,7 @@ import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
-  score, theme,
+  score, theme, errorMessage,
   fallFigureInterval, spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
   moveFigure(figure, moveFigureListener)
@@ -54,6 +54,7 @@ const mapStateToProps = (state) => (
     gameState: state.gameState,
     figure: state.figure,
     message: state.message,
+    errorMessage: state.errorMessage,
     moveFigureListener: state.moveFigureListener,
     fallFigureInterval: state.fallFigureInterval,
     spectres: state.spectres,
@@ -97,6 +98,7 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     fallFigure: (figure, fallFigureInterval) => {
+      return;
       console.log('interval:', figure, fallFigureInterval)
       if (figure && !fallFigureInterval) {
         const oneSecondInterval = 1000

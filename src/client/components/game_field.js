@@ -2,11 +2,12 @@ import React from 'react'
 import './style.css'
 
 const figureColors = {
-  1: 'bg-red',
-  2: 'bg-blue',
-  3: 'bg-green',
-  4: 'bg-yellow',
-  5: 'bg-aqua',
+  0: 'bg-gray field-cell-empty',
+  1: 'bg-red field-cell-full',
+  2: 'bg-blue field-cell-full',
+  3: 'bg-green field-cell-full',
+  4: 'bg-yellow field-cell-full',
+  5: 'bg-aqua field-cell-full',
 }
 
 const GameField = ({ field, figure }) => {

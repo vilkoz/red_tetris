@@ -35,7 +35,7 @@ const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameS
     <div className='gameLobby'>
       <div className={`playerLobby ${theme}`}>
         <h1> Game lobby '{roomName}' </h1>
-        <div className='errorMessage'>{ message && <b>{message}</b>}</div>
+        <div className='errorMessage'>{ errorMessage && <b>{errorMessage}</b>}</div>
         <div className='playerList'>
           { playerReadyList &&
             playerReadyList.map((el) => (

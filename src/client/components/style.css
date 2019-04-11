@@ -251,17 +251,21 @@ input {
 }
 
 .gameField .fieldElem {
-  width: 4.5vh;
-  height: 4.5vh;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
-  background-color: gray;
+  /* background-color: gray; */
 }
 
 .gameField .figureElem {
-  width: 4.5vh;
-  height: 4.5vh;
-  background-color: blue;
+  width: 30px;
+  height: 30px;
+  /* background-color: blue; */
   display: inline-flex;
+}
+
+.bg-gray {
+  background-color: gray;
 }
 
 .bg-red {
@@ -282,4 +286,12 @@ input {
 
 .bg-aqua {
   background-color: aqua;
+}
+
+.field-cell-empty {
+  box-shadow: inset 1px 1px 5px rgb(42, 9, 52), inset -3px -3px 5px rgba(255, 255, 255, 0.54);
+}
+
+.field-cell-full {
+  box-shadow: inset 3px 3px 5px rgb(246, 213, 120), inset -3px -3px 5px #621690;
 }
