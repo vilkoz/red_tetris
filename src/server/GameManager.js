@@ -388,6 +388,7 @@ class GameManager {
     delete this.games[roomName].scores[playerName]
     delete this.games[roomName].isPlaying[playerName]
     delete this.games[roomName].readyList[playerName]
+    delete this.games[roomName].figureNums[playerName]
     let playerNum = 0
     _.forOwn(this.games[roomName].fields, (player) => {
       playerNum = playerNum + 1
@@ -421,7 +422,6 @@ class GameManager {
     _.forOwn(this.games[roomName].readyList, (readyStatus, player) => {
       res.push({ player, readyStatus })
     })
-    console.log(res)
 
     return res
   }

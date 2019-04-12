@@ -69,6 +69,10 @@ describe('GameManager.js', () => {
       roomName: 'roomName1',
       scores: { 'playerName1': 0 },
       isStarted: false,
+      figureList: [],
+      figureNums: {
+        'playerName1': 0,
+      },
     }
     const game = gameManager.createGame('roomName1', 'playerName1', socket)
     expect(game).toEqual(expectedGame)
@@ -466,6 +470,10 @@ describe('GameManager.js', () => {
           player1: socket1.id,
         },
         state: 'game_lobby',
+        figureList: [],
+        figureNums: {
+          'player1': 0,
+        },
       },
     }
 
@@ -502,10 +510,10 @@ describe('GameManager.js', () => {
 
   test('getPlayerReadyList', (done) => {
 
-    const expected = {
-      'playerName1': true,
-      'playerName2': false,
-    }
+    const expected = [
+      { 'player': 'playerName1', 'readyStatus': true },
+      { 'player': 'playerName2', 'readyStatus': false }
+    ]
 
     gameManager.createGame('roomName1', 'playerName1', socket)
     gameManager.connectGame('roomName1', 'playerName2', socket)
@@ -513,4 +521,45 @@ describe('GameManager.js', () => {
     expect(readyList).toEqual(expected)
     done()
   })
+
+  test('getPlayerField', (done) => {
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    const field = gameManager.getPlayerField('roomName1', 'playerName1')
+    chai.expect(field).to.equal(gameManager.games['roomName1'].fields['playerName1'])
+    chai.expect(
+      () => gameManager.getPlayerField('non existing name', 'playerName1')
+    ).to.throw(Error)
+    chai.expect(
+      () => gameManager.getPlayerField('roomName1', 'non existing name')
+    ).to.throw(Error)
+    done()
+  })
+
+  test('gameRestart', (done) => {
+    gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.games['roomName1'].state = STATE_LEADER_BOARD
+    gameManager.getPlayerField('roomName1', 'playerName1')
+
+    gameManager.gameRestart('roomName1', socket.id)
+
+    const restartedGame = gameManager.games['roomName1']
+
+    expect(restartedGame.scores).toEqual({ 'playerName1': 0 })
+    expect(restartedGame.isPlaying).toEqual({ 'playerName1': false })
+    expect(restartedGame.readyList).toEqual({ 'playerName1': true })
+    expect(restartedGame.figureNums).toEqual({ 'playerName1': 0 })
+    expect(restartedGame.figures).toEqual({})
+    expect(restartedGame.figureList).toEqual([])
+    chai.expect(
+      () => gameManager.gameRestart('non existing room', socket.id)
+    ).to.throw(Error)
+    chai.expect(
+      () => gameManager.gameRestart('roomName1', socket.id) // STATE_GAME_LOBBY
+    ).to.throw(Error)
+    chai.expect(
+      () => gameManager.gameRestart('roomName1', 'non existing id')
+    ).to.throw(Error)
+    done()
+  })
+
 })

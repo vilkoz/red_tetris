@@ -26,7 +26,7 @@ class ActionManager {
   }
 
   dispatch = (action, socket) => {
-    if (action.roomName) {
+    if (action && action.roomName && this.gameManager.games) {
       loginfo('game:', this.gameManager.games[action.roomName])
     }
     if (!(action.type in this.actionMap)) {
