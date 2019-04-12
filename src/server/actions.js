@@ -26,9 +26,9 @@ class ActionManager {
   }
 
   dispatch = (action, socket) => {
-    if (action && action.roomName && this.gameManager.games) {
-      loginfo('game:', this.gameManager.games[action.roomName])
-    }
+    // if (action && action.roomName && this.gameManager.games) {
+    //   loginfo('game:', this.gameManager.games[action.roomName])
+    // }
     if (!(action.type in this.actionMap)) {
       socket.emit('action', { type: actions.CLIENT_ERROR, message: `action ${action.type} is not supported!` })
       return
@@ -87,6 +87,9 @@ class ActionManager {
     }
     _.forOwn(this.gameListSubscribers, (value, id) => {
       const s = this.io.of('/').connected[id]
+      if (!s) {
+        return
+      }
       s.emit('action', { type: actions.CLIENT_UPDATE_GAME_LIST,
         gameList: this.gameManager.getGameList() })
     })
@@ -114,7 +117,12 @@ class ActionManager {
     })
     if (doFieldUpdate) {
       this.roomForEachSocket(roomName, socket.id, (s, player) => {
-        s.emit('action', { type: actions.CLIENT_UPDATE_FIELD, field: this.gameManager.games[roomName].fields[player] })
+        if (this.gameManager.games[roomName].isPlaying[player]) {
+          s.emit('action', {
+            type: actions.CLIENT_UPDATE_FIELD,
+            field: this.gameManager.games[roomName].fields[player]
+          })
+        }
       })
     }
     this.roomCheckDisconnected(roomName)
@@ -172,7 +180,9 @@ class ActionManager {
     _.forOwn(connected, (id, playerName) => {
       if (id !== currentSocketId) {
         const s = this.io.of('/').connected[id]
-        return cb(s, playerName)
+        if (s) {
+          return cb(s, playerName)
+        }
       }
     })
   }
@@ -277,11 +287,14 @@ class ActionManager {
 
     const deleteRoom = this.gameManager.roomRemovePlayer(disconnectedPlayerGame, playerName)
     if (deleteRoom) {
-      for (const id in this.gameListSubscribers) {
+      _.forOwn(this.gameListSubscribers, (value, id) => {
         const s = this.io.of('/').connected[id]
+        if (!s) {
+          return ;
+        }
         s.emit('action', { type: actions.CLIENT_UPDATE_GAME_LIST,
           gameList: this.gameManager.getGameList() })
-      }
+      })
     }
   }
 
