@@ -98,7 +98,6 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     fallFigure: (figure, fallFigureInterval) => {
-      return;
       console.log('interval:', figure, fallFigureInterval)
       if (figure && !fallFigureInterval) {
         const oneSecondInterval = 1000

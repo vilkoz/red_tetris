@@ -43,7 +43,7 @@ const cutEmpty = (figure) => {
   return { shift, res }
 }
 
-const checkCollision = (figure, field) => {
+export const checkCollision = (figure, field) => {
   const cut = cutEmpty(figure.figure)
   const h = cut.res.length
   const w = cut.res[0].length
