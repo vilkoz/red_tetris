@@ -465,7 +465,9 @@ describe('GameManager.js', () => {
           player1: true,
         },
         roomName: 'room',
-        scores: {},
+        scores: {
+          'player1': 0,
+        },
         sockets: {
           player1: socket1.id,
         },

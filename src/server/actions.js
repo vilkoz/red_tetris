@@ -242,7 +242,7 @@ class ActionManager {
     socket.emit('action', { type: actions.CLIENT_EXIT_GAME,
       message: 'Success exiting game',
     })
-    this.roomForEachSocket(roomName, -1, (s) => {
+    this.roomForEachSocket(roomName, socket.id, (s) => {
       s.emit('action', { type: actions.CLIENT_PLAYER_EXITED,
         message: `Player ${playerName} exited`,
         playerName,
@@ -290,7 +290,7 @@ class ActionManager {
       _.forOwn(this.gameListSubscribers, (value, id) => {
         const s = this.io.of('/').connected[id]
         if (!s) {
-          return ;
+          return
         }
         s.emit('action', { type: actions.CLIENT_UPDATE_GAME_LIST,
           gameList: this.gameManager.getGameList() })
@@ -303,7 +303,6 @@ class ActionManager {
     socket.emit('action', { type: actions.CLIENT_GAME_OVER, message: 'Game is over for you' })
     this.gameManager.playerSetGameOver(roomName, playerName)
     const { isFinished, scores } = this.gameManager.checkGameFinished(roomName)
-    console.log('game over isFinished: ', isFinished)
     if (isFinished) {
       this.roomForEachSocket(roomName, -1, (s) => {
         s.emit('action', { type: actions.CLIENT_GAME_FINISHED, scores })

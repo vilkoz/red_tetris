@@ -87,6 +87,7 @@ class GameManager {
     game.readyList[playerName] = false
     game.isPlaying[playerName] = false
     game.figureNums[playerName] = 0
+    game.scores[playerName] = 0
     return game
   }
 
