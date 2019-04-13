@@ -7,13 +7,31 @@ import {
   SERVER_SET_FIGURE,
   SERVER_GET_GAME_LIST,
   SERVER_UNSUBSCRIBE_GAME_LIST,
+  SERVER_GAME_OVER,
+  SERVER_DISCONNECT_GAME,
+  CLIENT_GAME_OVER,
+  CLIENT_GAME_FINISHED,
   CLIENT_CREATE_GAME,
   CLIENT_ERROR,
   CLIENT_NEW_PLAYER,
   CLIENT_GET_FIGURE,
   CLIENT_SET_FIGURE,
   CLIENT_UPDATE_COMPETITOR_SPECTRE,
+  CLIENT_UPDATE_GAME_LIST,
+  CLIENT_GAME_RESTART,
+  SERVER_GAME_RESTART,
+  SERVER_EXIT_GAME,
+  CLIENT_EXIT_GAME,
+  CLIENT_PLAYER_EXITED,
+  SERVER_START_GAME,
+  CLIENT_START_GAME,
+  SERVER_TOGGLE_READY,
+  CLIENT_GET_PLAYER_READY_LIST,
 } from '../src/common/action_index'
+
+import * as gameStates from '../src/common/game_states'
+
+import GameManager from '../src/server/GameManager'
 
 chai.should()
 
@@ -320,6 +338,313 @@ describe('server/actions.js', () => {
     actionManager.dispatch({ type: SERVER_UNSUBSCRIBE_GAME_LIST }, fakeSocket1)
 
     chai.expect(actionManager.gameListSubscribers).to.deep.equal({})
+    done()
+  })
+
+  test('playerGameOver test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    actionManager = new actions.ActionManager(new GameManager(), fakeIo)
+
+    actionManager.gameManager.createGame('roomName1', 'playerName1', fakeSocket1)
+    actionManager.gameManager.connectGame('roomName1', 'playerName2', fakeSocket2)
+    actionManager.gameManager.playerToggleReady('roomName1', 'playerName2')
+    actionManager.gameManager.startGame('roomName1', fakeSocket1.id)
+
+    actionManager.dispatch({
+      type: SERVER_GAME_OVER,
+      roomName: 'roomName1',
+      playerName: 'playerName1'
+    }, fakeSocket1)
+
+    expect(actionManager.gameManager.games['roomName1'].isPlaying['playerName1']).toEqual(false)
+    expect(fakeSocket1Data).toEqual([
+      { type: CLIENT_GAME_OVER, message: 'Game is over for you' },
+    ])
+    expect(fakeSocket2Data).toEqual([])
+
+    fakeSocket1Data.pop()
+
+    actionManager.dispatch({
+      type: SERVER_GAME_OVER,
+      roomName: 'roomName1',
+      playerName: 'playerName2'
+    }, fakeSocket2)
+
+    const expectedGameFinishedAction = {
+      type: CLIENT_GAME_FINISHED,
+      scores: [
+        { player: 'playerName1', score: 0 },
+        { player: 'playerName2', score: 0 },
+      ],
+    }
+
+    expect(actionManager.gameManager.games['roomName1'].isPlaying['playerName2']).toEqual(false)
+    expect(fakeSocket1Data).toEqual([
+      expectedGameFinishedAction,
+    ])
+    expect(fakeSocket2Data).toEqual([
+      { type: CLIENT_GAME_OVER, message: 'Game is over for you' },
+      expectedGameFinishedAction,
+    ])
+    done()
+  })
+
+  test('disconnectPlayer test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    actionManager = new actions.ActionManager(new GameManager(), fakeIo)
+
+    actionManager.gameManager.createGame('roomName1', 'playerName1', fakeSocket1)
+    actionManager.gameManager.connectGame('roomName1', 'playerName2', fakeSocket2)
+    actionManager.gameManager.playerToggleReady('roomName1', 'playerName2')
+    actionManager.gameManager.startGame('roomName1', fakeSocket1.id)
+
+    actionManager.dispatch({ type: SERVER_DISCONNECT_GAME }, fakeSocket1)
+
+    const game = actionManager.gameManager.games.roomName1
+    expect(game.fields).not.toHaveProperty('playerName1')
+    expect(game.sockets).not.toHaveProperty('playerName1')
+    expect(game.scores).not.toHaveProperty('playerName1')
+    expect(game.isPlaying).not.toHaveProperty('playerName1')
+
+    actionManager.gameListSubscribers[fakeSocket1.id] = true
+    actionManager.gameListSubscribers[3] = true
+    actionManager.dispatch({ type: SERVER_DISCONNECT_GAME }, fakeSocket2)
+
+    expect(actionManager.gameManager.games).not.toHaveProperty('roomName1')
+    expect(fakeSocket1Data).toEqual([
+      { type: CLIENT_UPDATE_GAME_LIST, gameList: [] },
+    ])
+
+    actionManager.dispatch({ type: SERVER_DISCONNECT_GAME }, { id: 3 })
+
+    done()
+  })
+
+  test('gameRestart test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    actionManager = new actions.ActionManager(new GameManager(), fakeIo)
+
+    actionManager.gameManager.createGame('roomName1', 'playerName1', fakeSocket1)
+    actionManager.gameManager.connectGame('roomName1', 'playerName2', fakeSocket2)
+    actionManager.gameManager.playerToggleReady('roomName1', 'playerName2')
+    actionManager.gameManager.startGame('roomName1', fakeSocket1.id)
+
+    actionManager.dispatch({
+      type: SERVER_GAME_OVER,
+      roomName: 'roomName1', playerName: 'playerName1' }, fakeSocket1)
+    actionManager.dispatch({
+      type: SERVER_GAME_OVER,
+      roomName: 'roomName1', playerName: 'playerName2' }, fakeSocket2)
+
+    fakeSocket1Data.length = 0
+    fakeSocket2Data.length = 0
+
+    actionManager.dispatch({ type: SERVER_GAME_RESTART, roomName: 'roomName1' }, fakeSocket1)
+
+    const game = actionManager.gameManager.games.roomName1
+    expect(game.state).toEqual(gameStates.STATE_GAME_LOBBY)
+    expect(fakeSocket1Data).toEqual([
+      {
+        type: CLIENT_GAME_RESTART, message: 'Success restarting game',
+        playerReadyList: [
+          { player: 'playerName1', readyStatus: true },
+          { player: 'playerName2', readyStatus: false },
+        ],
+      },
+    ])
+
+    done()
+  })
+
+  test('starting test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    actionManager = new actions.ActionManager(new GameManager(), fakeIo)
+
+    actionManager.gameManager.createGame('roomName1', 'playerName1', fakeSocket1)
+    actionManager.gameManager.connectGame('roomName1', 'playerName2', fakeSocket2)
+    actionManager.gameManager.playerToggleReady('roomName1', 'playerName2')
+    actionManager.gameManager.startGame('roomName1', fakeSocket1.id)
+
+    actionManager.dispatch({
+      type: SERVER_EXIT_GAME, roomName: 'roomName1',
+      playerName: 'playerName1'
+    }, fakeSocket1)
+
+    expect(fakeSocket1Data).toEqual([
+      { type: CLIENT_EXIT_GAME, message: 'Success exiting game' },
+    ])
+    expect(fakeSocket2Data).toEqual([
+      {
+        type: CLIENT_PLAYER_EXITED,
+        message: 'Player playerName1 exited',
+        playerName: 'playerName1',
+      },
+    ])
+
+    done()
+  })
+
+  test('startGame test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    actionManager = new actions.ActionManager(new GameManager(), fakeIo)
+
+    actionManager.gameManager.createGame('roomName1', 'playerName1', fakeSocket1)
+    actionManager.gameManager.connectGame('roomName1', 'playerName2', fakeSocket2)
+    actionManager.gameManager.playerToggleReady('roomName1', 'playerName2')
+
+    // actionManager.gameManager.startGame('roomName1', fakeSocket1.id)
+
+    actionManager.dispatch({
+      type: SERVER_START_GAME, roomName: 'roomName1',
+    }, fakeSocket1)
+
+    expect(fakeSocket1Data).toEqual([
+      {
+        type: CLIENT_START_GAME, message: 'Success starting game',
+        field: actionManager.gameManager.getPlayerField('roomName1', 'playerName1'),
+      },
+    ])
+    expect(fakeSocket2Data).toEqual([
+      {
+        type: CLIENT_START_GAME, message: 'Success starting game',
+        field: actionManager.gameManager.getPlayerField('roomName1', 'playerName2'),
+      },
+    ])
+
+    done()
+  })
+
+  test('playerToggleReady test', (done) => {
+    const fakeSocket1Data = []
+    const fakeSocket1 = {
+      emit: (unused, args) => { fakeSocket1Data.push(args) },
+      id: 1,
+    }
+    const fakeSocket2Data = []
+    const fakeSocket2 = {
+      emit: (unused, args) => { fakeSocket2Data.push(args) },
+      id: 2,
+    }
+    const fakeIo = {
+      of: () => ({
+        connected: {
+          [fakeSocket1.id]: fakeSocket1,
+          [fakeSocket2.id]: fakeSocket2,
+        },
+      }),
+    }
+    actionManager = new actions.ActionManager(new GameManager(), fakeIo)
+
+    actionManager.gameManager.createGame('roomName1', 'playerName1', fakeSocket1)
+    actionManager.gameManager.connectGame('roomName1', 'playerName2', fakeSocket2)
+
+    // actionManager.gameManager.playerToggleReady('roomName1', 'playerName2')
+    actionManager.dispatch({
+      type: SERVER_TOGGLE_READY,
+      roomName: 'roomName1',
+      playerName: 'playerName2',
+    }, fakeSocket2)
+
+    expect(fakeSocket1Data).toEqual([
+      {
+        type: CLIENT_GET_PLAYER_READY_LIST,
+        message: 'Player ready list was updated',
+        playerReadyList: actionManager.gameManager.getPlayerReadyList('roomName1'),
+      },
+    ])
+    expect(fakeSocket2Data).toEqual([
+      {
+        type: CLIENT_GET_PLAYER_READY_LIST,
+        message: 'Player ready list was updated',
+        playerReadyList: actionManager.gameManager.getPlayerReadyList('roomName1'),
+      },
+    ])
+
     done()
   })
 })

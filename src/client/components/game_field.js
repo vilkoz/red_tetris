@@ -1,5 +1,6 @@
 import React from 'react'
 import './style.css'
+import { checkCollision } from '../reducers/alert'
 
 const figureColors = {
   0: 'bg-gray field-cell-empty',
@@ -8,7 +9,21 @@ const figureColors = {
   3: 'bg-green field-cell-full',
   4: 'bg-yellow field-cell-full',
   5: 'bg-aqua field-cell-full',
+  6: 'bg-gray field-cell-full',
 }
+
+const getFigureShadow = (field, figure) => {
+  const resFigure = { ...figure, figure: figure.figure.map(row => row.map(el => (el !== 0 ? 6 : 0))) }
+  if (figure.y === 0 && !checkCollision(figure, field)) {
+    return figure
+  }
+  while (checkCollision(resFigure, field)) {
+    resFigure.y = resFigure.y + 1
+  }
+  resFigure.y = resFigure.y - 1
+  return resFigure
+}
+
 
 const GameField = ({ field, figure }) => {
   if (!field) {
@@ -26,7 +41,7 @@ const GameField = ({ field, figure }) => {
       })
     ))
   )
-  const fieldWithFigure = figure ? placeFigure(field, figure) : field
+  const fieldWithFigure = figure ? placeFigure(placeFigure(field, getFigureShadow(field, figure)), figure) : field
   return (
     <div>
       {fieldWithFigure.map((line, rowNum) => (

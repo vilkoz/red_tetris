@@ -87,6 +87,7 @@ class GameManager {
     game.readyList[playerName] = false
     game.isPlaying[playerName] = false
     game.figureNums[playerName] = 0
+    game.scores[playerName] = 0
     return game
   }
 
@@ -224,12 +225,14 @@ class GameManager {
 
     const croppedFigure = this.figureCropFreeLines(rotatedFigure)
     rotatedFigure = croppedFigure.figure
+    loginfo('croppedFigure:', croppedFigure)
     figure.x = figure.x + croppedFigure.shift.x
     figure.y = figure.y + croppedFigure.shift.y
 
     const h = rotatedFigure.length;
     const w = rotatedFigure[0].length;
     let field = this.games[roomName].fields[playerName]
+    loginfo('field: ', field.map(row => row.join()).join('\n'))
     if (figure.x < 0 || figure.x + w - 1 >= field[0].length ||
         figure.y < 0 || figure.y + h - 1 >= field.length) {
       throw Error(`Wrong figure location: ${figure.x} ${figure.y}`);
@@ -267,8 +270,8 @@ class GameManager {
     loginfo('field', scoredField)
     loginfo('score', currentScore)
 
-    if (brakeRes.score !== 0) {
-      this.appendLinePenalty(roomName, playerName, brakeRes.score)
+    if (brakeRes.score > 1) {
+      this.appendLinePenalty(roomName, playerName, brakeRes.score - 1)
     }
 
     let isGameOver = false
@@ -276,7 +279,7 @@ class GameManager {
       isGameOver = true
       this.games[roomName].isPlaying[playerName] = false
     }
-    return { field: scoredField, score: currentScore, isGameOver, doFieldUpdate: brakeRes.score !== 0 }
+    return { field: scoredField, score: currentScore, isGameOver, doFieldUpdate: brakeRes.score > 1 }
   }
 
   appendLinePenalty(roomName, noPenaltyName, rowsNumber) {
@@ -291,7 +294,11 @@ class GameManager {
         res[Math.floor(Math.random() * this.fieldWidth)] = 0
         return res
       }
-      game.fields[playerName] = field.map((row, i) => (i >= field.length - rowsNumber ? getPenaltyRow() : field[i + 1]))
+      let tmpField = field
+      for (let i = 0; i < rowsNumber; i = i + 1) {
+        tmpField = tmpField.map((row, j) => (j === tmpField.length - 1 ? getPenaltyRow() : tmpField[j + 1]))
+      }
+      game.fields[playerName] = tmpField
     })
   }
 
@@ -388,6 +395,7 @@ class GameManager {
     delete this.games[roomName].scores[playerName]
     delete this.games[roomName].isPlaying[playerName]
     delete this.games[roomName].readyList[playerName]
+    delete this.games[roomName].figureNums[playerName]
     let playerNum = 0
     _.forOwn(this.games[roomName].fields, (player) => {
       playerNum = playerNum + 1
@@ -421,7 +429,6 @@ class GameManager {
     _.forOwn(this.games[roomName].readyList, (readyStatus, player) => {
       res.push({ player, readyStatus })
     })
-    console.log(res)
 
     return res
   }
