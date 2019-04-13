@@ -246,21 +246,86 @@ input {
 }
   /*GAME FIELD*/
 
+.game {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.game .roomname {
+  text-align: center;
+  font-size: 30px;
+  padding-top: 40px;
+}
+
+.game .errorGamemessage {
+  text-shadow: 0 0 10px red;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.gameContent {
+  display: flex;
+  flex-direction: row;
+  /*background-color: green;*/
+  max-height: 70vh;
+  justify-content: center;
+}
+
+.gameContent .spectres {
+  margin-right: 8%;
+}
+
+.gameContent .spec {
+  max-width: calc(1vh * 10 + 12px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gameContent .spectres .specteField{
+  height: 20vh;
+  border: 6px groove #EBAC0C;
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+
+.gameContent .spectres .fieldElemSpectr {
+  height: 1vh;
+  width: 1vh;
+
+  display: inline-flex;
+  background-color: gray;
+}
+
+.gameContent .spectres .figureElemSpectr {
+  height: 1vh;
+  width: 1vh;
+
+  display: inline-flex;
+  background-color: red;
+}
+
+
+
+.gameContent .spectres .row {
+  height: 1vh;
+}
+
 .gameField {
-  font-family: Times;
+  height: 70vh;
+  border: 8px groove #EBAC0C;
+  border-radius: 10px;
 }
 
 .gameField .fieldElem {
-  width: 30px;
-  height: 30px;
+  width: 3.5vh;
+  height: 3.5vh;
   display: inline-flex;
-  /* background-color: gray; */
 }
 
 .gameField .figureElem {
-  width: 30px;
-  height: 30px;
-  /* background-color: blue; */
+  width: 3.5vh;
+  height: 3.5vh;
   display: inline-flex;
 }
 
@@ -294,4 +359,28 @@ input {
 
 .field-cell-full {
   box-shadow: inset 3px 3px 5px rgb(246, 213, 120), inset -3px -3px 5px #621690;
+}
+
+.field-cell-empty-spec {
+  box-shadow: inset 1px 1px 5px rgb(42, 9, 52), inset -1px -1px 3px rgba(255, 255, 255, 0.54);
+}
+
+.field-cell-full-spec {
+  box-shadow: inset 3px 3px 5px rgb(246, 213, 120), inset -1px -1px 3px #621690;
+}
+
+.gameContent .leaderbord {
+  margin-left: 8%;
+  max-width: 10%;
+  overflow: scroll;
+  /*overflow: hidden;*/
+  text-overflow: ellipsis;
+}
+
+.gameContent .leader {
+  margin-bottom: 5px;
+}
+
+.gameContent .leaderbord::-webkit-scrollbar {
+  display: none;
 }

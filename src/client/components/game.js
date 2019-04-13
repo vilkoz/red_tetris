@@ -14,32 +14,38 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   moveFigure(figure, moveFigureListener)
   fallFigure(figure, fallFigureInterval)
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
-  const spectreArr = []
-  for (const name in spectres) {
-    spectreArr.push({ field: spectres[name], name })
-  }
+  let spectreArr = []
+  _.forOwn(spectres, (el, name) => {
+    spectreArr.push({ field: el.field, name, score: el.score })
+  })
+  console.log(spectres)
+  spectreArr = _.orderBy(spectreArr, ['score'], ['desc'])
+  console.log(spectreArr)
   return (
-    <div className={theme}>
-      <h1>Game</h1>
-      <span>{message}</span>
+    <div className={`game ${theme}`}>
+      <span className="roomname">{roomName}</span>
       <br/>
-      <span>{playerName && roomName && playerName + roomName}</span>
-      <br/>
-      <span>Score: {score ? score : '0'}</span>
-      <br/>
-      {scores}
-      <div className='gameField'>
-        <GameField field={field} figure={figure}/>
-        {/*<button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>*/}
-        {/*<button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>*/}
-      </div>
-      {/*<div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>*/}
-      <div>
-        {
-          spectres && spectreArr.map((el, competitorKey) => (
-            <CompetitorSpectre field={el.field} key={competitorKey} name={el.name}/>
-          ))
-        }
+      <span className="errorGamemessage">{errorMessage}</span>
+      <div className="gameContent">
+        <div className="spectres">
+          {
+            spectres && spectreArr.map((el, competitorKey) => (
+              competitorKey < 3 && <CompetitorSpectre field={el.field} key={competitorKey} name={el.name} score={el.score} />
+            ))
+          }
+        </div>
+        <div className='gameField'>
+          <GameField field={field} figure={figure}/>
+        </div>
+        <div className="leaderbord">
+          <h3>Leaderboard:</h3>
+          <h4>My score: {score ? score : '0'} pts</h4>
+          {
+            spectreArr.map((el, i) => (
+              <div className="leader" key={i}>{el.name}: {el.score ? el.score : '0'} pts</div>
+            ))
+          }
+        </div>
       </div>
     </div>
   )
@@ -98,7 +104,6 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     fallFigure: (figure, fallFigureInterval) => {
-      return;
       console.log('interval:', figure, fallFigureInterval)
       if (figure && !fallFigureInterval) {
         const oneSecondInterval = 1000

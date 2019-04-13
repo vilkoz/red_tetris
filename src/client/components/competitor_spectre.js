@@ -14,19 +14,24 @@ const styles = StyleSheet.create({
   },
 })
 
-const CompetitorSpectre = ({ name, field }) => {
+const CompetitorSpectre = ({ name, field, score }) => {
   if (!field) {
     return <div key={name}/>
   }
   return (
-    <div>
-      {field.map((line, rowNum) => (
-        <div key={`row ${rowNum}`}>
+    <div className="spec">
+      <span>{name}: {score ? score : '0'} pts</span>
+    <div className="specteField">
+      {field && field.map((line, rowNum) => (
+        <div className="row" key={`row ${rowNum}`}>
           {line.map((el, colNum) => (
-            <div className={css(el !== 0 ? styles.figureElem : styles.fieldElem)} key={colNum.toString() + rowNum.toString()}>{el}</div>)
+            <div className={(el !== 0 ? 'figureElemSpectr field-cell-full-spec' : 'fieldElemSpectr field-cell-empty-spec')}
+            key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
+            )
           )}
         </div>
       ))}
+    </div>
     </div>
   )
 }

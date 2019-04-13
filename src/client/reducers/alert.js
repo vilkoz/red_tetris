@@ -236,7 +236,7 @@ const reducer = (state = {}, action) => {
   case 'GAME_CLEAR_FALL_INTERVAL':
     return { ...state, fallFigureInterval: undefined }
   case CLIENT_UPDATE_COMPETITOR_SPECTRE:
-    return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
+    return { ...state, spectres: { ...action.spectres, [action.name]: { field: action.spectre, score: action.score } } }
   case CLIENT_UPDATE_GAME_LIST:
     return { ...state, gameList: action.gameList }
   case 'SWITCH_GAME_URL':
