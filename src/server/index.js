@@ -11,7 +11,7 @@ const action_index = require('../common/action_index')
 
 const actions = require('./actions.js')
 
-const initApp = (app, params, cb) => {
+export const initApp = (app, params, cb) => {
   const { host, port } = params
   const handler = (req, res) => {
     const files = {
@@ -46,7 +46,7 @@ const initApp = (app, params, cb) => {
 const gameManager = new GameManager()
 const actionManager = new actions.ActionManager(gameManager)
 
-const initEngine = io => {
+export const initEngine = io => {
   actionManager.io = io
   io.on('connection', (socket) => {
     loginfo(`Socket connected: ${socket.id}`)
