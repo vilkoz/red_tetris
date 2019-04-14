@@ -11,6 +11,7 @@ import {
   CLIENT_GAME_FINISHED,
   CLIENT_GAME_RESTART,
   CLIENT_UPDATE_FIELD,
+  CLIENT_GAME_OVER,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import { gameOverAction } from '../actions/server'
@@ -143,6 +144,7 @@ const reducer = (state = {}, action) => {
       scores: undefined,
       field: undefined,
       spectres: undefined,
+      isGameOver: false,
     }
   case 'client/get_figure':
     return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
@@ -240,11 +242,13 @@ const reducer = (state = {}, action) => {
   case CLIENT_UPDATE_GAME_LIST:
     return { ...state, gameList: action.gameList }
   case 'SWITCH_GAME_URL':
-    return { ...state, gameUrl: action.gameUrl }
+    return { ...state, gameUrl: action.gameUrl, message: undefined, errorMessage: undefined }
   case 'CHANGE_THEME':
     return { ...state, theme: action.theme }
   case CLIENT_UPDATE_FIELD:
     return { ...state, field: action.field }
+    case CLIENT_GAME_OVER:
+    return { ...state, message: 'Game Over', isGameOver: true }
   default:
     return state
   }

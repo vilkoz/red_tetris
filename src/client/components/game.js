@@ -9,7 +9,7 @@ import { switchGameUrlAction } from '../actions/route'
 import _ from "lodash";
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
-  score, theme, errorMessage,
+  score, theme, errorMessage, isGameOver,
   fallFigureInterval, spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
   moveFigure(figure, moveFigureListener)
@@ -29,7 +29,10 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
         'separator': ' '
       })}</span>
       <br/>
-      <span className="errorGamemessage">{errorMessage}</span>
+      {
+        isGameOver &&
+          <h1 className="errorGamemessage">{message}</h1>
+      }
       <div className="gameContent">
         <div className='fieldLeft'>
           <div className="spectres">
@@ -60,6 +63,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
           </div>
         </div>
       </div>
+      <span className="errorGamemessage">{errorMessage}</span>
     </div>
   )
 }
@@ -79,7 +83,8 @@ const mapStateToProps = (state) => (
     spectres: state.spectres,
     score: state.score,
     theme: state.theme,
-    scores: state.scores
+    scores: state.scores,
+    isGameOver: state.isGameOver,
   }
 )
 const mapDispatchToProps = (dispatch) => (

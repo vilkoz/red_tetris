@@ -66,18 +66,20 @@ const fakeInitialStateGame = {
 }
 
 const fakeInitialState = {
+  message: 'ebalgopaaaaaaaa ebalgopaaaaaaaaebalgopaaaaaaaa ebalgopaaaaaaaa ebalgopaaaaaaaa',
   playerName: 'kosp',
-  roomName: '1241kksla',
-  gameState: STATE_GAME_LOBBY,
-  gameUrl: '/game_lobby/1241kksla',
+  roomName: '1sadasda241ksadasasdasdasdaddasdksla',
+  gameState: STATE_LEADER_BOARD,
+  gameUrl: '/leader_board/124',
+  errorMessage: 'Error Message Error Message Error Message Error Message',
   isOwner: true,
-  playerReadyList: [
-    {player: 'sraka', readyStatus: true},
-    {player: 'vilko', readyStatus: false},
-    {player: 'sraka2', readyStatus: true},
-    {player: 'sraka3', readyStatus: false},
+  scores: [
+    {player: 'sraka', score: 1000},
+    {player: 'vilko', score: 2000},
+    {player: 'sraka2', score: 3000},
+    {player: 'sraka3', score: 4000},
   ],
-  theme: 'default',
+  theme: 'podval',
 }
 
 const store = applyMiddleware(socketIoMiddleware)(createStore)(
