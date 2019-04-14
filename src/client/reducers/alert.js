@@ -26,12 +26,11 @@ import {
   doMapStateToRoute,
 } from '../routes'
 
-const cutEmpty = (figure) => {
+export const cutEmpty = (figure) => {
   const shift = {
     x: 0,
     y: 0,
   }
-
   shift.y = _.findIndex(figure, (row) => _.some(row, el => el !== 0))
   let res = _.filter(figure, (row) => _.some(row, el => el !== 0))
 
@@ -39,7 +38,6 @@ const cutEmpty = (figure) => {
 
   shift.x = _.findIndex(res, (column) => _.some(column, el => el !== 0))
   res = _.filter(res, (column) => _.some(column, el => el !== 0))
-
   res = _.zip(...res)
   return { shift, res }
 }
@@ -66,7 +64,7 @@ export const checkCollision = (figure, field) => {
   return true
 }
 
-const rotateFigure = (figure) => {
+export const rotateFigure = (figure) => {
   const h = figure.length
   const w = figure[0].length
   const res = new Array(w)
@@ -80,7 +78,7 @@ const rotateFigure = (figure) => {
   return res
 }
 
-const enqueueAction = (action, state) => {
+export const enqueueAction = (action, state) => {
   let actionQueue = state.actionQueue
   if (!actionQueue) {
     actionQueue = []
@@ -89,7 +87,7 @@ const enqueueAction = (action, state) => {
   return actionQueue
 }
 
-const reducer = (state = {}, action) => {
+export const reducer = (state = {}, action) => {
   switch (action.type) {
   case 'CLIENT_DEQUEUE_ACTION':
     let actionQueue = state.actionQueue
@@ -148,7 +146,8 @@ const reducer = (state = {}, action) => {
       isGameOver: false,
     }
   case 'client/get_figure':
-    return { ...state, message: action.message, errorMessage: undefined, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
+    return { ...state, message: action.message, errorMessage: undefined,
+      figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
     return { ...state, message: action.message, field: action.field, figure: undefined, score: action.score,
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),

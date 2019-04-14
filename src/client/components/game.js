@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
-import './style.css'
+// import './style.css'
 import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 import _ from "lodash";
@@ -87,6 +87,7 @@ const mapStateToProps = (state) => (
     isGameOver: state.isGameOver,
   }
 )
+
 const mapDispatchToProps = (dispatch) => (
   {
     getFigure: (roomName, playerName) => {
