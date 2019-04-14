@@ -114,6 +114,9 @@ class GameManager {
     if (playerName in this.games[roomName].figures) {
       throw Error(`Player with name ${playerName} already has a figure`)
     }
+    if (!this.games[roomName].isPlaying[playerName]) {
+      throw Error('Game over!')
+    }
     const figures = [
       [
         [0, 0, 0, 0],

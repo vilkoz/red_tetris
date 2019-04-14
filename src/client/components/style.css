@@ -261,6 +261,7 @@ input {
 .game .errorGamemessage {
   text-shadow: 0 0 10px red;
   margin-bottom: 20px;
+  margin-top: 20px;
   text-align: center;
 }
 
@@ -409,6 +410,7 @@ input {
 
 .finalLeaderbord .bord .place {
   margin: 10px;
+  font-size: 20px;
   text-shadow: 2px 2px 20px #ebac0c;
 }
 

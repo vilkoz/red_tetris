@@ -8,12 +8,12 @@ import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 import _ from "lodash";
 
-const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, gameState,
   score, theme, errorMessage, isGameOver,
-  fallFigureInterval, spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
+  spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
-  moveFigure(figure, moveFigureListener)
-  fallFigure(figure, fallFigureInterval)
+  moveFigure(figure, isGameOver)
+  fallFigure(figure, isGameOver)
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   let spectreArr = []
   _.forOwn(spectres, (el, name) => {
@@ -93,10 +93,11 @@ const mapDispatchToProps = (dispatch) => (
       console.log('roomName:', roomName, 'playerName:', playerName)
       dispatch(getFigureAction(roomName, playerName))
     },
-    moveFigure: (figure, moveFigureListener) => {
-      if (figure && !moveFigureListener) {
-        useEffect(() => {
+    moveFigure: (figure, isGameOver) => {
+      useEffect(() => {
+        if (figure && !isGameOver) {
           const input = event => {
+            console.log(event.keyCode);
             const directions = {
               38: 'ROTATE',
               37: 'LEFT',
@@ -107,35 +108,31 @@ const mapDispatchToProps = (dispatch) => (
             if (!(event.keyCode in directions)) {
               return
             }
-            event.preventDefault()
             const dir = directions[event.keyCode]
-            dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
+            dispatch({type: `GAME_MOVE_FIGURE_${dir}`})
           };
+          console.log('add event')
           window.addEventListener('keydown', input);
-          dispatch({ type: 'GAME_SET_MOVE_LISTENER', moveFigureListener: input })
-          return () => {};
-        });
-      }
-      else if (!figure && moveFigureListener) {
-        window.removeEventListener('keydown', moveFigureListener);
-        dispatch({ type: 'GAME_CLEAR_MOVE_LISTENER' })
-      }
+          return () => {
+            console.log('remove event list')
+            window.removeEventListener('keydown', input);
+          };
+        }
+      });
     },
-    fallFigure: (figure, fallFigureInterval) => {
-      return;
-      console.log('interval:', figure, fallFigureInterval)
-      if (figure && !fallFigureInterval) {
-        const oneSecondInterval = 1000
-        const intervalCb = window.setInterval(() => {
-          dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
-        }, oneSecondInterval);
-        dispatch({ type: 'GAME_SET_FALL_INTERVAL', fallFigureInterval: intervalCb })
-        return () => {};
-      }
-      else if (!figure && fallFigureInterval) {
-        window.clearInterval(fallFigureInterval);
-        dispatch({ type: 'GAME_CLEAR_FALL_INTERVAL' })
-      }
+    fallFigure: (figure, isGameOver) => {
+      useEffect(() => {
+        if (figure && !isGameOver) {
+          const oneSecondInterval = 1000
+          const interval = window.setInterval(() => {
+            dispatch({type: `GAME_MOVE_FIGURE_DOWN`})
+          }, oneSecondInterval);
+          return () => {
+            console.log('clear interval')
+            window.clearInterval(interval);
+          };
+        }
+      });
     },
     setFigure: (roomName, playerName, figure) => {
       dispatch(setFigureAction(roomName, playerName, figure))

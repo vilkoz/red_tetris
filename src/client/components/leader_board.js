@@ -33,7 +33,7 @@ const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gam
               <span>{_.truncate((el.player), {
                 'length': 24,
                 'separator': ' '
-              })}</span><span>: {el.score}</span>
+              })}</span><span>: {el.score} pts</span>
             </div>
           ))
         }
