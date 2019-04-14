@@ -38,6 +38,9 @@ class ActionManager {
       actionFunc({ action, socket })
     }
     catch (e) {
+	  if (e.message === 'KO') {
+        this.playerGameOver({ action, socket })
+      }
       socket.emit('action', { type: actions.CLIENT_ERROR, message: e.message })
       logerror(e.message)
       logerror(e.stack)

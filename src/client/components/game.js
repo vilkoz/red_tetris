@@ -120,7 +120,7 @@ export const mapDispatchToProps = (dispatch) => (
     fallFigure: (figure, isGameOver) => {
       useEffect(() => {
         if (figure && !isGameOver) {
-          const oneSecondInterval = 1000
+          const oneSecondInterval = 500
           const interval = window.setInterval(() => {
             dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
           }, oneSecondInterval);
