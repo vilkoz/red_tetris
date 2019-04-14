@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import GameField from './game_field'
 import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
-import './style.css'
 import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 
@@ -45,7 +44,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   )
 }
 
-const mapStateToProps = (state) => (
+export const mapStateToProps = (state) => (
   {
     roomName: state.roomName,
     playerName: state.playerName,
@@ -63,7 +62,7 @@ const mapStateToProps = (state) => (
     scores: state.scores
   }
 )
-const mapDispatchToProps = (dispatch) => (
+export const mapDispatchToProps = (dispatch) => (
   {
     getFigure: (roomName, playerName) => {
       console.log('roomName:', roomName, 'playerName:', playerName)

@@ -59,7 +59,7 @@ const Lobby = ({ message, playerName, roomName, field, gameUrl, gameList, errorM
   )
 }
 
-const mapStateToProps = (state) => (
+export const mapStateToProps = (state) => (
   {
     message: state.message,
     roomName: state.roomName,
@@ -72,16 +72,14 @@ const mapStateToProps = (state) => (
   }
 )
 
-const mapDispatchToProps = (dispatch) => (
+export const mapDispatchToProps = (dispatch) => (
   {
     updateRoomName: (e) => {
       const roomName = e.target.value
-      console.log(roomName)
       dispatch({ type: 'SAVE_GAME_NAME', roomName })
     },
     updatePlayerName: (e) => {
       const playerName = e.target.value
-      console.log(e)
       dispatch({ type: 'SAVE_PLAYER_NAME', playerName })
     },
     createGame: (roomName, playerName) => {

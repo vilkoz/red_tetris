@@ -38,8 +38,8 @@ const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameS
         <div className='errorMessage'>{ errorMessage && <b>{errorMessage}</b>}</div>
         <div className='playerList'>
           { playerReadyList &&
-            playerReadyList.map((el) => (
-              <div  className={el.readyStatus ? 'player ready' : 'player' }>
+            playerReadyList.map((el, readyListKey) => (
+              <div className={el.readyStatus ? 'player ready' : 'player' } key={readyListKey}>
                 <FontAwesomeIcon icon={_.sample(images)}/>
                 <div className='container'>
                   <p>{el.player}</p>
@@ -66,7 +66,7 @@ const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameS
   )
 }
 
-const mapStateToProps = (state) => (
+export const mapStateToProps = (state) => (
   {
     message: state.message,
     roomName: state.roomName,
@@ -80,7 +80,7 @@ const mapStateToProps = (state) => (
   }
 )
 
-const mapDispatchToProps = (dispatch) => (
+export const mapDispatchToProps = (dispatch) => (
   {
     switchGameUrl: (url) => {
       dispatch(switchGameUrlAction(url))

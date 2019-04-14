@@ -5,6 +5,7 @@ import Lobby from '../components/lobby'
 import Game from '../components/game'
 import GameLobby from '../components/game_lobby'
 import LeaderBoard from '../components/leader_board'
+import '../components/style.css'
 
 const App = () => (
   <Switch>
