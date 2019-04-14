@@ -246,21 +246,96 @@ input {
 }
   /*GAME FIELD*/
 
+.game {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.game .roomname {
+  text-align: center;
+  font-size: 30px;
+  padding-top: 40px;
+}
+
+.game .errorGamemessage {
+  text-shadow: 0 0 10px red;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.gameContent {
+  display: flex;
+}
+
+.gameContent .spectres {
+}
+
+.gameContent .spec {
+  text-align: center;
+}
+
+.gameContent .spectres .specteField{
+  height: 20vh;
+  width: 10vh;
+  border: 6px groove #EBAC0C;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto
+}
+
+.gameContent .spectres .fieldElemSpectr {
+  height: 1vh;
+  width: 1vh;
+  display: inline-flex;
+  background-color: gray;
+}
+
+.gameContent .spectres .figureElemSpectr {
+  height: 1vh;
+  width: 1vh;
+  display: inline-flex;
+  background-color: red;
+}
+
+
+
+.gameContent .spectres .row {
+  height: 1vh;
+}
+
+.fieldCenter {
+  width: 50%;
+}
+
+.fieldLeft {
+  width: 25%;
+}
+
+.fieldRight {
+  width: 25%;
+}
+
 .gameField {
-  font-family: Times;
+  width: 35vh;
+  height: 70vh;
+  border: 8px groove #EBAC0C;
+  border-radius: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .gameField .fieldElem {
-  width: 30px;
-  height: 30px;
+  width: 3.5vh;
+  height: 3.5vh;
   display: inline-flex;
-  /* background-color: gray; */
 }
 
 .gameField .figureElem {
-  width: 30px;
-  height: 30px;
-  /* background-color: blue; */
+  width: 3.5vh;
+  height: 3.5vh;
   display: inline-flex;
 }
 
@@ -295,3 +370,47 @@ input {
 .field-cell-full {
   box-shadow: inset 3px 3px 5px rgb(246, 213, 120), inset -3px -3px 5px #621690;
 }
+
+.field-cell-empty-spec {
+  box-shadow: inset 1px 1px 5px rgb(42, 9, 52), inset -1px -1px 3px rgba(255, 255, 255, 0.54);
+}
+
+.field-cell-full-spec {
+  box-shadow: inset 3px 3px 5px rgb(246, 213, 120), inset -1px -1px 3px #621690;
+}
+
+.gameContent .leader {
+  margin-bottom: 5px;
+}
+
+.finalLeaderbord {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
+.finalLeaderbord .information {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.finalLeaderbord .bord {
+  height: 50vh;
+  overflow: hidden;
+  margin-bottom: 40px;
+  width: 70%;
+  border: 8px groove #EBAC0C;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: url("/static/img/confeti.png") #2A0934;
+}
+
+.finalLeaderbord .bord .place {
+  margin: 10px;
+  font-size: 20px;
+  text-shadow: 2px 2px 20px #ebac0c;
+}
+

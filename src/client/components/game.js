@@ -5,41 +5,64 @@ import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
+import _ from "lodash";
 
-const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
-  score, theme, errorMessage,
-  fallFigureInterval, spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
+const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, gameState,
+  score, theme, errorMessage, isGameOver,
+  spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
-  moveFigure(figure, moveFigureListener)
-  fallFigure(figure, fallFigureInterval)
+  moveFigure(figure, isGameOver)
+  fallFigure(figure, isGameOver)
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
-  const spectreArr = []
-  for (const name in spectres) {
-    spectreArr.push({ field: spectres[name], name })
-  }
+  let spectreArr = []
+  _.forOwn(spectres, (el, name) => {
+    spectreArr.push({ field: el.field, name, score: el.score })
+  })
+  console.log(spectres)
+  spectreArr = _.orderBy(spectreArr, ['score'], ['desc'])
+  console.log(spectreArr)
   return (
-    <div className={theme}>
-      <h1>Game</h1>
-      <span>{message}</span>
+    <div className={`game ${theme}`}>
+      <span className="roomname">{_.truncate((roomName), {
+        'length': 24,
+        'separator': ' '
+      })}</span>
       <br/>
-      <span>{playerName && roomName && playerName + roomName}</span>
-      <br/>
-      <span>Score: {score ? score : '0'}</span>
-      <br/>
-      {scores}
-      <div className='gameField'>
-        <GameField field={field} figure={figure}/>
-        {/*<button onClick={() => getFigure(roomName, playerName)}>Get Figure</button>*/}
-        {/*<button onClick={() => setFigure(roomName, playerName, figure)}>set figure</button>*/}
+      {
+        isGameOver &&
+          <h1 className="errorGamemessage">{message}</h1>
+      }
+      <div className="gameContent">
+        <div className='fieldLeft'>
+          <div className="spectres">
+            {
+              spectres && spectreArr.map((el, competitorKey) => (
+                competitorKey < 3 && <CompetitorSpectre field={el.field} key={competitorKey} name={el.name} score={el.score} />
+              ))
+            }
+          </div>
+        </div>
+        <div className='fieldCenter'>
+          <div className='gameField'>
+            <GameField field={field} figure={figure}/>
+          </div>
+        </div>
+        <div className="fieldRight">
+          <div className="leaderbord">
+            <h3>Leaderboard:</h3>
+            <h4>My score: {score ? score : '0'} pts</h4>
+            {
+              spectreArr.map((el, i) => (
+                <div className="leader" key={i}>{_.truncate((el.name), {
+                  'length': 14,
+                  'separator': ' '
+                })}: {el.score ? el.score : '0'} pts</div>
+              ))
+            }
+          </div>
+        </div>
       </div>
-      {/*<div>{figure ? figure.x : 'x'}&nbsp;{figure ? figure.y : 'y'}</div>*/}
-      <div>
-        {
-          spectres && spectreArr.map((el, competitorKey) => (
-            <CompetitorSpectre field={el.field} key={competitorKey} name={el.name}/>
-          ))
-        }
-      </div>
+      <span className="errorGamemessage">{errorMessage}</span>
     </div>
   )
 }
@@ -59,7 +82,8 @@ export const mapStateToProps = (state) => (
     spectres: state.spectres,
     score: state.score,
     theme: state.theme,
-    scores: state.scores
+    scores: state.scores,
+    isGameOver: state.isGameOver,
   }
 )
 export const mapDispatchToProps = (dispatch) => (
@@ -68,10 +92,11 @@ export const mapDispatchToProps = (dispatch) => (
       console.log('roomName:', roomName, 'playerName:', playerName)
       dispatch(getFigureAction(roomName, playerName))
     },
-    moveFigure: (figure, moveFigureListener) => {
-      if (figure && !moveFigureListener) {
-        useEffect(() => {
+    moveFigure: (figure, isGameOver) => {
+      useEffect(() => {
+        if (figure && !isGameOver) {
           const input = event => {
+            console.log(event.keyCode);
             const directions = {
               38: 'ROTATE',
               37: 'LEFT',
@@ -82,34 +107,31 @@ export const mapDispatchToProps = (dispatch) => (
             if (!(event.keyCode in directions)) {
               return
             }
-            event.preventDefault()
             const dir = directions[event.keyCode]
-            dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
+            dispatch({type: `GAME_MOVE_FIGURE_${dir}`})
           };
+          console.log('add event')
           window.addEventListener('keydown', input);
-          dispatch({ type: 'GAME_SET_MOVE_LISTENER', moveFigureListener: input })
-          return () => {};
-        });
-      }
-      else if (!figure && moveFigureListener) {
-        window.removeEventListener('keydown', moveFigureListener);
-        dispatch({ type: 'GAME_CLEAR_MOVE_LISTENER' })
-      }
+          return () => {
+            console.log('remove event list')
+            window.removeEventListener('keydown', input);
+          };
+        }
+      });
     },
-    fallFigure: (figure, fallFigureInterval) => {
-      console.log('interval:', figure, fallFigureInterval)
-      if (figure && !fallFigureInterval) {
-        const oneSecondInterval = 1000
-        const intervalCb = window.setInterval(() => {
-          dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
-        }, oneSecondInterval);
-        dispatch({ type: 'GAME_SET_FALL_INTERVAL', fallFigureInterval: intervalCb })
-        return () => {};
-      }
-      else if (!figure && fallFigureInterval) {
-        window.clearInterval(fallFigureInterval);
-        dispatch({ type: 'GAME_CLEAR_FALL_INTERVAL' })
-      }
+    fallFigure: (figure, isGameOver) => {
+      useEffect(() => {
+        if (figure && !isGameOver) {
+          const oneSecondInterval = 1000
+          const interval = window.setInterval(() => {
+            dispatch({type: `GAME_MOVE_FIGURE_DOWN`})
+          }, oneSecondInterval);
+          return () => {
+            console.log('clear interval')
+            window.clearInterval(interval);
+          };
+        }
+      });
     },
     setFigure: (roomName, playerName, figure) => {
       dispatch(setFigureAction(roomName, playerName, figure))

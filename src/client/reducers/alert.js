@@ -11,6 +11,7 @@ import {
   CLIENT_GAME_FINISHED,
   CLIENT_GAME_RESTART,
   CLIENT_UPDATE_FIELD,
+  CLIENT_GAME_OVER,
 } from '../../common/action_index'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import { gameOverAction } from '../actions/server'
@@ -128,7 +129,8 @@ const reducer = (state = {}, action) => {
     return {
       ...state,
       gameState: STATE_LEADER_BOARD,
-      message: action.message,
+      message: undefined,
+      errorMessage: undefined,
       gameUrl: doMapStateToRoute(state),
       scores: action.scores,
     }
@@ -143,9 +145,10 @@ const reducer = (state = {}, action) => {
       scores: undefined,
       field: undefined,
       spectres: undefined,
+      isGameOver: false,
     }
   case 'client/get_figure':
-    return { ...state, message: action.message, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
+    return { ...state, message: action.message, errorMessage: undefined, figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
   case 'client/set_figure':
     return { ...state, message: action.message, field: action.field, figure: undefined, score: action.score,
       actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
@@ -157,9 +160,9 @@ const reducer = (state = {}, action) => {
   case CLIENT_GET_PLAYER_READY_LIST:
     return { ...state, playerReadyList: action.playerReadyList }
   case 'SAVE_GAME_NAME':
-    return { ...state, roomName: action.roomName }
+    return { ...state, roomName: (action.roomName.match(/[a-zA-Z0-9 ]*/) || []).join('')}
   case 'SAVE_PLAYER_NAME':
-    return { ...state, playerName: action.playerName }
+    return { ...state, playerName: (action.playerName.match(/[a-zA-Z0-9 ]*/) || []).join('') }
   case 'GAME_MOVE_FIGURE_LEFT':
     if (!state.figure) {
       return state
@@ -236,15 +239,17 @@ const reducer = (state = {}, action) => {
   case 'GAME_CLEAR_FALL_INTERVAL':
     return { ...state, fallFigureInterval: undefined }
   case CLIENT_UPDATE_COMPETITOR_SPECTRE:
-    return { ...state, spectres: { ...action.spectres, [action.name]: action.spectre } }
+    return { ...state, spectres: { ...state.spectres, [action.name]: { field: action.spectre, score: action.score } } }
   case CLIENT_UPDATE_GAME_LIST:
     return { ...state, gameList: action.gameList }
   case 'SWITCH_GAME_URL':
-    return { ...state, gameUrl: action.gameUrl }
+    return { ...state, gameUrl: action.gameUrl, message: undefined, errorMessage: undefined }
   case 'CHANGE_THEME':
     return { ...state, theme: action.theme }
   case CLIENT_UPDATE_FIELD:
     return { ...state, field: action.field }
+  case CLIENT_GAME_OVER:
+    return { ...state, message: 'Game Over', isGameOver: true, figure: undefined }
   default:
     return state
   }

@@ -7,28 +7,44 @@ import {
 } from '../actions/server'
 import { changeRouteByState } from '../routes'
 
-const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, scores, isOwner,
+const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, scores, isOwner, theme,
   history, switchGameUrl, toggleReadyState, reStartGame
 }) => {
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
+  let LeaderArr = _.orderBy(scores, ['score'], ['desc'])
   return (
-    <div>
-      <h1> LeaderBoard {roomName} </h1>
-      { message && <b>{message}</b>}
-      <ul>
-        { scores &&
-          scores.map((el) => (
-            <li key={el.player}>
-              <span>name: {el.player}</span><span>score: {el.score}</span>
-            </li>
+    <div className={`finalLeaderbord ${theme}`}>
+      <div className="information">
+        <h1>{_.truncate((roomName), {
+          'length': 24,
+          'separator': ' '
+        })}</h1>
+        <div className="errorMessage">
+          {message}
+        </div>
+        <div className="errorMessage">
+          {errorMessage}
+        </div>
+      </div>
+      <div className="bord">
+        { LeaderArr &&
+          LeaderArr.map((el) => (
+            <div className="place" key={el.player}>
+              <span>{_.truncate((el.player), {
+                'length': 24,
+                'separator': ' '
+              })}</span><span>: {el.score} pts</span>
+            </div>
           ))
         }
-      </ul>
-      {isOwner &&
-        <button onClick={() => isOwner ? reStartGame(roomName) : console.log('gopa')}>
+      </div>
+      <div className="restart">
+        {isOwner &&
+        <a className='button' href='#' onClick={() => isOwner ? reStartGame(roomName) : console.log('gopa')}>
           ReStart Game
-        </button>
-      }
+        </a>
+        }
+      </div>
     </div>
   )
 }
@@ -43,6 +59,7 @@ const mapStateToProps = (state) => (
     gameState: state.gameState,
     scores: state.scores,
     isOwner: state.isOwner,
+    theme: state.theme,
   }
 )
 
