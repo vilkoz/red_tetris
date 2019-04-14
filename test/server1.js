@@ -131,6 +131,7 @@ describe('GameManager.js', () => {
     'getFigure should throw on double call without call to setFigure in between',
     (done) => {
       gameManager.createGame('roomName1', 'playerName1', socket)
+      gameManager.games['roomName1'].isPlaying.playerName1 = true
       gameManager.getFigure('roomName1', 'playerName1')
       chai.expect(() => gameManager.getFigure('roomName1', 'playerName1')).to.throw(Error)
       done()
@@ -139,6 +140,7 @@ describe('GameManager.js', () => {
 
   test('getFigure should save figure to game', (done) => {
     gameManager.createGame('roomName1', 'playerName1', socket)
+    gameManager.games['roomName1'].isPlaying.playerName1 = true
     const figure = gameManager.getFigure('roomName1', 'playerName1')
     chai.expect(figure).to.equal(gameManager.games['roomName1'].figures['playerName1'])
     done()
@@ -191,6 +193,7 @@ describe('GameManager.js', () => {
     'setFigure should throw when player provie invalid figure loaction',
     (done) => {
       gameManager.createGame('roomName1', 'playerName1', socket)
+      gameManager.games['roomName1'].isPlaying.playerName1 = true
       gameManager.getFigure('roomName1', 'playerName1')
       chai.expect(() => gameManager.setFigure('roomName1', 'playerName1', { x: -1, y: 0 })).to.throw(Error)
       chai.expect(() => gameManager.setFigure('roomName1', 'playerName1', { x: 0, y: -1 })).to.throw(Error)
