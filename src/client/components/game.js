@@ -65,7 +65,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   )
 }
 
-export const mapStateToProps = (state) => (
+const mapStateToProps = (state) => (
   {
     roomName: state.roomName,
     playerName: state.playerName,
