@@ -266,33 +266,36 @@ input {
 
 .gameContent {
   display: flex;
-  flex-direction: row;
+  /*flex-direction: row;*/
   /*background-color: green;*/
-  max-height: 70vh;
-  justify-content: center;
+  /*max-height: 70vh;*/
+  /*justify-content: center;*/
 }
 
 .gameContent .spectres {
-  margin-right: 8%;
+  /*width: 25%;*/
 }
 
 .gameContent .spec {
-  max-width: calc(1vh * 10 + 12px);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /*max-width: calc(1vh * 10 + 12px);*/
+  /*overflow: hidden;*/
+  /*text-overflow: ellipsis;*/
+  text-align: center;
 }
 
 .gameContent .spectres .specteField{
   height: 20vh;
+  width: 10vh;
   border: 6px groove #EBAC0C;
   border-radius: 2px;
   margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto
 }
 
 .gameContent .spectres .fieldElemSpectr {
   height: 1vh;
   width: 1vh;
-
   display: inline-flex;
   background-color: gray;
 }
@@ -300,7 +303,6 @@ input {
 .gameContent .spectres .figureElemSpectr {
   height: 1vh;
   width: 1vh;
-
   display: inline-flex;
   background-color: red;
 }
@@ -311,10 +313,25 @@ input {
   height: 1vh;
 }
 
+.fieldCenter {
+  width: 50%;
+}
+
+.fieldLeft {
+  width: 25%;
+}
+
+.fieldRight {
+  width: 25%;
+}
+
 .gameField {
+  width: 35vh;
   height: 70vh;
   border: 8px groove #EBAC0C;
   border-radius: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .gameField .fieldElem {
@@ -370,17 +387,11 @@ input {
 }
 
 .gameContent .leaderbord {
-  margin-left: 8%;
-  max-width: 10%;
-  overflow: scroll;
-  /*overflow: hidden;*/
-  text-overflow: ellipsis;
+  /*overflow: scroll;*/
+  /*text-overflow: ellipsis;*/
 }
 
 .gameContent .leader {
   margin-bottom: 5px;
 }
 
-.gameContent .leaderbord::-webkit-scrollbar {
-  display: none;
-}

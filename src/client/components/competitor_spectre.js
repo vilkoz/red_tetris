@@ -1,6 +1,7 @@
 import React from 'react'
 import './style.css'
 import { StyleSheet, css } from 'aphrodite';
+import _ from "lodash";
 
 const styles = StyleSheet.create({
   fieldElem: {
@@ -20,7 +21,10 @@ const CompetitorSpectre = ({ name, field, score }) => {
   }
   return (
     <div className="spec">
-      <span>{name}: {score ? score : '0'} pts</span>
+      <span>{_.truncate((name), {
+        'length': 14,
+        'separator': ' '
+      })}: {score ? score : '0'} pts</span>
     <div className="specteField">
       {field && field.map((line, rowNum) => (
         <div className="row" key={`row ${rowNum}`}>

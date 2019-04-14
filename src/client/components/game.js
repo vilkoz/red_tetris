@@ -6,6 +6,7 @@ import { getFigureAction, setFigureAction } from '../actions/figure'
 import './style.css'
 import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
+import _ from "lodash";
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, moveFigureListener, gameState,
   score, theme, errorMessage,
@@ -23,28 +24,40 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   console.log(spectreArr)
   return (
     <div className={`game ${theme}`}>
-      <span className="roomname">{roomName}</span>
+      <span className="roomname">{_.truncate((roomName), {
+        'length': 24,
+        'separator': ' '
+      })}</span>
       <br/>
       <span className="errorGamemessage">{errorMessage}</span>
       <div className="gameContent">
-        <div className="spectres">
-          {
-            spectres && spectreArr.map((el, competitorKey) => (
-              competitorKey < 3 && <CompetitorSpectre field={el.field} key={competitorKey} name={el.name} score={el.score} />
-            ))
-          }
+        <div className='fieldLeft'>
+          <div className="spectres">
+            {
+              spectres && spectreArr.map((el, competitorKey) => (
+                competitorKey < 3 && <CompetitorSpectre field={el.field} key={competitorKey} name={el.name} score={el.score} />
+              ))
+            }
+          </div>
         </div>
-        <div className='gameField'>
-          <GameField field={field} figure={figure}/>
+        <div className='fieldCenter'>
+          <div className='gameField'>
+            <GameField field={field} figure={figure}/>
+          </div>
         </div>
-        <div className="leaderbord">
-          <h3>Leaderboard:</h3>
-          <h4>My score: {score ? score : '0'} pts</h4>
-          {
-            spectreArr.map((el, i) => (
-              <div className="leader" key={i}>{el.name}: {el.score ? el.score : '0'} pts</div>
-            ))
-          }
+        <div className="fieldRight">
+          <div className="leaderbord">
+            <h3>Leaderboard:</h3>
+            <h4>My score: {score ? score : '0'} pts</h4>
+            {
+              spectreArr.map((el, i) => (
+                <div className="leader" key={i}>{_.truncate((el.name), {
+                  'length': 14,
+                  'separator': ' '
+                })}: {el.score ? el.score : '0'} pts</div>
+              ))
+            }
+          </div>
         </div>
       </div>
     </div>
@@ -104,6 +117,7 @@ const mapDispatchToProps = (dispatch) => (
       }
     },
     fallFigure: (figure, fallFigureInterval) => {
+      return;
       console.log('interval:', figure, fallFigureInterval)
       if (figure && !fallFigureInterval) {
         const oneSecondInterval = 1000

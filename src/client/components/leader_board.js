@@ -7,7 +7,7 @@ import {
 } from '../actions/server'
 import { changeRouteByState } from '../routes'
 
-const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, scores, isOwner,
+const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gameState, scores, isOwner, theme,
   history, switchGameUrl, toggleReadyState, reStartGame
 }) => {
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })

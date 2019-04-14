@@ -34,7 +34,10 @@ const GameLobby = ({ message, playerName, roomName, gameUrl, errorMessage, gameS
   return (
     <div className='gameLobby'>
       <div className={`playerLobby ${theme}`}>
-        <h1> Game lobby '{roomName}' </h1>
+        <h1> Game lobby '{_.truncate((roomName), {
+          'length': 24,
+          'separator': ' '
+        })}' </h1>
         <div className='errorMessage'>{ errorMessage && <b>{errorMessage}</b>}</div>
         <div className='playerList'>
           { playerReadyList &&
