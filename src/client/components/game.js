@@ -18,9 +18,7 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   _.forOwn(spectres, (el, name) => {
     spectreArr.push({ field: el.field, name, score: el.score })
   })
-  console.log(spectres)
   spectreArr = _.orderBy(spectreArr, ['score'], ['desc'])
-  console.log(spectreArr)
   return (
     <div className={`game ${theme}`}>
       <span className="roomname">{_.truncate((roomName), {
@@ -86,10 +84,10 @@ export const mapStateToProps = (state) => (
     isGameOver: state.isGameOver,
   }
 )
+
 export const mapDispatchToProps = (dispatch) => (
   {
     getFigure: (roomName, playerName) => {
-      console.log('roomName:', roomName, 'playerName:', playerName)
       dispatch(getFigureAction(roomName, playerName))
     },
     moveFigure: (figure, isGameOver) => {
@@ -108,7 +106,7 @@ export const mapDispatchToProps = (dispatch) => (
               return
             }
             const dir = directions[event.keyCode]
-            dispatch({type: `GAME_MOVE_FIGURE_${dir}`})
+            dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
           };
           console.log('add event')
           window.addEventListener('keydown', input);
@@ -124,7 +122,7 @@ export const mapDispatchToProps = (dispatch) => (
         if (figure && !isGameOver) {
           const oneSecondInterval = 1000
           const interval = window.setInterval(() => {
-            dispatch({type: `GAME_MOVE_FIGURE_DOWN`})
+            dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
           }, oneSecondInterval);
           return () => {
             console.log('clear interval')

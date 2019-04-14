@@ -11,7 +11,7 @@ const figureColors = {
   6: 'bg-gray field-cell-full',
 }
 
-const getFigureShadow = (field, figure) => {
+export const getFigureShadow = (field, figure) => {
   const resFigure = { ...figure, figure: figure.figure.map(row => row.map(el => (el !== 0 ? 6 : 0))) }
   if (figure.y === 0 && !checkCollision(figure, field)) {
     return figure
@@ -24,7 +24,7 @@ const getFigureShadow = (field, figure) => {
 }
 
 
-const GameField = ({ field, figure }) => {
+export const GameField = ({ field, figure }) => {
   if (!field) {
     return <div/>
   }

@@ -49,7 +49,7 @@ const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gam
   )
 }
 
-const mapStateToProps = (state) => (
+export const mapStateToProps = (state) => (
   {
     message: state.message,
     roomName: state.roomName,
@@ -63,7 +63,7 @@ const mapStateToProps = (state) => (
   }
 )
 
-const mapDispatchToProps = (dispatch) => (
+export const mapDispatchToProps = (dispatch) => (
   {
     switchGameUrl: (url) => {
       dispatch(switchGameUrlAction(url))

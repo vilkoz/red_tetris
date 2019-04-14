@@ -17,9 +17,10 @@ test('Game test', (done) => {
   const fallFigureMock = jest.fn(()=>{})
   const { getByText } = render(
     <Game
-      message={'error message'}
+      errorMessage={'error message'}
       moveFigure={moveFigureMock}
       fallFigure={fallFigureMock}
+      roomName={'gopa111111111111111111112'}
       spectres={{
         'kos': [[0, 0, 0], [1, 1, 1]],
         'nekos': [[0, 0, 0], [1, 1, 1]],
@@ -27,8 +28,25 @@ test('Game test', (done) => {
     />
   )
   expect(getByText(/error message/)).toHaveTextContent('error message')
+  expect(getByText(/gopa/)).toHaveTextContent('gopa11111111111111111...')
   expect(moveFigureMock.mock.calls.length).toEqual(1)
   expect(fallFigureMock.mock.calls.length).toEqual(1)
+
+  const container = render(
+    <Game
+      errorMessage={'error message'}
+      moveFigure={moveFigureMock}
+      fallFigure={fallFigureMock}
+      roomName={'gopa111111111111111111112'}
+      spectres={{
+        'kos': { field: [[0, 0, 0], [1, 1, 1]], score: 30 },
+        'nekos': { field: [[0, 0, 0], [1, 1, 1]], score: 30 },
+      }}
+      isGameOver={true}
+      score={30}
+    />
+  )
+  expect(container.getByText(/error message/)).toHaveTextContent('error message')
   done()
 })
 
@@ -69,6 +87,7 @@ test('mapStateToProps test', (done) => {
   done()
 })
 
+
 test('mapDispatchToProps test', (done) => {
   const dispatch = jest.fn(() => 'gopa')
   const props = mapDispatchToProps(dispatch)
@@ -77,5 +96,13 @@ test('mapDispatchToProps test', (done) => {
   expect(dispatch.mock.calls[0][0]).toHaveProperty('type')
   props.setFigure()
   expect(dispatch.mock.calls[1][0]).toHaveProperty('type')
+
+  props.switchGameUrl()
+  expect(dispatch.mock.calls[2][0]).toHaveProperty('type')
+
+  // props.moveFigure(true, false)
+  // expect(dispatch.mock.calls[3][0]).toHaveProperty('type')
+  // props.moveFigure(false, true)
+  // expect(dispatch.mock.calls[4][0]).toHaveProperty('type')
   done()
 })

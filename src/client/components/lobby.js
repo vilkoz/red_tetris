@@ -83,7 +83,6 @@ export const mapDispatchToProps = (dispatch) => (
       dispatch({ type: 'SAVE_PLAYER_NAME', playerName })
     },
     createGame: (roomName, playerName) => {
-      console.log('roomName:', roomName, 'playerName:', playerName)
       const sendRoomName = (roomName === '') ? undefined : roomName
       const sendPlayerName = (playerName === '') ? undefined : playerName
       dispatch(createGameAction(sendRoomName, sendPlayerName))

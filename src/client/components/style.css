@@ -297,7 +297,7 @@ input {
   height: 1vh;
   width: 1vh;
   display: inline-flex;
-  background-color: red;
+  /* background-color: red; */
 }
 
 

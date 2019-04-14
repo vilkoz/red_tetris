@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite';
-import _ from "lodash";
+import _ from 'lodash';
 
 const styles = StyleSheet.create({
   fieldElem: {
@@ -19,22 +19,22 @@ const CompetitorSpectre = ({ name, field, score }) => {
     return <div key={name}/>
   }
   return (
-    <div className="spec">
+    <div className='spec'>
       <span>{_.truncate((name), {
         'length': 14,
         'separator': ' '
       })}: {score ? score : '0'} pts</span>
-    <div className="specteField">
-      {field && field.map((line, rowNum) => (
-        <div className="row" key={`row ${rowNum}`}>
-          {line.map((el, colNum) => (
-            <div className={(el !== 0 ? 'figureElemSpectr field-cell-full-spec' : 'fieldElemSpectr field-cell-empty-spec')}
-            key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
+      <div className='specteField'>
+        {field && field.map((line, rowNum) => (
+          <div className='row' key={`row ${rowNum}`}>
+            {line.map((el, colNum) => (
+              <div className={`figureElemSpectr field-cell-${el !== 0 ? 'full' : 'empty'}-spec ${el !== 0 ? 'bg-red' :
+                'bg-gray' }`} key={colNum.toString() + rowNum.toString()}>&nbsp;</div>
             )
-          )}
-        </div>
-      ))}
-    </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
