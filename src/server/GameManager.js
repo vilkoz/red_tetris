@@ -249,7 +249,7 @@ class GameManager {
             x >= figure.x && x < figure.x + rotatedFigure[0].length) {
           const figurePiece = rotatedFigure[y - figure.y][x - figure.x]
           if (figurePiece !== 0 && el !== 0) {
-            throw Error('KO');
+            throw new KoException();
           }
           return (figurePiece !== 0) ? figurePiece : el
         }

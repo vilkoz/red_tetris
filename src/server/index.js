@@ -18,9 +18,9 @@ export const initApp = (app, params, cb) => {
       '/bundle.js': '/../../build/bundle.js',
       '/static/baloochettah.ttf': '/../../static/baloochettah.ttf',
       '/static/font.css': '/../../static/font.css',
-	  '/static/img/confeti.png': '/../../static/img/confeti.png',
-	  '/static/img/podval.jpeg': '/../../static/img/podval.jpeg',
-	  '/static/img/magic.jpeg': '/../../static/img/magic.jpeg',
+      '/static/img/confeti.png': '/../../static/img/confeti.png',
+      '/static/img/podval.jpeg': '/../../static/img/podval.jpeg',
+      '/static/img/magic.jpeg': '/../../static/img/magic.jpeg',
     }
     let file = files[req.url]
     if (!file) {

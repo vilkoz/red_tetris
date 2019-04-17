@@ -4,6 +4,8 @@ import _ from 'lodash'
 
 import * as actions from '../common/action_index'
 
+import KoException from './KoException'
+
 class ActionManager {
   constructor(gameManager, io) {
     this.gameManager = gameManager
@@ -38,8 +40,9 @@ class ActionManager {
       actionFunc({ action, socket })
     }
     catch (e) {
-	  if (e.message === 'KO') {
+      if (e instanceof KoException) {
         this.playerGameOver({ action, socket })
+        return
       }
       socket.emit('action', { type: actions.CLIENT_ERROR, message: e.message })
       logerror(e.message)
