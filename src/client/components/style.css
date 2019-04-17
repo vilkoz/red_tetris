@@ -383,7 +383,7 @@ input {
   margin-bottom: 5px;
 }
 
-.finalLeaderbord {
+.finalLeaderBoard {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -391,26 +391,34 @@ input {
 
 }
 
-.finalLeaderbord .information {
+.finalLeaderBoard .information {
   text-align: center;
   margin-bottom: 40px;
 }
 
-.finalLeaderbord .bord {
+.finalLeaderBoard .board {
   height: 50vh;
   overflow: hidden;
   margin-bottom: 40px;
   width: 70%;
-  border: 8px groove #EBAC0C;
+  /* border: 8px groove #EBAC0C; */
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: url("/static/img/confeti.png") #2A0934;
+  background: #2a0934b8;
+  box-shadow: 0px 0px 50px #000;
+  border-radius: 5px;
+  position: relative;
 }
 
-.finalLeaderbord .bord .place {
+.finalLeaderBoard .board .place {
   margin: 10px;
   font-size: 20px;
   text-shadow: 2px 2px 20px #ebac0c;
+  z-index: 3;
+}
+
+canvas .finalLeaderBoard .board {
+  position: absolute;
 }
 

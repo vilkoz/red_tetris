@@ -5,7 +5,7 @@ import CompetitorSpectre from './competitor_spectre'
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
-import _ from "lodash";
+import _ from 'lodash';
 
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, gameState,
   score, theme, errorMessage, isGameOver,
@@ -21,21 +21,22 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
   spectreArr = _.orderBy(spectreArr, ['score'], ['desc'])
   return (
     <div className={`game ${theme}`}>
-      <span className="roomname">{_.truncate((roomName), {
+      <span className='roomname'>{_.truncate((roomName), {
         'length': 24,
-        'separator': ' '
+        'separator': ' ',
       })}</span>
       <br/>
       {
         isGameOver &&
-          <h1 className="errorGamemessage">{message}</h1>
+          <h1 className='errorGamemessage'>{message}</h1>
       }
-      <div className="gameContent">
+      <div className='gameContent'>
         <div className='fieldLeft'>
-          <div className="spectres">
+          <div className='spectres'>
             {
               spectres && spectreArr.map((el, competitorKey) => (
-                competitorKey < 3 && <CompetitorSpectre field={el.field} key={competitorKey} name={el.name} score={el.score} />
+                competitorKey < 3 &&
+                <CompetitorSpectre field={el.field} key={competitorKey} name={el.name} score={el.score} />
               ))
             }
           </div>
@@ -45,27 +46,27 @@ const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl
             <GameField field={field} figure={figure}/>
           </div>
         </div>
-        <div className="fieldRight">
-          <div className="leaderbord">
+        <div className='fieldRight'>
+          <div className='leaderbord'>
             <h3>Leaderboard:</h3>
             <h4>My score: {score ? score : '0'} pts</h4>
             {
               spectreArr.map((el, i) => (
-                <div className="leader" key={i}>{_.truncate((el.name), {
+                <div className='leader' key={i}>{_.truncate((el.name), {
                   'length': 14,
-                  'separator': ' '
+                  'separator': ' ',
                 })}: {el.score ? el.score : '0'} pts</div>
               ))
             }
           </div>
         </div>
       </div>
-      <span className="errorGamemessage">{errorMessage}</span>
+      <span className='errorGamemessage'>{errorMessage}</span>
     </div>
   )
 }
 
-const mapStateToProps = (state) => (
+export const mapStateToProps = (state) => (
   {
     roomName: state.roomName,
     playerName: state.playerName,
@@ -120,7 +121,7 @@ export const mapDispatchToProps = (dispatch) => (
     fallFigure: (figure, isGameOver) => {
       useEffect(() => {
         if (figure && !isGameOver) {
-          const oneSecondInterval = 500
+          const oneSecondInterval = 1000
           const interval = window.setInterval(() => {
             dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
           }, oneSecondInterval);

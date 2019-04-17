@@ -9,14 +9,13 @@ import { HashRouter } from 'react-router-dom'
 import { storeStateMiddleWare } from './middleware/storeStateMiddleWare'
 import reducer from './reducers'
 import App from './containers/app'
-import { alert, ping } from './actions/alert'
 
 import createSocketIoMiddleWare from 'redux-socket.io'
 import io from 'socket.io-client'
 const socket = io(':3004')
 const socketIoMiddleware = createSocketIoMiddleWare(socket, 'server/')
 
-import { STATE_LOBBY, STATE_GAME_LOBBY, STATE_GAME, STATE_LEADER_BOARD } from '../common/game_states'
+import { STATE_LOBBY } from '../common/game_states'
 
 const initialState = {
   playerName: '',
@@ -25,67 +24,9 @@ const initialState = {
   gameUrl: '/',
   theme: 'default',
 }
-const tempField = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 1, 0, 1, 1, 1, 0, 0, 0],
-  [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-  [0, 0, 1, 1, 1, 1, 1, 0, 0, 0],
-  [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-  [0, 0, 1, 1, 1, 0, 1, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-]
-
-const fakeInitialStateGame = {
-  playerName: 'kosp',
-  roomName: '1241kksla',
-  gameState: STATE_GAME,
-  gameUrl: '/sdasd[adsasd]',
-  score: '150',
-  theme: 'default',
-  message: 'ya ebal tvoy telku uu ya ebal tvoy telku uu ya ebal ebal ebal',
-  field: tempField,
-  spectres: {
-    'player2212131231231231': { field: tempField, score: 1337 },
-    'player22222222222': { field: tempField, score: 11113 },
-    'player3': { field: tempField, score: 5 },
-    'player42121222223441241241241224122412412414124142': { field: tempField, score: 50 },
-  }
-}
-
-const fakeInitialState = {
-  message: 'ebalgopaaaaaaaa ebalgopaaaaaaaaebalgopaaaaaaaa ebalgopaaaaaaaa ebalgopaaaaaaaa',
-  playerName: 'kosp',
-  roomName: '1sadasda241ksadasasdasdasdaddasdksla',
-  gameState: STATE_LEADER_BOARD,
-  gameUrl: '/leader_board/124',
-  errorMessage: 'Error Message Error Message Error Message Error Message',
-  isOwner: true,
-  scores: [
-    {player: 'sraka', score: 1000},
-    {player: 'vilko', score: 2000},
-    {player: 'sraka2', score: 3000},
-    {player: 'sraka3', score: 4000},
-  ],
-  theme: 'podval',
-}
 
 const store = applyMiddleware(socketIoMiddleware)(createStore)(
   reducer,
-  // fakeInitialState,
-  // fakeInitialStateGame,
   initialState,
   applyMiddleware(thunk, createLogger())
 )
@@ -103,7 +44,7 @@ store.subscribe(() => {
 })
 
 let dequeueRunning = false
-store.subscribe((whatisthat) => {
+store.subscribe(() => {
   const { actionQueue } = store.getState()
   if (!dequeueRunning && actionQueue && actionQueue.length > 0) {
     actionQueue.forEach((action, i) => {

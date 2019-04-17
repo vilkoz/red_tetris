@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import _ from 'lodash'
+import Confetti from 'react-confetti'
 import { switchGameUrlAction } from '../actions/route'
 import {
   reStartGameAction
@@ -11,38 +12,39 @@ const LeaderBoard = ({ message, playerName, roomName, gameUrl, errorMessage, gam
   history, switchGameUrl, toggleReadyState, reStartGame
 }) => {
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
-  let LeaderArr = _.orderBy(scores, ['score'], ['desc'])
+  const LeaderArr = _.orderBy(scores, ['score'], ['desc'])
   return (
-    <div className={`finalLeaderbord ${theme}`}>
-      <div className="information">
+    <div className={`finalLeaderBoard ${theme}`}>
+      <div className='information'>
         <h1>{_.truncate((roomName), {
           'length': 24,
-          'separator': ' '
+          'separator': ' ',
         })}</h1>
-        <div className="errorMessage">
-          {message}
+        <div className='errorMessage'>
+          {errorMessage && errorMessage}
         </div>
-        <div className="errorMessage">
-          {errorMessage}
+        <div className='errorMessage'>
+          {message && message !== errorMessage && message}
         </div>
       </div>
-      <div className="bord">
+      <div className='board'>
         { LeaderArr &&
           LeaderArr.map((el) => (
-            <div className="place" key={el.player}>
+            <div className='place' key={el.player}>
               <span>{_.truncate((el.player), {
                 'length': 24,
-                'separator': ' '
+                'separator': ' ',
               })}</span><span>: {el.score} pts</span>
             </div>
           ))
         }
+        <Confetti/>
       </div>
-      <div className="restart">
-        {isOwner &&
-        <a className='button' href='#' onClick={() => isOwner ? reStartGame(roomName) : console.log('gopa')}>
-          ReStart Game
-        </a>
+      <div className='restart'>
+        { isOwner &&
+          <a className='button' href='#' onClick={() => reStartGame(roomName)}>
+            ReStart Game
+          </a>
         }
       </div>
     </div>
