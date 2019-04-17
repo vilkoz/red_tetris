@@ -4,16 +4,19 @@
   "author": "LC",
   "license": "MIT",
   "scripts": {
-    "build": "webpack",
+    "build-dev": "webpack",
+    "build": "babel src --out-dir dist",
     "eslint": "eslint src",
     "client-dist": "NODE_ENV=production webpack --progress --colors",
     "client-dev": "webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080",
     "srv-dev": "DEBUG=tetris:* babel-watch -w src src/server/main.js",
     "srv-dist": "DEBUG=tetris:* babel src --out-dir dist",
     "test": "jest --config package.json",
-    "coverage": "jest --config package.json --coverage"
+    "coverage": "jest --config package.json --coverage",
+    "start" : "node dist/server/main.js"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.3",
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
@@ -33,7 +36,8 @@
     "style-loader": "^0.23.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
     "@babel/plugin-proposal-class-properties": "^7.4.0",
     "@babel/plugin-proposal-decorators": "^7.0.0",
     "@babel/plugin-proposal-do-expressions": "^7.0.0",
@@ -50,7 +54,7 @@
     "@babel/plugin-proposal-throw-expressions": "^7.0.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-syntax-import-meta": "^7.2.0",
-    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-stage-3": "^7.0.0",
     "@babel/register": "^7.4.0",
