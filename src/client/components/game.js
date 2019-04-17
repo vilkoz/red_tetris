@@ -7,12 +7,14 @@ import { changeRouteByState } from '../routes'
 import { switchGameUrlAction } from '../actions/route'
 import _ from 'lodash';
 
+import { createListenerAction, createFallIntervalAction } from '../actions/listener'
+
 const Game = ({ message, playerName, roomName, field, figure, getFigure, gameUrl, gameState,
-  score, theme, errorMessage, isGameOver,
+  score, theme, errorMessage, isGameOver, moveFigureListener, inputListener, fallInterval,
   spectres, scores, switchGameUrl, history, moveFigure, setFigure, fallFigure
 }) => {
-  moveFigure(figure, isGameOver)
-  fallFigure(figure, isGameOver)
+  moveFigure(inputListener, isGameOver)
+  fallFigure(fallInterval, isGameOver)
   changeRouteByState({ roomName, playerName, history, gameUrl, gameState, switchGameUrl })
   let spectreArr = []
   _.forOwn(spectres, (el, name) => {
@@ -76,8 +78,8 @@ export const mapStateToProps = (state) => (
     figure: state.figure,
     message: state.message,
     errorMessage: state.errorMessage,
-    moveFigureListener: state.moveFigureListener,
-    fallFigureInterval: state.fallFigureInterval,
+    inputListener: state.inputListener,
+    fallInterval: state.fallInterval,
     spectres: state.spectres,
     score: state.score,
     theme: state.theme,
@@ -91,46 +93,35 @@ export const mapDispatchToProps = (dispatch) => (
     getFigure: (roomName, playerName) => {
       dispatch(getFigureAction(roomName, playerName))
     },
-    moveFigure: (figure, isGameOver) => {
-      useEffect(() => {
-        if (figure && !isGameOver) {
-          const input = event => {
-            console.log(event.keyCode);
-            const directions = {
-              38: 'ROTATE',
-              37: 'LEFT',
-              39: 'RIGHT',
-              40: 'DOWN',
-              32: 'MAX_DOWN',
-            }
-            if (!(event.keyCode in directions)) {
-              return
-            }
-            const dir = directions[event.keyCode]
-            dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
-          };
-          console.log('add event')
-          window.addEventListener('keydown', input);
-          return () => {
-            console.log('remove event list')
-            window.removeEventListener('keydown', input);
-          };
+    moveFigure: (inputListener, isGameOver) => {
+      if (!inputListener && !isGameOver) {
+        const input = event => {
+          console.log(event.keyCode);
+          const directions = {
+            38: 'ROTATE',
+            37: 'LEFT',
+            39: 'RIGHT',
+            40: 'DOWN',
+            32: 'MAX_DOWN',
+          }
+          if (!(event.keyCode in directions)) {
+            return
+          }
+          event.preventDefault()
+          const dir = directions[event.keyCode]
+          dispatch({ type: `GAME_MOVE_FIGURE_${dir}` })
         }
-      });
+
+        dispatch(createListenerAction(input))
+      }
     },
-    fallFigure: (figure, isGameOver) => {
-      useEffect(() => {
-        if (figure && !isGameOver) {
-          const oneSecondInterval = 1000
-          const interval = window.setInterval(() => {
-            dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
-          }, oneSecondInterval);
-          return () => {
-            console.log('clear interval')
-            window.clearInterval(interval);
-          };
+    fallFigure: (fallInterval, isGameOver) => {
+      if (!fallInterval && !isGameOver) {
+        const interval = () => {
+          dispatch({ type: 'GAME_MOVE_FIGURE_DOWN' })
         }
-      });
+        dispatch(createFallIntervalAction(interval))
+      }
     },
     setFigure: (roomName, playerName, figure) => {
       dispatch(setFigureAction(roomName, playerName, figure))

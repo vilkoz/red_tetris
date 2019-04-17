@@ -16,6 +16,12 @@ import {
 import { getFigureAction, setFigureAction } from '../actions/figure'
 import { gameOverAction } from '../actions/server'
 import {
+  clearListenerAction,
+  setListenerAction,
+  clearFallIntrevalAction,
+  setFallIntrevalAction,
+} from '../actions/listener'
+import {
   STATE_LOBBY,
   STATE_GAME_LOBBY,
   STATE_GAME,
@@ -147,10 +153,17 @@ export const reducer = (state = {}, action) => {
     }
   case 'client/get_figure':
     return { ...state, message: action.message, errorMessage: undefined,
-      figure: { x: 0, y: 0, figure: action.figure, rotations: 0 } }
+      figure: { x: 0, y: 0, figure: action.figure, rotations: 0 },
+      actionQueue: enqueueAction(setListenerAction(state.inputListener), state).concat([
+        setFallIntrevalAction(),
+      ]),
+    }
   case 'client/set_figure':
     return { ...state, message: action.message, field: action.field, figure: undefined, score: action.score,
-      actionQueue: enqueueAction(getFigureAction(state.roomName, state.playerName), state),
+      actionQueue: enqueueAction(clearListenerAction(state.inputListener), state).concat([
+        clearFallIntrevalAction(),
+        getFigureAction(state.roomName, state.playerName)
+      ]),
     }
   case 'client/new_player':
     const players = { ...state.players }
@@ -230,12 +243,24 @@ export const reducer = (state = {}, action) => {
       actionQueue: enqueueAction(setFigureAction(state.roomName, state.playerName, state.figure), state)
     }
   case 'GAME_SET_MOVE_LISTENER':
+    window.addEventListener('keydown', action.moveFigureListener);
     return { ...state, moveFigureListener: action.moveFigureListener }
+  case 'GAME_CREATE_MOVE_LISTENER':
+    return { ...state, inputListener: action.inputListener }
   case 'GAME_CLEAR_MOVE_LISTENER':
+    window.removeEventListener('keydown', state.moveFigureListener);
     return { ...state, moveFigureListener: undefined }
+  case 'GAME_CREATE_FALL_INTERVAL':
+    return { ...state, fallInterval: action.fallInterval }
   case 'GAME_SET_FALL_INTERVAL':
-    return { ...state, fallFigureInterval: action.fallFigureInterval }
+    if (state.fallFigureInterval) {
+      return state
+    }
+    const oneSecondInterval = 1000
+    const interval = window.setInterval(state.fallInterval, oneSecondInterval)
+    return { ...state, fallFigureInterval: interval }
   case 'GAME_CLEAR_FALL_INTERVAL':
+    window.clearInterval(state.fallFigureInterval)
     return { ...state, fallFigureInterval: undefined }
   case CLIENT_UPDATE_COMPETITOR_SPECTRE:
     return { ...state, spectres: { ...state.spectres, [action.name]: { field: action.spectre, score: action.score } } }
@@ -248,7 +273,12 @@ export const reducer = (state = {}, action) => {
   case CLIENT_UPDATE_FIELD:
     return { ...state, field: action.field }
   case CLIENT_GAME_OVER:
-    return { ...state, message: 'Game Over', isGameOver: true, figure: undefined }
+    return { ...state, message: 'Game Over', isGameOver: true, figure: undefined,
+      actionQueue: enqueueAction(clearListenerAction(state.inputListener), state).concat([
+        clearFallIntrevalAction(state.fallInterval),
+      ]),
+      inputListener: undefined,
+    }
   default:
     return state
   }
