@@ -1,6 +1,7 @@
 const path = require('path');
+const webpack = require('webpack')
 
-module.exports = {
+module.exports = env => ({
   entry: './src/client/index.js',
 
   output: {
@@ -26,4 +27,7 @@ module.exports = {
     port: 8080,
     disableHostCheck: true,
   },
-};
+  plugins: [
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'PORT']),
+  ],
+});

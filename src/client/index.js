@@ -12,7 +12,14 @@ import App from './containers/app'
 
 import createSocketIoMiddleWare from 'redux-socket.io'
 import io from 'socket.io-client'
-const socket = io(':3004')
+
+let socket
+if (process.env.NODE_ENV === 'production') {
+  socket = io()
+}
+else {
+  socket = io(':3004')
+}
 const socketIoMiddleware = createSocketIoMiddleWare(socket, 'server/')
 
 import { STATE_LOBBY } from '../common/game_states'
