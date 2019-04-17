@@ -31,7 +31,7 @@ export const initApp = (app, params, cb) => {
       if (err) {
         logerror(err)
         res.writeHead(500)
-        return res.end('Error loading index.html')
+        return res.end(`Error loading ${path.join(__dirname, file)}`)
       }
       res.writeHead(200)
       res.end(data)

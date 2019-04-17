@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build-dev": "webpack",
-    "build": "babel src --out-dir dist",
+    "build": "NODE_ENV=production babel src --out-dir dist; webpack",
     "eslint": "eslint src",
     "client-dist": "NODE_ENV=production webpack --progress --colors",
     "client-dev": "webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080",
@@ -13,7 +13,7 @@
     "srv-dist": "DEBUG=tetris:* babel src --out-dir dist",
     "test": "jest --config package.json",
     "coverage": "jest --config package.json --coverage",
-    "start" : "node dist/server/main.js"
+    "start" : "NODE_ENV=production node dist/server/main.js"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.3",
