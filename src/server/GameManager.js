@@ -6,6 +6,7 @@ import {
   STATE_GAME,
   STATE_LEADER_BOARD,
 } from '../common/game_states.js'
+import KoException from './KoException'
 
 class GameManager {
   constructor() {
